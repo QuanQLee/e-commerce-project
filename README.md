@@ -34,3 +34,4 @@ docker run -p 5000:80 catalog.api
 ## Service Documentation
 
 Each service keeps its own README describing API contracts and configuration. See `services/<service>/README.md` for details specific to a service. A short `Minimum.md` file in each service provides just the essential integration info (base URLs, required headers, example request).
+OpenAPI specifications (for example `services/Catalog/openapi.yaml`) can be used to generate API documentation or validate service contracts.
