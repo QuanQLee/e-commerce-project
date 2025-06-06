@@ -79,6 +79,44 @@ services:
       - "7001:7001"  # gRPC
       - "7002:8080"  # HTTP
 
+  # --------------------
+  # 5. Security.API 服务
+  # --------------------
+  security.api:
+    build:
+      context: ./Security
+      dockerfile: Dockerfile
+    image: security.api:dev
+    container_name: security-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: development
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://pg:5432/catalog"
+      SPRING_DATASOURCE_USERNAME: catalog_admin
+      SPRING_DATASOURCE_PASSWORD: P@ssw0rd!
+    ports:
+      - "8082:8082"
+
+  # --------------------
+  # 6. Gateway
+  # --------------------
+  gateway:
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+    image: gateway:dev
+    container_name: api-gateway
+    depends_on:
+      - catalog.api
+      - order.api
+      - payment.api
+      - security.api
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+
 # --------------- 持久化 Postgres 数据 ---------------
 volumes:
   pgdata:

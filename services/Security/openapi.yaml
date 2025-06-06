@@ -1,0 +1,130 @@
+openapi: 3.1.0
+info:
+  title: Security API
+  version: v1
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: token response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+  /risk/order-check:
+    post:
+      summary: Order risk check
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskCheckRequest'
+      responses:
+        '200':
+          description: result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskCheckResponse'
+  /risk/payment-check:
+    post:
+      summary: Payment risk check
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskCheckRequest'
+      responses:
+        '200':
+          description: result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskCheckResponse'
+  /rate-limit:
+    post:
+      summary: Rate limit check
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateLimitRequest'
+      responses:
+        '200':
+          description: result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitResponse'
+  /audit:
+    post:
+      summary: Audit log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditLog'
+      responses:
+        '202':
+          description: accepted
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+    RiskCheckRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        action:
+          type: string
+    RiskCheckResponse:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+        reason:
+          type: string
+    RateLimitRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        action:
+          type: string
+    RateLimitResponse:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+    AuditLog:
+      type: object
+      properties:
+        userId:
+          type: string
+        action:
+          type: string
+        detail:
+          type: string
