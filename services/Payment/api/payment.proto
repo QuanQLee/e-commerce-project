@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "payment/api";
+
+import "google/api/annotations.proto";
+
+service PaymentService {
+  rpc CreatePayment (CreatePaymentRequest) returns (PaymentResponse) {
+    option (google.api.http) = {
+      post: "/v1/payment"
+      body: "*"
+    };
+  };
+}
+
+message CreatePaymentRequest {
+  string order_id = 1;
+  double amount = 2;
+}
+
+message PaymentResponse {
+  string payment_id = 1;
+  string status = 2;
+}

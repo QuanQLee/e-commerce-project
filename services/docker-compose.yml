@@ -61,6 +61,24 @@ services:
      # volumes:
     #   - ./:/app
 
+  # --------------------
+  # 4. Payment.API 服务
+  # --------------------
+  payment.api:
+    build:
+      context: ./Payment
+      dockerfile: Dockerfile
+    image: payment.api:dev
+    container_name: payment-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      ConnectionStrings__PaymentDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "7001:7001"  # gRPC
+      - "7002:8080"  # HTTP
+
 # --------------- 持久化 Postgres 数据 ---------------
 volumes:
   pgdata:
