@@ -12,5 +12,4 @@ RUN dotnet publish "Catalog.csproj" -c Release -o /app/publish /p:UseAppHost=fal
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-RUN ls -al /app     # <-- 关键调试！加一行查看构建后目录内容
 ENTRYPOINT ["dotnet", "Catalog.dll"]
