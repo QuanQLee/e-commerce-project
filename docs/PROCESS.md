@@ -48,7 +48,7 @@ You can extend the workflow to push images to a registry or deploy to Kubernetes
 
 ## 5. API Gateway
 
-An API gateway (for example [YARP](https://github.com/microsoft/reverse-proxy)) routes traffic to the individual services. Each service registers its OpenAPI document with the gateway so that the contracts can be validated centrally.
+The stack uses [Kong Gateway 3.x](https://docs.konghq.com/gateway/) running from the `services/Gateway` container. Routes are declared in `kong.yml` and share the `/api/v1/` prefix. Kong applies authentication, authorisation and rate limiting while exposing Prometheus metrics. When a new service is added, generate its `openapi.yaml`, update `kong.yml` and let the CI pipeline sync the gateway.
 
 ```
 client ──▶ gateway ──▶ catalog.api

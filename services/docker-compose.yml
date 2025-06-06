@@ -1,8 +1,5 @@
-﻿version: "3.9"
+version: "3.9"
 services:
-  # --------------------
-  # 1. PostgreSQL 服务
-  # --------------------
   pg:
     image: postgres:16-alpine
     container_name: catalog-postgres
@@ -16,31 +13,22 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  # --------------------
-  # 2. Catalog.API 服务
-  # --------------------
-  catalog.api:                      # （A）Service 名称
+  catalog.api:
     build:
-      context: .                    # 指向你存放 Dockerfile 的目录（当前目录）
-      dockerfile: Dockerfile        # 你项目里的 Dockerfile 文件名
-    image: catalog.api:dev          # （B）本地镜像名字，可自定义
-    container_name: catalog-api     # （C）容器名，方便后续通过 docker logs catalog-api 查日志
+      context: ./Catalog
+      dockerfile: Dockerfile
+    image: catalog.api:dev
+    container_name: catalog-api
     depends_on:
-      - pg                          # 保证 PostgreSQL 先启动
+      - pg
     restart: unless-stopped
     environment:
-      # 让 ASP.NET Core 以 Development 模式启动，确保 Swagger 被注入
-      ASPNETCORE_ENVIRONMENT: Development    
-
-      # 把连接字符串指向 pg 服务（注意 Host=pg，而不是 localhost）
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
     ports:
-      - "5000:80"                   # 容器内部 80 端口映射到主机 5000
-      - "5001:443"                  # 容器内部 443 端口映射到主机 5001
+      - "5000:80"
+      - "5001:443"
 
-  # --------------------
-  # 3. Order.API 服务
-  # --------------------
   order.api:
     build:
       context: ./Order
@@ -56,9 +44,6 @@ services:
     ports:
       - "5002:80"
 
-  # --------------------
-  # 4. User.API 服务
-  # --------------------
   user.api:
     build:
       context: ./User
@@ -74,14 +59,21 @@ services:
     ports:
       - "5003:80"
 
-    # （可选）将当前代码目录挂载到容器 /app。这样你本地改代码，容器里一般可以 Live Reload
-    # 如果你不需要热重载，可以删掉这两行
-     # volumes:
-    #   - ./:/app
+  shipping.api:
+    build:
+      context: ./Shipping
+      dockerfile: Dockerfile
+    image: shipping.api:dev
+    container_name: shipping-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__ShippingDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "5004:80"
 
-  # --------------------
-  # 5. Payment.API 服务
-  # --------------------
   payment.api:
     build:
       context: ./Payment
@@ -94,15 +86,73 @@ services:
     environment:
       ConnectionStrings__PaymentDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
     ports:
-      - "7001:7001"  # gRPC
-      - "7002:8080"  # HTTP
+      - "7001:7001"
+      - "7002:8080"
 
-  # --------------------
+  analytics.api:
+    build:
+      context: ./Analytics
+      dockerfile: Dockerfile
+    image: analytics.api:dev
+    container_name: analytics-api
     depends_on:
       - pg
     restart: unless-stopped
     environment:
+      DATABASE_DSN: "postgresql://catalog_admin:P@ssw0rd!@pg:5432/catalog"
+    ports:
+      - "8000:8000"
 
-# --------------- 持久化 Postgres 数据 ---------------
+  auth.api:
+    build:
+      context: ./Auth
+      dockerfile: Dockerfile
+    image: auth.api:dev
+    container_name: auth-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "7000:80"
+
+  security.api:
+    build:
+      context: ./Security
+      dockerfile: Dockerfile
+    image: security.api:dev
+    container_name: security-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+
+  gateway:
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+    image: kong.gateway:dev
+    container_name: gateway
+    depends_on:
+      - catalog.api
+      - order.api
+      - user.api
+      - shipping.api
+      - payment.api
+      - analytics.api
+      - auth.api
+      - security.api
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+    volumes:
+      - ./Gateway/kong.yml:/kong/kong.yml:ro
+    ports:
+      - "80:8000"
+      - "8001:8001"
+
 volumes:
   pgdata:
