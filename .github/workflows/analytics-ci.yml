@@ -1,0 +1,33 @@
+name: Analytics CI
+
+on:
+  push:
+    paths:
+      - 'services/Analytics/**'
+  pull_request:
+    paths:
+      - 'services/Analytics/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Poetry
+        run: |
+          pip install poetry
+      - name: Install dependencies
+        working-directory: services/Analytics
+        run: |
+          poetry install --no-interaction
+      - name: Run tests
+        working-directory: services/Analytics
+        run: |
+          poetry run pytest --cov
+      - name: Build Docker image
+        working-directory: services/Analytics
+        run: |
+          docker build -t analytics.api .

@@ -1,0 +1,63 @@
+openapi: 3.1.0
+info:
+  title: Analytics API
+  version: v1
+paths:
+  /metrics:
+    get:
+      summary: Get aggregated metrics
+      responses:
+        '200':
+          description: Metrics list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+  /prometheus:
+    get:
+      summary: Prometheus metrics endpoint
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+  /events:
+    post:
+      summary: Submit analytics event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '200':
+          description: Acknowledgement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+components:
+  schemas:
+    Event:
+      type: object
+      properties:
+        event_type:
+          type: string
+        payload:
+          type: object
+          additionalProperties: true
+      required:
+        - event_type
+        - payload
+    EventResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        event:
+          $ref: '#/components/schemas/Event'
