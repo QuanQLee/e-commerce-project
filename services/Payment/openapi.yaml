@@ -1,0 +1,38 @@
+openapi: 3.1.0
+info:
+  title: Payment API
+  version: v1
+paths:
+  /v1/payment:
+    post:
+      summary: Create payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '200':
+          description: payment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+components:
+  schemas:
+    CreatePaymentRequest:
+      type: object
+      properties:
+        order_id:
+          type: string
+        amount:
+          type: number
+          format: double
+    PaymentResponse:
+      type: object
+      properties:
+        payment_id:
+          type: string
+        status:
+          type: string
