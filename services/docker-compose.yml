@@ -103,10 +103,7 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
 
-    ports:
-      - "5003:80"
 
 # --------------- 持久化 Postgres 数据 ---------------
 volumes:
