@@ -9,8 +9,6 @@ This repository contains microservices that together form a small e-commerce pla
 - **Services**:
   - **Catalog** – manages products under `services/Catalog`.
   - **Order** – handles customer orders under `services/Order`.
-  - **Payment** – processes payments using Go under `services/Payment`.
-  - **User** – manages user accounts under `services/User`.
 
 ## Building and Running
 
