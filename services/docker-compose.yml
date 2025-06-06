@@ -79,6 +79,24 @@ services:
       - "7001:7001"  # gRPC
       - "7002:8080"  # HTTP
 
+  # --------------------
+  # 5. Auth.API 服务
+  # --------------------
+  auth.api:
+    build:
+      context: ./Auth
+      dockerfile: Dockerfile
+    image: auth.api:dev
+    container_name: auth-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "5003:80"
+
 # --------------- 持久化 Postgres 数据 ---------------
 volumes:
   pgdata:
