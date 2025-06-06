@@ -8,6 +8,14 @@ This repository contains microservices that together form a small e-commerce pla
   - **Catalog** – manages products under `services/Catalog`.
   - **Order** – handles customer orders under `services/Order`.
 
+## Gateway
+
+All services are exposed through a single Kong Gateway container. Requests share the `/api/v1/` prefix and are routed according to `services/Gateway/kong.yml`. The gateway applies authentication, ACL-based authorisation, rate limiting and Prometheus metrics. Stress test endpoints with [`hey`](https://github.com/rakyll/hey), for example:
+
+```bash
+hey -z 30s http://localhost/api/v1/catalog/products
+```
+
 
 ## Building and Running
 
