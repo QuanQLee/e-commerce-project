@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Order API
+  version: v1
+paths:
+  /orders:
+    get:
+      summary: Get all orders
+      responses:
+        '200':
+          description: List of orders
+    post:
+      summary: Create order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderDto'
+      responses:
+        '201':
+          description: Created
+  /orders/{id}:
+    get:
+      summary: Get order by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order
+        '404':
+          description: Not found
+components:
+  schemas:
+    CreateOrderDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderItemDto'
+    CreateOrderItemDto:
+      type: object
+      properties:
+        productName:
+          type: string
+        price:
+          type: number
+          format: decimal
