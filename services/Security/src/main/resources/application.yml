@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: security-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/catalog
+    username: catalog_admin
+    password: P@ssw0rd!
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      schema: security
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8082

@@ -98,12 +98,10 @@ services:
       - "7002:8080"  # HTTP
 
   # --------------------
-
     depends_on:
       - pg
     restart: unless-stopped
     environment:
-
 
 # --------------- 持久化 Postgres 数据 ---------------
 volumes:
