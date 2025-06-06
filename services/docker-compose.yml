@@ -134,7 +134,7 @@ services:
     build:
       context: ./Gateway
       dockerfile: Dockerfile
-    image: gateway:dev
+    image: kong.gateway:dev
     container_name: gateway
     depends_on:
       - catalog.api
@@ -145,8 +145,14 @@ services:
       - analytics.api
       - auth.api
       - security.api
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+    volumes:
+      - ./Gateway/kong.yml:/kong/kong.yml:ro
     ports:
-      - "80:80"
+      - "80:8000"
+      - "8001:8001"
 
 volumes:
   pgdata:

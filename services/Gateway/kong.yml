@@ -1,0 +1,78 @@
+_format_version: '3.0'
+_transform: true
+
+services:
+  - name: catalog
+    url: http://catalog.api:80
+    routes:
+      - name: catalog
+        paths:
+          - /api/v1/catalog
+        strip_path: true
+
+  - name: order
+    url: http://order.api:80
+    routes:
+      - name: order
+        paths:
+          - /api/v1/order
+        strip_path: true
+
+  - name: user
+    url: http://user.api:80
+    routes:
+      - name: user
+        paths:
+          - /api/v1/user
+        strip_path: true
+
+  - name: shipping
+    url: http://shipping.api:80
+    routes:
+      - name: shipping
+        paths:
+          - /api/v1/shipping
+        strip_path: true
+
+  - name: payment
+    url: http://payment.api:8080
+    routes:
+      - name: payment
+        paths:
+          - /api/v1/payment
+        strip_path: true
+
+  - name: analytics
+    url: http://analytics.api:8000
+    routes:
+      - name: analytics
+        paths:
+          - /api/v1/analytics
+        strip_path: true
+
+  - name: auth
+    url: http://auth.api:80
+    routes:
+      - name: auth
+        paths:
+          - /api/v1/auth
+        strip_path: true
+
+  - name: security
+    url: http://security.api:8082
+    routes:
+      - name: security
+        paths:
+          - /api/v1/security
+        strip_path: true
+
+plugins:
+  - name: key-auth
+  - name: acl
+    config:
+      allow: [public]
+  - name: rate-limiting
+    config:
+      minute: 60
+      policy: local
+  - name: prometheus
