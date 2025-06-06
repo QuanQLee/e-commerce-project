@@ -4,35 +4,36 @@ This repository contains microservices that together form a small e-commerce pla
 
 ## Architecture
 
-- **Gateway** – incoming requests are routed through an API gateway (not yet in this repo). Services run behind the gateway.
-- **PostgreSQL** – one database is used, but each service stores data in its own schema.
+- **Gateway** – incoming requests are routed through an API gateway. Each service exposes an OpenAPI contract and the gateway forwards requests accordingly.
+- **PostgreSQL** – one database instance; every service stores data in its own schema.
 - **Services**:
-  - **Catalog** – manages products. Implemented under `services/Catalog`.
+  - **Catalog** – manages products under `services/Catalog`.
   - **Order** – handles customer orders under `services/Order`.
-  - **Payment** – processes payments using Go and gRPC Gateway under `services/Payment`.
-  - **Shipping** – handles shipment records using .NET 8 under `services/Shipping`.
 
 ## Building and Running
 
-From the `services` directory you can spin up the existing stack:
+From the `services` directory you can spin up the entire stack:
 
 ```bash
 docker compose up --build
 ```
 
-This starts PostgreSQL and the `catalog.api` container. The compose file will evolve as more services (such as `Order` and `Payment`) are added.
-
-You can build and run a service individually as well:
+Run a service individually with Docker:
 
 ```bash
 cd services/Catalog
-# build
 docker build -t catalog.api .
-# run
 docker run -p 5000:80 catalog.api
 ```
 
 ## Service Documentation
 
-Each service keeps its own README describing API contracts and configuration. See `services/<service>/README.md` for details specific to a service. A short `Minimum.md` file in each service provides just the essential integration info (base URLs, required headers, example request).
-OpenAPI specifications (for example `services/Catalog/openapi.yaml`) can be used to generate API documentation or validate service contracts.
+Each service keeps a README describing API contracts and configuration. See `services/<service>/README.md` for details. A short `Minimum.md` in each service provides just the base URL and required headers. OpenAPI specifications (e.g. `openapi.yaml`) allow contracts to be validated and aggregated by the gateway.
+
+## Continuous Integration
+
+A GitHub Actions workflow in `.github/workflows/ci.yml` restores dependencies, runs all unit tests and builds Docker images for the services on every push.
+
+## Deployment Workflow
+
+Development and deployment steps are documented in `docs/PROCESS.md`. The document covers local testing, CI tasks, how the gateway routes requests and how to deploy the stack with Docker or Kubernetes.
