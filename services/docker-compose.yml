@@ -56,13 +56,31 @@ services:
     ports:
       - "5002:80"
 
+  # --------------------
+  # 4. User.API 服务
+  # --------------------
+  user.api:
+    build:
+      context: ./User
+      dockerfile: Dockerfile
+    image: user.api:dev
+    container_name: user-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__UserDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "5003:80"
+
     # （可选）将当前代码目录挂载到容器 /app。这样你本地改代码，容器里一般可以 Live Reload
     # 如果你不需要热重载，可以删掉这两行
      # volumes:
     #   - ./:/app
 
   # --------------------
-  # 4. Payment.API 服务
+  # 5. Payment.API 服务
   # --------------------
   payment.api:
     build:
@@ -80,20 +98,13 @@ services:
       - "7002:8080"  # HTTP
 
   # --------------------
-  # 5. Auth.API 服务
-  # --------------------
-  auth.api:
-    build:
-      context: ./Auth
-      dockerfile: Dockerfile
-    image: auth.api:dev
-    container_name: auth-api
+
     depends_on:
       - pg
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+
     ports:
       - "5003:80"
 
