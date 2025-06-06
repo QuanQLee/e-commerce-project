@@ -1,0 +1,48 @@
+﻿version: "3.9"
+services:
+  # --------------------
+  # 1. PostgreSQL 服务
+  # --------------------
+  pg:
+    image: postgres:16-alpine
+    container_name: catalog-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: catalog_admin
+      POSTGRES_PASSWORD: P@ssw0rd!
+      POSTGRES_DB: catalog
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # --------------------
+  # 2. Catalog.API 服务
+  # --------------------
+  catalog.api:                      # （A）Service 名称
+    build:
+      context: .                    # 指向你存放 Dockerfile 的目录（当前目录）
+      dockerfile: Dockerfile        # 你项目里的 Dockerfile 文件名
+    image: catalog.api:dev          # （B）本地镜像名字，可自定义
+    container_name: catalog-api     # （C）容器名，方便后续通过 docker logs catalog-api 查日志
+    depends_on:
+      - pg                          # 保证 PostgreSQL 先启动
+    restart: unless-stopped
+    environment:
+      # 让 ASP.NET Core 以 Development 模式启动，确保 Swagger 被注入
+      ASPNETCORE_ENVIRONMENT: Development    
+
+      # 把连接字符串指向 pg 服务（注意 Host=pg，而不是 localhost）
+      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "5000:80"                   # 容器内部 80 端口映射到主机 5000
+      - "5001:443"                  # 容器内部 443 端口映射到主机 5001
+
+    # （可选）将当前代码目录挂载到容器 /app。这样你本地改代码，容器里一般可以 Live Reload
+    # 如果你不需要热重载，可以删掉这两行
+     # volumes:
+    #   - ./:/app
+
+# --------------- 持久化 Postgres 数据 ---------------
+volumes:
+  pgdata:
