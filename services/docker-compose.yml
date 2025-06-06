@@ -79,6 +79,23 @@ services:
       - "7001:7001"  # gRPC
       - "7002:8080"  # HTTP
 
+  # --------------------
+  # 5. Analytics.API 服务
+  # --------------------
+  analytics.api:
+    build:
+      context: ./Analytics
+      dockerfile: Dockerfile
+    image: analytics.api:dev
+    container_name: analytics-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      ConnectionStrings__AnalyticsDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "5003:8000"
+
 # --------------- 持久化 Postgres 数据 ---------------
 volumes:
   pgdata:

@@ -10,6 +10,7 @@ This repository contains microservices that together form a small e-commerce pla
   - **Catalog** – manages products. Implemented under `services/Catalog`.
   - **Order** – handles customer orders under `services/Order`.
   - **Payment** – processes payments using Go and gRPC Gateway under `services/Payment`.
+  - **Analytics** – collects events and exposes metrics under `services/Analytics`.
 
 ## Building and Running
 
