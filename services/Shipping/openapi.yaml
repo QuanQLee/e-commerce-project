@@ -1,0 +1,108 @@
+openapi: 3.1.0
+info:
+  title: Shipping API
+  version: v1
+paths:
+  /shipments:
+    get:
+      summary: Get all shipments
+      responses:
+        '200':
+          description: List of shipments
+    post:
+      summary: Create shipment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShipmentDto'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: string
+  /shipments/{id}/tracking:
+    get:
+      summary: Get tracking info for a shipment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tracking details
+        '404':
+          description: Not found
+  /rates/calculate:
+    post:
+      summary: Calculate shipping rate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateRequest'
+      responses:
+        '200':
+          description: Calculated rate
+          content:
+            application/json:
+              schema:
+                type: number
+  /shipments/{id}/exception:
+    post:
+      summary: Sign off shipment exception
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Exception recorded
+  /labels/callback:
+    post:
+      summary: Callback for shipping label
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '204':
+          description: Accepted
+  /shipments/{id}:
+    get:
+      summary: Get shipment by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Shipment
+        '404':
+          description: Not found
+components:
+  schemas:
+    CreateShipmentDto:
+      type: object
+      properties:
+        orderId:
+          type: string
+    RateRequest:
+      type: object
+      properties:
+        weight:
+          type: number
+        destination:
+          type: string
