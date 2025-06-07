@@ -4,6 +4,7 @@ This service provides authentication via Duende IdentityServer on .NET 8. It sto
 
 ## 环境变量
 - `ConnectionStrings__AuthDb`: PostgreSQL connection string, e.g. `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!`.
+- `PORT`: Optional HTTP port for the service (default `80`).
 
 ## Database Schema
 The default schema is `auth` and will contain IdentityServer tables for persisted grants and configuration.

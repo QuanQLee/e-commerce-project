@@ -9,7 +9,10 @@ using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://0.0.0.0:80");
+// Allow the listening port to be overridden via the PORT environment variable
+// so the container can adapt to different hosting environments. Default is 80.
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddDbContext<AuthDbContext>(options =>
 {
