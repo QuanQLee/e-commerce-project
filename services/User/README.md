@@ -15,10 +15,10 @@ The project targets .NET 8 and references Rebus and Quartz packages. You can bui
 docker build -t user.api .
 ```
 
-Then run with:
+Then run with Docker Compose:
 
 ```bash
-docker run -p 5003:80 user.api
+docker compose up --build
 ```
 
 See `Minimum.md` for integration details and `openapi.yaml` for the full API contract.

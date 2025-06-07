@@ -15,3 +15,9 @@
 
 ## Quartz
 `Program.cs` 中已注册 Quartz，可在 `Quartz` 任务中实现后台作业。
+
+## Docker Compose
+在此目录运行以下命令以启动服务与本地 PostgreSQL：
+```bash
+docker compose up --build
+```

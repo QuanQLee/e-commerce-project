@@ -32,18 +32,11 @@ poetry run uvicorn app.main:app --reload
 
 ## Docker
 
-Build and run using Docker:
+Run the service with Docker Compose from this directory:
 ```bash
-docker build -t analytics.api .
-docker run -p 8000:8000 \
-  -e ConnectionStrings__AnalyticsDb="Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!" \
-  analytics.api
+docker compose up --build
 ```
-You can also spin up the whole stack with the root `docker-compose.yml`:
-```bash
-cd ..
-docker compose up analytics.api
-```
+You can still use the root `docker-compose.yml` to start the entire stack if needed.
 
 Refer to `openapi.yaml` for the complete API specification.
 

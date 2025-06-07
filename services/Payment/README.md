@@ -25,3 +25,7 @@ This service handles payment processing for the e-commerce platform. It is imple
    ```bash
    docker build -t payment.api .
    ```
+4. Or run locally with Docker Compose:
+   ```bash
+   docker compose up --build
+   ```

@@ -19,6 +19,10 @@ This microservice manages shipment information for orders. It is implemented wit
    ```bash
    docker build -t shipping.api .
    ```
+4. Run with Docker Compose:
+   ```bash
+   docker compose up --build
+   ```
 
 Recurring jobs are configured via Hangfire. The sample job `CheckPendingShipmentsJob` runs every minute.
 

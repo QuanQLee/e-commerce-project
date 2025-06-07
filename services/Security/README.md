@@ -18,6 +18,10 @@ See [Minimum.md](Minimum.md) for the minimal integration information.
    ```bash
    docker build -t security.api .
    ```
+5. Or run locally with Docker Compose:
+   ```bash
+   docker compose up --build
+   ```
 
 ## Database
 

@@ -17,4 +17,7 @@ Each microservice is available under the `/api/v1/` prefix, for example:
 
 Global plugins enable JWT authentication, ACL based authorisation, rate limiting and Prometheus metrics. New services are added by updating `kong.yml` and reloading Kong (handled by the CI pipeline).
 
-Run the gateway with the rest of the stack via `docker compose up` from the `services` directory.
+You can run the full stack from the `services` directory, or start a small test setup from this folder:
+```bash
+docker compose up --build
+```
