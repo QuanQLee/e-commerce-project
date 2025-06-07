@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  pg:
+    image: postgres:16-alpine
+    container_name: security-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: catalog_admin
+      POSTGRES_PASSWORD: P@ssw0rd!
+      POSTGRES_DB: catalog
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  security.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: security.api:dev
+    container_name: security-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pg:5432/catalog
+      SPRING_DATASOURCE_USERNAME: catalog_admin
+      SPRING_DATASOURCE_PASSWORD: P@ssw0rd!
+      SPRING_DATASOURCE_HIKARI_SCHEMA: security
+    ports:
+      - "8082:8082"
+
+volumes:
+  pgdata:

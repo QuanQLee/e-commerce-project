@@ -1,0 +1,49 @@
+version: "3.9"
+services:
+  pg:
+    image: postgres:16-alpine
+    container_name: gateway-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: catalog_admin
+      POSTGRES_PASSWORD: P@ssw0rd!
+      POSTGRES_DB: catalog
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  catalog.api:
+    build:
+      context: ../Catalog
+      dockerfile: Dockerfile
+    image: catalog.api:dev
+    container_name: catalog-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "5000:80"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kong.gateway:dev
+    container_name: gateway
+    depends_on:
+      - catalog.api
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+    volumes:
+      - ./kong.yml:/kong/kong.yml:ro
+    ports:
+      - "80:8000"
+      - "8001:8001"
+
+volumes:
+  pgdata:

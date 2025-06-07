@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  pg:
+    image: postgres:16-alpine
+    container_name: user-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: catalog_admin
+      POSTGRES_PASSWORD: P@ssw0rd!
+      POSTGRES_DB: catalog
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  user.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: user.api:dev
+    container_name: user-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__UserDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+    ports:
+      - "5003:80"
+
+volumes:
+  pgdata:

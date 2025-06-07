@@ -18,9 +18,9 @@ The project can be generated or updated using the `dotnet-idsvr` CLI tool.
    ```bash
    dotnet run --project Auth.csproj
    ```
-3. Or run with Docker Compose from the `services` folder:
+3. Or run using the local Docker Compose file:
    ```bash
-   docker compose up auth.api
+   docker compose up --build
    ```
 
 ## Multi-tenant Notes

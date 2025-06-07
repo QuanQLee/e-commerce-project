@@ -25,12 +25,11 @@ From the `services` directory you can spin up the entire stack:
 docker compose up --build
 ```
 
-Run a service individually with Docker:
+Run a single service for local testing using its Docker Compose file:
 
 ```bash
-cd services/Catalog
-docker build -t catalog.api .
-docker run -p 5000:80 catalog.api
+cd services/<ServiceName>
+docker compose up --build
 ```
 When using the Security service, the Gradle wrapper JAR is downloaded
 automatically on first run. Simply execute `./gradlew` in `services/Security`.
