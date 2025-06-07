@@ -99,7 +99,7 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      DATABASE_DSN: "postgresql://catalog_admin:P@ssw0rd!@pg:5432/catalog"
+      ConnectionStrings__AnalyticsDb: "postgresql://catalog_admin:P@ssw0rd!@pg:5432/catalog"
     ports:
       - "8000:8000"
 
