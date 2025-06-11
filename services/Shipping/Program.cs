@@ -2,11 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Shipping.Api.Infrastructure;
 using MassTransit;
 using Hangfire;
-using Hangfire.PostgreSql;
+// ★ 新增行：引入内存存储包
+using Hangfire.MemoryStorage;                     // <-- 修改
+// using Hangfire.PostgreSql;                    // ← 这一行可以删掉或注释
 using Shipping.Api.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.WebHost.UseUrls("http://0.0.0.0:80");
 
 builder.Services.AddControllers();
@@ -17,17 +18,17 @@ builder.Services.AddSwaggerGen(o =>
     o.SwaggerDoc("v1", new() { Title = "Shipping API", Version = "v1" });
 });
 
+// ★ 改成 In-Memory DB
 builder.Services.AddDbContext<ShippingDbContext>(options =>
 {
-    var cs = builder.Configuration.GetConnectionString("ShippingDb");
-    options.UseNpgsql(cs);
+    options.UseInMemoryDatabase("ShippingTest");  // <-- 修改
 });
 
+// ★ Hangfire 也换成内存存储
 builder.Services.AddHangfire(config =>
 {
-    config.UsePostgreSqlStorage(builder.Configuration.GetConnectionString("ShippingDb"));
+    config.UseMemoryStorage();                    // <-- 修改
 });
-
 builder.Services.AddHangfireServer();
 
 builder.Services.AddMassTransit(x =>
@@ -46,6 +47,7 @@ app.UseRouting();
 app.UseHangfireDashboard();
 app.MapControllers();
 
+// ★ 定时任务照常可用
 RecurringJob.AddOrUpdate<CheckPendingShipmentsJob>(
     "check-pending",
     job => job.Run(),

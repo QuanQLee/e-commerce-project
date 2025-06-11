@@ -2,9 +2,8 @@ syntax = "proto3";
 
 package payment.v1;
 
-option go_package = "payment/api";
-
-import "google/api/annotations.proto";
+// ***关键***：go_package 必须写到 “模块根 + /api; 包名”
+option go_package = "github.com/QuanQLee/e-commerce-project/services/Payment/api;api";
 
 service PaymentService {
   rpc CreatePayment (CreatePaymentRequest) returns (PaymentResponse) {
@@ -12,15 +11,22 @@ service PaymentService {
       post: "/v1/payment"
       body: "*"
     };
-  };
+  }
+
+  rpc Health (HealthRequest) returns (HealthReply) {
+    option (google.api.http) = { get: "/v1/health" };
+  }
 }
 
 message CreatePaymentRequest {
-  string order_id = 1;
-  double amount = 2;
+  string  order_id = 1;
+  double  amount   = 2;
 }
 
 message PaymentResponse {
   string payment_id = 1;
-  string status = 2;
+  string status     = 2;
 }
+
+message HealthRequest {}
+message HealthReply  { string status = 1; }
