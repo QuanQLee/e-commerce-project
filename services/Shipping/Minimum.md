@@ -4,7 +4,7 @@ This document lists the minimal information needed to integrate with the Shippin
 
 ## Base URL
 
-- **HTTP**: `http://<host>:5003`
+- **HTTP**: `http://<host>:5004`
 
 ## Required Headers
 
