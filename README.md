@@ -36,3 +36,7 @@ automatically on first run. Simply execute `./gradlew` in `services/Security`.
 
 ## Service Documentation
 
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
