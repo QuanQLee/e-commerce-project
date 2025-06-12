@@ -1,8 +1,9 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        mavenCentral()
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        maven { url 'https://repo.huaweicloud.com/repository/maven/' }
+        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/maven/' }
+    mavenCentral()
     }
 }
 

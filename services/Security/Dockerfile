@@ -1,5 +1,6 @@
 ﻿FROM eclipse-temurin:17-jdk-jammy as build
 WORKDIR /app
+COPY build/libs/*.jar app.jar
 COPY gradle gradle
 COPY gradlew gradlew
 COPY gradlew.bat gradlew.bat

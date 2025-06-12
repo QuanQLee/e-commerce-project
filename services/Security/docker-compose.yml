@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: P@ssw0rd!
       POSTGRES_DB: catalog
     ports:
-      - "5432:5432"
+      - "5436:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
