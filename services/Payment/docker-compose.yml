@@ -1,4 +1,4 @@
-version: "3.9"
+﻿version: "3.9"
 services:
   pg:
     image: postgres:16-alpine
@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: P@ssw0rd!
       POSTGRES_DB: catalog
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 

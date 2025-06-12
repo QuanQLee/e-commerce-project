@@ -1,4 +1,4 @@
-FROM kong:3
+﻿FROM kong:3
 
 # Copy declarative configuration
 COPY kong.yml /kong/kong.yml

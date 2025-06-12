@@ -1,7 +1,8 @@
 ﻿# syntax=docker/dockerfile:1   ← 指定新语法解析器，兼容 BuildKit
 
 ##################### ① Build stage #####################
-FROM golang:1.24-alpine3.19 AS builder
+FROM golang:1.23.4-alpine AS builder
+ENV GOPROXY=https://goproxy.cn,direct
 WORKDIR /src
 
 # 先复制依赖清单并下载依赖，充分利用缓存
