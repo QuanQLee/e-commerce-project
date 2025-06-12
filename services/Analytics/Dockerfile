@@ -13,6 +13,7 @@ RUN poetry config virtualenvs.create false \
 
 # ── 4 再拷源码，并把根包装进去 ───────────────────────────────────────────────
 COPY ./app ./app
+COPY .env .env
 RUN poetry install --no-interaction --no-ansi              # ← 这次装根包
 
 # ── 5 运行服务 ───────────────────────────────────────────────────────────────
