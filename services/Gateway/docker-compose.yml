@@ -36,11 +36,6 @@ services:
     container_name: gateway
     depends_on:
       - catalog.api
-    environment:
-      KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
-    volumes:
-      - ./kong.yml:/kong/kong.yml:ro
     ports:
       - "80:8000"
       - "8001:8001"
