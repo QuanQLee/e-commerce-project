@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package payment.v1;
 
-// ***关键***：go_package 必须写到 “模块根 + /api; 包名”
+// The go_package option specifies the import path for the generated Go code.
 option go_package = "github.com/QuanQLee/e-commerce-project/services/Payment/api;api";
 
 service PaymentService {
