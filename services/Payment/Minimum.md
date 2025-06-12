@@ -26,7 +26,7 @@ POST /v1/payment
 ```json
 {
   "payment_id": "<PAYMENT_ID>",
-  "status": "created"
+  "status": "PAID"
 }
 ```
 

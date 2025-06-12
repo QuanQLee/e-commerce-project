@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package payment.v1;
 
+import "google/api/annotations.proto";
+
 // The go_package option specifies the import path for the generated Go code.
 option go_package = "github.com/QuanQLee/e-commerce-project/services/Payment/api;api";
 
@@ -13,9 +15,6 @@ service PaymentService {
     };
   }
 
-  rpc Health (HealthRequest) returns (HealthReply) {
-    option (google.api.http) = { get: "/v1/health" };
-  }
 }
 
 message CreatePaymentRequest {
@@ -28,5 +27,3 @@ message PaymentResponse {
   string status     = 2;
 }
 
-message HealthRequest {}
-message HealthReply  { string status = 1; }

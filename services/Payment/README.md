@@ -4,9 +4,7 @@ This service handles payment processing for the e-commerce platform. It is imple
 
 ## Minimum Requirements
 
-- **Database**: PostgreSQL schema `payment`.
-- **Environment Variable** `ConnectionStrings__PaymentDb` specifying the PostgreSQL DSN, e.g.:
-  `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!`
+- **Database**: local SQLite file `payment.db`.
 - **Ports**:
   - gRPC: `7001`
   - HTTP (gRPC Gateway): `8080`
