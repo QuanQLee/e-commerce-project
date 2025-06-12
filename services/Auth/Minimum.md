@@ -3,7 +3,7 @@
 This document lists the minimal information required to integrate with the Auth microservice.
 
 ## Base URL
-- `http://<host>:5003`
+- `http://<host>:7000`
 
 ## Required Headers
 - `Content-Type: application/x-www-form-urlencoded`

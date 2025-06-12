@@ -6,7 +6,7 @@ This microservice manages shipment information for orders. It is implemented wit
 
 - **Database**: PostgreSQL schema `shipping`.
 - **Environment Variable** `ConnectionStrings__ShippingDb` containing the PostgreSQL connection string.
-- **Port**: `5003` for HTTP.
+- **Port**: `5004` for HTTP.
 
 ## Development
 
