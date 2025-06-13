@@ -7,6 +7,12 @@ This repository contains microservices that together form a small e-commerce pla
 - **Services**:
   - **Catalog** – manages products under `services/Catalog`.
   - **Order** – handles customer orders under `services/Order`.
+  - **User** – manages user accounts under `services/User`.
+  - **Shipping** – coordinates delivery under `services/Shipping`.
+  - **Payment** – processes transactions under `services/Payment`.
+  - **Analytics** – collects metrics under `services/Analytics`.
+  - **Auth** – provides authentication under `services/Auth`.
+  - **Security** – offers security features under `services/Security`.
 
 ## Gateway
 
@@ -36,3 +42,17 @@ automatically on first run. Simply execute `./gradlew` in `services/Security`.
 
 ## Service Documentation
 
+
+## Frontend
+
+The `frontend` directory contains a Vite + React application that exposes basic screens for each microservice.  It communicates with the backend exclusively through the gateway API and demonstrates product browsing and creation, user and order management, shipping, payments, metrics and authentication.
+
+### Development
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Set `VITE_API_BASE_URL` in `.env` to the gateway URL (default `http://localhost`).
