@@ -30,4 +30,7 @@ Build and run the UI in a container for standalone testing:
 docker compose up --build
 ```
 
+The Dockerfile installs both dependencies and devDependencies so that
+TypeScript tooling has access to packages like `@types/node` during the build.
+
 The site will be served on [http://localhost:3000](http://localhost:3000). Adjust `VITE_API_BASE_URL` in `docker-compose.yml` if necessary.
