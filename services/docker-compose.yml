@@ -99,7 +99,8 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ConnectionStrings__AnalyticsDb: "postgresql://catalog_admin:P@ssw0rd!@pg:5432/catalog"
+      # Use asyncpg for SQLAlchemy's async engine
+      ConnectionStrings__AnalyticsDb: "postgresql+asyncpg://catalog_admin:P@ssw0rd!@pg:5432/catalog"
     ports:
       - "8000:8000"
 
