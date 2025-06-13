@@ -1,7 +1,10 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package.json ./
-RUN npm install
+# Install both dependencies and devDependencies even though the base image sets
+# NODE_ENV=production. The build step requires @types/node for the Vite config
+# and other TypeScript tooling.
+RUN npm install --omit=dev=false
 COPY . .
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
