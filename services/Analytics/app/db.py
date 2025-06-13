@@ -7,9 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Prefer the service-specific variable name used in docs and tests.
-DATABASE_URL = os.getenv("ConnectionStrings__AnalyticsDb") or os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is not configured")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# ãȷȡ
+print("DATABASE_URL =", DATABASE_URL)
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
