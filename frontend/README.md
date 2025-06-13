@@ -21,3 +21,13 @@ npm run dev
 ```
 
 Create a `.env` file and set `VITE_API_BASE_URL` to the URL of the gateway (e.g. `http://localhost`).
+
+### Docker
+
+Build and run the UI in a container for standalone testing:
+
+```bash
+docker compose up --build
+```
+
+The site will be served on [http://localhost:3000](http://localhost:3000). Adjust `VITE_API_BASE_URL` in `docker-compose.yml` if necessary.

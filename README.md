@@ -67,3 +67,30 @@ docker compose up --build frontend
 ```
 
 The UI will be available at `http://localhost:3000`.
+
+### Standalone Testing
+
+Run only the frontend in a container for quick UI testing:
+
+```bash
+cd frontend
+docker compose up --build
+```
+
+Change `VITE_API_BASE_URL` in `frontend/docker-compose.yml` if your gateway runs on a different host.
+
+## Testing
+
+Run the automated test suites for the services:
+
+```bash
+# .NET tests
+for csproj in services/*/*Tests/*.csproj; do
+    dotnet test "$csproj"
+done
+
+# Go tests
+cd services/Payment && go test ./...
+```
+
+The commands require the .NET 8 SDK and Go 1.22 or later.

@@ -27,3 +27,11 @@ This service handles payment processing for the e-commerce platform. It is imple
    ```bash
    docker compose up --build
    ```
+
+## Tests
+
+Run the Go unit tests:
+
+```bash
+go test ./...
+```
