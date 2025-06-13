@@ -56,3 +56,14 @@ npm run dev
 ```
 
 Set `VITE_API_BASE_URL` in `.env` to the gateway URL (default `http://localhost`).
+
+### Docker
+
+To run the frontend together with the microservices:
+
+```bash
+cd services
+docker compose up --build frontend
+```
+
+The UI will be available at `http://localhost:3000`.
