@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Change this to your gateway URL when running together with backend
+        VITE_API_BASE_URL: http://localhost
+    image: frontend.app:dev
+    container_name: frontend
+    ports:
+      - "3000:80"
