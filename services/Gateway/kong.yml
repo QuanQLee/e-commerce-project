@@ -67,6 +67,13 @@ services:
         strip_path: true
 
 plugins:
+  - name: cors
+    config:
+      origins: ["*"]
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+      headers: ["*"]
+      exposed_headers: ["*"]
+      credentials: true
   - name: key-auth
   - name: acl
     config:
