@@ -21,6 +21,7 @@ npm run dev
 ```
 
 Create a `.env` file and set `VITE_API_BASE_URL` to the URL of the gateway (e.g. `http://localhost`).
+If the gateway has the `key-auth` plugin enabled, also provide `VITE_API_KEY` with your API key so the frontend can authenticate its requests.
 
 ### Docker
 
