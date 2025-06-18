@@ -10,6 +10,7 @@ import (
 	"github.com/glebarez/sqlite"
 	gw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 
 	pb "github.com/QuanQLee/e-commerce-project/services/Payment/api"
@@ -42,6 +43,22 @@ func (s *server) CreatePayment(ctx context.Context, in *pb.CreatePaymentRequest)
 		PaymentId: fmt.Sprint(p.ID),
 		Status:    p.Status,
 	}, nil
+}
+
+func (s *server) ListPayments(ctx context.Context, _ *emptypb.Empty) (*pb.ListPaymentsResponse, error) {
+	var entries []Payment
+	if err := s.db.Find(&entries).Error; err != nil {
+		return nil, err
+	}
+	res := make([]*pb.PaymentItem, len(entries))
+	for i, p := range entries {
+		res[i] = &pb.PaymentItem{
+			PaymentId: fmt.Sprint(p.ID),
+			Amount:    p.Amount,
+			Status:    p.Status,
+		}
+	}
+	return &pb.ListPaymentsResponse{Payments: res}, nil
 }
 
 /********** 初始化数据库 **********/
