@@ -56,8 +56,6 @@ npm run dev
 ```
 
 Set `VITE_API_BASE_URL` in `.env` to the gateway URL (default `http://localhost`).
-If Kong's `key-auth` plugin is enabled, generate a key as shown in [docs/authentication.md](docs/authentication.md) and set `VITE_API_KEY=<your-key>`.
-Requests from the frontend will otherwise receive **401** or **403** errors.
 
 ### Docker
 
