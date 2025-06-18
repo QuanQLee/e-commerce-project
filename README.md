@@ -55,7 +55,8 @@ npm install
 npm run dev
 ```
 
-Set `VITE_API_BASE_URL` in `.env` to the gateway URL (default `http://localhost`).
+Set `VITE_API_BASE_URL` in `.env` to the gateway URL. Use `http://localhost` for
+local development, or `http://gateway:8000` when running inside Docker Compose.
 
 ### Docker
 
@@ -77,4 +78,5 @@ cd frontend
 docker compose up --build
 ```
 
-Change `VITE_API_BASE_URL` in `frontend/docker-compose.yml` if your gateway runs on a different host.
+Change `VITE_API_BASE_URL` in `frontend/docker-compose.yml` if your gateway runs
+on a different host, for example `http://gateway:8000` when using the compose network.

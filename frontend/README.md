@@ -20,8 +20,8 @@ npm install
 npm run dev
 ```
 
-Create a `.env` file and set `VITE_API_BASE_URL` to the URL of the gateway (e.g. `http://localhost`).
-The docker compose configuration maps the gateway to port 80. When running the gateway by itself, it defaults to port 8000 so update the URL as needed.
+Create a `.env` file and set `VITE_API_BASE_URL` to the gateway URL (use `http://localhost` for local development).
+When the frontend runs inside Docker Compose, point it to `http://gateway:8000` so requests reach the gateway container.
 If the gateway has the `key-auth` plugin enabled, also provide `VITE_API_KEY` with your API key so the frontend can authenticate its requests.
 
 ### Docker
@@ -35,4 +35,4 @@ docker compose up --build
 The Dockerfile installs both dependencies and devDependencies so that
 TypeScript tooling has access to packages like `@types/node` during the build.
 
-The site will be served on [http://localhost:3000](http://localhost:3000). Adjust `VITE_API_BASE_URL` in `docker-compose.yml` if necessary.
+The site will be served on [http://localhost:3000](http://localhost:3000). Adjust `VITE_API_BASE_URL` in `docker-compose.yml` if necessary (e.g. `http://gateway:8000`).
