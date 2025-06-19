@@ -2,10 +2,16 @@ import { useEffect, useState } from 'react'
 import { Container, Typography, Card, CardContent } from '@mui/material'
 import api from '../api/api'
 
+interface OrderItem {
+  productName: string
+  price: number
+}
+
 interface Order {
   id: string
-  userId: string
-  total: number
+  items: OrderItem[]
+  totalPrice: number
+  status: string
 }
 
 export default function OrderList() {
@@ -24,8 +30,11 @@ export default function OrderList() {
         <Card key={o.id} sx={{ mb: 2 }}>
           <CardContent>
             <Typography variant="h6">Order #{o.id}</Typography>
-            <Typography>User {o.userId}</Typography>
-            <Typography>${o.total}</Typography>
+            <Typography>Status: {o.status}</Typography>
+            <Typography>Total: ${o.totalPrice}</Typography>
+            {o.items.map((item, idx) => (
+              <Typography key={idx}>- {item.productName}: ${item.price}</Typography>
+            ))}
           </CardContent>
         </Card>
       ))}
