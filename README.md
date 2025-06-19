@@ -80,3 +80,13 @@ docker compose up --build
 
 Change `VITE_API_BASE_URL` in `frontend/docker-compose.yml` if your gateway runs
 on a different host, for example `http://gateway:8000` when using the compose network.
+
+When the frontend container is run on its own or the gateway is not in the same Docker network, pass the actual gateway address during the build step:
+
+```bash
+docker build -t frontend.app:custom 
+  --build-arg VITE_API_BASE_URL=http://<host>:8000 
+  --build-arg VITE_API_KEY=<your-key> frontend
+```
+
+Rebuild the image whenever the gateway address changes.
