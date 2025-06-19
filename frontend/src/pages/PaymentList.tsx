@@ -12,7 +12,7 @@ export default function PaymentList() {
   const [payments, setPayments] = useState<PaymentItem[]>([])
 
   useEffect(() => {
-    api.get('/api/v1/payment')
+    api.get('/api/v1/payment/v1/payment')
       .then(res => setPayments(res.data))
       .catch(err => console.error(err))
   }, [])
