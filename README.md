@@ -31,6 +31,15 @@ From the `services` directory you can spin up the entire stack:
 docker compose up --build
 ```
 
+Before starting the stack, apply the Entity Framework migrations for each .NET service:
+```bash
+cd services/Catalog && dotnet ef database update
+cd ../Order && dotnet ef database update
+cd ../User && dotnet ef database update
+cd ../Auth && dotnet ef database update
+cd ..
+```
+
 Run a single service for local testing using its Docker Compose file:
 
 ```bash

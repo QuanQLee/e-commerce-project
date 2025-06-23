@@ -44,6 +44,13 @@ builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete
 
 var app = builder.Build();
 
+// Ensure database exists
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+    db.Database.EnsureCreated();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
