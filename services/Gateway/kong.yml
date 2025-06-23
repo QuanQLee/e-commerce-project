@@ -1,6 +1,12 @@
 ﻿_format_version: '3.0'
 _transform: true
-
+consumers:
+  - username: frontend
+    keyauth_credentials:
+      - key: mytestkey123
+    acls:
+      - group: frontend-group
+  
 services:
   - name: catalog
     url: http://catalog.api:80
@@ -77,9 +83,11 @@ plugins:
   - name: key-auth
   - name: acl
     config:
-      allow: [public]
+      allow: 
+        - frontend-group
   - name: rate-limiting
     config:
       minute: 60
       policy: local
   - name: prometheus
+

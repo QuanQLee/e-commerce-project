@@ -101,7 +101,7 @@ services:
     environment:
       ConnectionStrings__AnalyticsDb: "postgresql://catalog_admin:P@ssw0rd!@pg:5432/catalog"
     ports:
-      - "8000:8000"
+      - "8100:8000"
 
   auth.api:
     build:
@@ -146,16 +146,22 @@ services:
       - auth.api
       - security.api
     ports:
-      - "80:8000"
+      - "8000:8000"
       - "8001:8001"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml  # 注意路径
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+    volumes:
+      - ./Gateway/kong.yml:/kong/kong.yml
 
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: http://gateway:8000
-        VITE_API_KEY: <your-key>
+        VITE_API_BASE_URL: http://localhost:8000
+        VITE_API_KEY: mytestkey123
     image: frontend.app:dev
     container_name: frontend
     depends_on:
