@@ -37,6 +37,13 @@ builder.Services.AddIdentityServer()
 
 var app = builder.Build();
 
+// Ensure database exists
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+    db.Database.EnsureCreated();
+}
+
 app.UseIdentityServer();
 
 app.MapGet("/", () => "Auth Service running");
