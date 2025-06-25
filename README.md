@@ -55,8 +55,9 @@ npm install
 npm run dev
 ```
 
-Set `VITE_API_BASE_URL` in `.env` to the gateway URL. Use `http://localhost` for
-local development, or `http://gateway:8000` when running inside Docker Compose.
+Set `VITE_API_BASE_URL` in `.env` to the gateway URL. When the frontend is
+served to your browser it runs outside Docker, so it should access the gateway
+through the host at `http://localhost:8000`.
 
 ### Docker
 
@@ -68,6 +69,8 @@ docker compose up --build frontend
 ```
 
 The UI will be available at `http://localhost:3000`.
+The container includes a small nginx configuration so that refreshing browser
+routes like `/add-user` loads the SPA's `index.html` rather than returning a 404.
 
 ### Standalone Testing
 
@@ -78,8 +81,9 @@ cd frontend
 docker compose up --build
 ```
 
-Change `VITE_API_BASE_URL` in `frontend/docker-compose.yml` if your gateway runs
-on a different host, for example `http://gateway:8000` when using the compose network.
+Change `VITE_API_BASE_URL` in `frontend/docker-compose.yml` to match the gateway
+address (for example `http://gateway:8000` when both containers are on the same
+Docker network).
 
 When the frontend container is run on its own or the gateway is not in the same Docker network, pass the actual gateway address during the build step:
 

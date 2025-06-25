@@ -160,6 +160,7 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
       args:
+        # Use localhost so the browser outside Docker can reach the gateway
         VITE_API_BASE_URL: http://localhost:8000
         VITE_API_KEY: mytestkey123
     image: frontend.app:dev
