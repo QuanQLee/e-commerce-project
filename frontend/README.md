@@ -36,3 +36,6 @@ The Dockerfile installs both dependencies and devDependencies so that
 TypeScript tooling has access to packages like `@types/node` during the build.
 
 The site will be served on [http://localhost:3000](http://localhost:3000). Adjust `VITE_API_BASE_URL` in `docker-compose.yml` if necessary (e.g. `http://gateway:8000`).
+
+Unknown paths are rewritten to `index.html` via the bundled `nginx.conf`,
+allowing browser refreshes on routes like `/add-user` without returning 404.
