@@ -6,7 +6,8 @@ services:
       dockerfile: Dockerfile
       args:
         # Change this to your gateway URL when running together with backend
-        VITE_API_BASE_URL: http://gateway:8000
+        # Use http://localhost:8000 when opening the site from your host browser
+        VITE_API_BASE_URL: http://localhost:8000
         VITE_API_KEY: <your-key>
     image: frontend.app:dev
     container_name: frontend
