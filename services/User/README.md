@@ -21,4 +21,8 @@ Then run with Docker Compose:
 docker compose up --build
 ```
 
+The service automatically creates its database schema on startup using
+`EnsureCreated()`. Make sure the configured PostgreSQL instance is reachable
+before running the container.
+
 See `Minimum.md` for integration details and `openapi.yaml` for the full API contract.
