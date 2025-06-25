@@ -160,7 +160,8 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: http://gateway:8000
+        # Use the host URL so browser requests resolve correctly
+        VITE_API_BASE_URL: http://localhost:8000
         VITE_API_KEY: mytestkey123
     image: frontend.app:dev
     container_name: frontend

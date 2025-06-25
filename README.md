@@ -56,7 +56,9 @@ npm run dev
 ```
 
 Set `VITE_API_BASE_URL` in `.env` to the gateway URL. Use `http://localhost` for
-local development, or `http://gateway:8000` when running inside Docker Compose.
+local development. When the site is served to your host browser from Docker
+Compose, the gateway is still reached through `localhost:8000` rather than the
+`gateway` container name.
 
 ### Docker
 
@@ -79,7 +81,9 @@ docker compose up --build
 ```
 
 Change `VITE_API_BASE_URL` in `frontend/docker-compose.yml` if your gateway runs
-on a different host, for example `http://gateway:8000` when using the compose network.
+on a different host. Use the host address such as `http://localhost:8000` when
+you access the UI from your browser. The `gateway` hostname is only resolvable
+from within the Docker network.
 
 When the frontend container is run on its own or the gateway is not in the same Docker network, pass the actual gateway address during the build step:
 
