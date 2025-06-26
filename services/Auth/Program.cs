@@ -31,6 +31,22 @@ builder.Services.AddIdentityServer()
             ClientSecrets = { new Secret("secret".Sha256()) },
             AllowedScopes = { "api1" },
             AllowedCorsOrigins = { "http://localhost:3000" }
+        },
+        new Client
+        {
+            ClientId = "1",
+            AllowedGrantTypes = GrantTypes.ClientCredentials,
+            ClientSecrets = { new Secret("secret1".Sha256()) },
+            AllowedScopes = { "api1" },
+            AllowedCorsOrigins = { "http://localhost:3000" }
+        },
+        new Client
+        {
+            ClientId = "2",
+            AllowedGrantTypes = GrantTypes.ClientCredentials,
+            ClientSecrets = { new Secret("secret2".Sha256()) },
+            AllowedScopes = { "api1" },
+            AllowedCorsOrigins = { "http://localhost:3000" }
         }
     })
     .AddInMemoryApiScopes(new[] { new ApiScope("api1", "API") })

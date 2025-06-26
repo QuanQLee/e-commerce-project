@@ -14,6 +14,13 @@ POST /connect/token
 client_id=sample&client_secret=secret&grant_type=client_credentials&scope=api1
 ```
 
+Additional test clients are also registered:
+
+```text
+client_id=1&client_secret=secret1&grant_type=client_credentials&scope=api1
+client_id=2&client_secret=secret2&grant_type=client_credentials&scope=api1
+```
+
 ## Introspection Example
 ```
 POST /connect/introspect

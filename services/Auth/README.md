@@ -2,6 +2,24 @@
 
 This service provides authentication via Duende IdentityServer on .NET 8. It stores configuration in PostgreSQL using a dedicated `auth` schema.
 
+## Sample Clients
+
+Three in-memory clients are available for quick testing:
+
+| Client ID | Secret  |
+|-----------|---------|
+| `sample`  | `secret`|
+| `1`       | `secret1`|
+| `2`       | `secret2`|
+
+Token requests are sent to `/connect/token`:
+
+```bash
+curl -X POST http://localhost:7000/connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "client_id=sample&client_secret=secret&grant_type=client_credentials&scope=api1"
+```
+
 ## 环境变量
 - `ConnectionStrings__AuthDb`: PostgreSQL connection string, e.g. `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!`.
 - `PORT`: Optional HTTP port for the service (default `80`).
