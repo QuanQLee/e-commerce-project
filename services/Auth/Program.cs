@@ -1,5 +1,6 @@
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Test;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,7 +37,7 @@ builder.Services.AddIdentityServer()
         new Client
         {
             ClientId = "1",
-            AllowedGrantTypes = GrantTypes.ClientCredentials,
+            AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
             ClientSecrets = { new Secret("secret1".Sha256()) },
             AllowedScopes = { "api1" },
             AllowedCorsOrigins = { "http://localhost:3000" }
@@ -43,13 +45,22 @@ builder.Services.AddIdentityServer()
         new Client
         {
             ClientId = "2",
-            AllowedGrantTypes = GrantTypes.ClientCredentials,
+            AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
             ClientSecrets = { new Secret("secret2".Sha256()) },
             AllowedScopes = { "api1" },
             AllowedCorsOrigins = { "http://localhost:3000" }
         }
     })
     .AddInMemoryApiScopes(new[] { new ApiScope("api1", "API") })
+    .AddTestUsers(new List<TestUser>
+    {
+        new TestUser
+        {
+            SubjectId = "1001",
+            Username = "user1",
+            Password = "pass1"
+        }
+    })
     .AddDeveloperSigningCredential();
 
 var app = builder.Build();

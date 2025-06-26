@@ -20,6 +20,14 @@ curl -X POST http://localhost:7000/connect/token \
   -d "client_id=sample&client_secret=secret&grant_type=client_credentials&scope=api1"
 ```
 
+Clients `1` and `2` also support the password grant using the test user `user1`/`pass1`:
+
+```bash
+curl -X POST http://localhost:7000/connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "client_id=1&client_secret=secret1&grant_type=password&username=user1&password=pass1&scope=api1"
+```
+
 ## 环境变量
 - `ConnectionStrings__AuthDb`: PostgreSQL connection string, e.g. `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!`.
 - `PORT`: Optional HTTP port for the service (default `80`).
