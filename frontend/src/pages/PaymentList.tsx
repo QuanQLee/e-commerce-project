@@ -13,7 +13,7 @@ export default function PaymentList() {
 
   useEffect(() => {
     api.get('/api/v1/payment/v1/payment')
-      .then(res => setPayments(res.data))
+      .then(res => setPayments(res.data.payments ?? []))
       .catch(err => console.error(err))
   }, [])
 
