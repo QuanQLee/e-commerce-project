@@ -1,10 +1,35 @@
+/****  settings.gradle  ——  兼容 Gradle 8.x  ****/
+
+// 1) Gradle 插件仓库（走腾讯镜像）
 pluginManagement {
     repositories {
-        gradlePluginPortal()
-        maven { url 'https://repo.huaweicloud.com/repository/maven/' }
-        maven { url 'https://mirrors.tuna.tsinghua.edu.cn/maven/' }
-    mavenCentral()
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/gradle-plugin/' }
+        gradlePluginPortal()      // 镜像没有的插件再回落官方
     }
 }
 
-rootProject.name = 'security'
+// 2) 依赖解析仓库（走腾讯镜像）
+dependencyResolutionManagement {
+    // ★ Gradle-8 只允许 FAIL_ON_PROJECT_REPOS / PREFER_SETTINGS / PREFER_PROJECT
+    //   以前的 REPLACE 已被删除；这里用最“干净”的 FAIL_ON_PROJECT_REPOS
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+    repositories {
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
+        mavenCentral()            // 镜像没有的依赖再回落官方
+    }
+}
+
+// 3) 按需修改你的根项目名
+rootProject.name = 'e-commerce-project'
+
+// 4) 多模块声明 —— 对应仓库下的实际目录，大小写保持一致
+include 'services:Catalog',
+        'services:Order',
+        'services:User',
+        'services:Shipping',
+        'services:Payment',
+        'services:Analytics',
+        'services:Auth',
+        'services:Security',
+        'frontend'                // 如果前端也想用 Gradle 管理，可保留；否则删除

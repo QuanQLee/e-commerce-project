@@ -12,11 +12,9 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-repositories {
-    maven { url 'https://repo.huaweicloud.com/repository/maven/' }
-    maven { url 'https://mirrors.tuna.tsinghua.edu.cn/maven/' }
-    mavenCentral()
-}
+// 📌 仓库统一在 settings.gradle 中集中配置（使用腾讯镜像），
+//    这里无需再声明 repositories，否则与
+//    RepositoriesMode.FAIL_ON_PROJECT_REPOS 冲突。
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
