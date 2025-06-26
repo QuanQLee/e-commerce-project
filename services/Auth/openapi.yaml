@@ -21,6 +21,10 @@ paths:
                   type: string
                 scope:
                   type: string
+                username:
+                  type: string
+                password:
+                  type: string
               required:
                 - grant_type
                 - client_id
