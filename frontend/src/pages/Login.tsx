@@ -13,7 +13,9 @@ export default function Login() {
       params.append('grant_type', 'client_credentials')
       params.append('client_id', clientId)
       params.append('client_secret', clientSecret)
-      await api.post('/api/v1/auth/connect/token', params)
+      await api.post('/api/v1/auth/connect/token', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      })
       setClientId('')
       setClientSecret('')
       alert('Logged in!')
