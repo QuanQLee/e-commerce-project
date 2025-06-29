@@ -12,6 +12,12 @@ This React + Vite application provides a very small portal for both customers an
 - Analytics metrics view
 - Authentication and basic risk check
 
+### Login Form
+
+The **Login** page now supports both the `client_credentials` and `password` OAuth2 grant types.
+Choose the grant type from the dropdown and enter the required fields. When a sample client ID (`1` or `2`) is entered, the form automatically switches to the password grant.
+Use the provided test user (`user1`/`pass1`) with these clients.
+
 ## Development
 
 ```
