@@ -29,6 +29,7 @@ paths:
                 - grant_type
                 - client_id
                 - client_secret
+                - scope
       responses:
         '200':
           description: Token response
