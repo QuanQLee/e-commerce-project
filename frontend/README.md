@@ -15,8 +15,10 @@ This React + Vite application provides a very small portal for both customers an
 ### Login Form
 
 The **Login** page now supports both the `client_credentials` and `password` OAuth2 grant types.
-Choose the grant type from the dropdown and enter the required fields. When a sample client ID (`1` or `2`) is entered, the form automatically switches to the password grant.
+Choose the grant type from the dropdown and enter the required fields.
+When the password grant is selected, the form only asks for a username and password. Sample client credentials (`1`/`secret1`) are filled in automatically.
 Use the provided test user (`user1`/`pass1`) with these clients.
+All requests include the `api1` scope which the Auth service requires to issue a token.
 
 ## Development
 

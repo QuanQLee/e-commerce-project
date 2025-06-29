@@ -15,6 +15,15 @@ export default function Login() {
     }
   }, [clientId])
 
+  const handleGrantTypeChange = (value: string) => {
+    setGrantType(value)
+    if (value === 'password') {
+      // use sample client credentials automatically
+      setClientId('1')
+      setClientSecret('secret1')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -22,6 +31,8 @@ export default function Login() {
       params.append('grant_type', grantType)
       params.append('client_id', clientId)
       params.append('client_secret', clientSecret)
+      // IdentityServer requires at least one scope when requesting a token
+      params.append('scope', 'api1')
       if (grantType === 'password') {
         params.append('username', username)
         params.append('password', password)
@@ -44,12 +55,16 @@ export default function Login() {
     <Container>
       <Typography variant="h4" gutterBottom>Login</Typography>
       <form onSubmit={handleSubmit}>
-        <TextField label="Grant Type" select fullWidth margin="normal" value={grantType} onChange={e => setGrantType(e.target.value)}>
+        <TextField label="Grant Type" select fullWidth margin="normal" value={grantType} onChange={e => handleGrantTypeChange(e.target.value)}>
           <MenuItem value="client_credentials">client_credentials</MenuItem>
           <MenuItem value="password">password</MenuItem>
         </TextField>
-        <TextField label="Client ID" fullWidth margin="normal" value={clientId} onChange={e => setClientId(e.target.value)} />
-        <TextField label="Client Secret" type="password" fullWidth margin="normal" value={clientSecret} onChange={e => setClientSecret(e.target.value)} />
+        {grantType === 'client_credentials' && (
+          <>
+            <TextField label="Client ID" fullWidth margin="normal" value={clientId} onChange={e => setClientId(e.target.value)} />
+            <TextField label="Client Secret" type="password" fullWidth margin="normal" value={clientSecret} onChange={e => setClientSecret(e.target.value)} />
+          </>
+        )}
         {grantType === 'password' && (
           <>
             <TextField label="Username" fullWidth margin="normal" value={username} onChange={e => setUsername(e.target.value)} />
