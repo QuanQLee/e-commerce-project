@@ -28,6 +28,14 @@ done
 cd services/Payment && go test ./...
 ```
 
+Run frontend tests using Jest:
+
+```bash
+cd frontend
+npm install
+npm test
+```
+
 Bring up the stack locally with Docker:
 
 ```bash
