@@ -52,6 +52,7 @@ The `frontend` directory contains a Vite + React application that exposes basic 
 ```bash
 cd frontend
 npm install
+npm test
 npm run dev
 ```
 
