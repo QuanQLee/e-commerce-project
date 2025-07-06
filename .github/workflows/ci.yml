@@ -13,7 +13,10 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Run tests
         run: |
-          for proj in services/*/*.Tests/*.csproj; do dotnet test "$proj" --no-build; done
+          for proj in services/*/*.Tests/*.csproj; do
+            echo "Testing $proj"
+            dotnet test "$proj" --no-build
+          done
           (cd services/Payment && go test ./...)
       - name: Build images
         run: docker compose -f services/docker-compose.yml build
