@@ -7,6 +7,9 @@ interface Product {
   name: string
   description: string
   price: number
+  imageUrl?: string
+  category: string
+  stock: number
 }
 
 export default function ProductList() {
@@ -24,9 +27,12 @@ export default function ProductList() {
       {products.map(p => (
         <Card key={p.id} sx={{ mb: 2 }}>
           <CardContent>
+            {p.imageUrl && <img src={p.imageUrl} alt={p.name} style={{ maxWidth: '100%' }} />}
             <Typography variant="h6">{p.name}</Typography>
             <Typography>{p.description}</Typography>
+            <Typography>Category: {p.category}</Typography>
             <Typography>${p.price}</Typography>
+            <Typography>Stock: {p.stock}</Typography>
           </CardContent>
         </Card>
       ))}

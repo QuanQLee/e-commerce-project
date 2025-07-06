@@ -26,7 +26,7 @@ public class ProductsController(CatalogDbContext db) : ControllerBase
         [FromBody] CreateProductDto dto)
     {
         var product = new Product();
-        product.Update(dto.Name, dto.Description, dto.Price);
+        product.Update(dto.Name, dto.Description, dto.Price, dto.ImageUrl, dto.Category, dto.Stock);
         db.Products.Add(product);
         await db.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = product.Id }, product.Id);
