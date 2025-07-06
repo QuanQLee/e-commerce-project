@@ -61,10 +61,18 @@ components:
         price:
           type: number
           format: decimal
+        imageUrl:
+          type: string
+        category:
+          type: string
+        stock:
+          type: integer
       required:
         - name
         - description
         - price
+        - category
+        - stock
     Product:
       type: object
       properties:
@@ -78,4 +86,10 @@ components:
         price:
           type: number
           format: decimal
+        imageUrl:
+          type: string
+        category:
+          type: string
+        stock:
+          type: integer
 

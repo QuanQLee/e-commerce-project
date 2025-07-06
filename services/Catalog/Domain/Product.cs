@@ -1,6 +1,6 @@
 namespace Catalog.Api.Domain;
+
 using System;
-// ÆäËû using ...
 
 public class Product
 {
@@ -8,11 +8,17 @@ public class Product
     public string Name { get; private set; } = default!;
     public string Description { get; private set; } = default!;
     public decimal Price { get; private set; }
+    public string? ImageUrl { get; private set; }
+    public string Category { get; private set; } = default!;
+    public int Stock { get; private set; }
 
-    public void Update(string name, string desc, decimal price)
+    public void Update(string name, string desc, decimal price, string? imageUrl, string category, int stock)
     {
         Name = name;
         Description = desc;
         Price = price;
+        ImageUrl = imageUrl;
+        Category = category;
+        Stock = stock;
     }
 }

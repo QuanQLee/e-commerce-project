@@ -6,6 +6,9 @@ export default function AddProduct() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [category, setCategory] = useState('')
+  const [stock, setStock] = useState('0')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -14,10 +17,16 @@ export default function AddProduct() {
         name,
         description,
         price: parseFloat(price),
+        imageUrl,
+        category,
+        stock: parseInt(stock, 10),
       })
       setName('')
       setDescription('')
       setPrice('')
+      setImageUrl('')
+      setCategory('')
+      setStock('0')
       alert('Product created!')
     } catch (err) {
       console.error(err)
@@ -32,6 +41,9 @@ export default function AddProduct() {
         <TextField label="Name" fullWidth margin="normal" value={name} onChange={e => setName(e.target.value)} />
         <TextField label="Description" fullWidth margin="normal" value={description} onChange={e => setDescription(e.target.value)} />
         <TextField label="Price" fullWidth margin="normal" value={price} onChange={e => setPrice(e.target.value)} />
+        <TextField label="Image URL" fullWidth margin="normal" value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
+        <TextField label="Category" fullWidth margin="normal" value={category} onChange={e => setCategory(e.target.value)} />
+        <TextField label="Stock" fullWidth margin="normal" value={stock} onChange={e => setStock(e.target.value)} />
         <Button variant="contained" type="submit">Add</Button>
       </form>
     </Container>
