@@ -4,7 +4,7 @@ This service handles payment processing for the e-commerce platform. It is imple
 
 ## Minimum Requirements
 
-- **Database**: local SQLite file `payment.db`.
+- **Database**: PostgreSQL. Set the connection string via the `ConnectionStrings__PaymentDb` environment variable.
 - **Ports**:
   - gRPC: `7001`
   - HTTP (gRPC Gateway): `8080`

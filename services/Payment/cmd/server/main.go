@@ -1,14 +1,16 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"net"
+        "context"
+        "fmt"
+        "log"
+        "net"
+        "os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/glebarez/sqlite"
-	gw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+        "github.com/glebarez/sqlite"
+        "gorm.io/driver/postgres"
+        gw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -63,14 +65,24 @@ func (s *server) ListPayments(ctx context.Context, _ *emptypb.Empty) (*pb.ListPa
 
 /********** 初始化数据库 **********/
 func initDB() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("payment.db"), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("sqlite connect: %v", err)
-	}
-	if err := db.AutoMigrate(&Payment{}); err != nil {
-		log.Fatalf("migrate: %v", err)
-	}
-	return db
+        dsn := os.Getenv("ConnectionStrings__PaymentDb")
+        var db *gorm.DB
+        var err error
+        if dsn != "" {
+                db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+                if err != nil {
+                        log.Fatalf("postgres connect: %v", err)
+                }
+        } else {
+                db, err = gorm.Open(sqlite.Open("payment.db"), &gorm.Config{})
+                if err != nil {
+                        log.Fatalf("sqlite connect: %v", err)
+                }
+        }
+        if err := db.AutoMigrate(&Payment{}); err != nil {
+                log.Fatalf("migrate: %v", err)
+        }
+        return db
 }
 
 /********** 入口 **********/
