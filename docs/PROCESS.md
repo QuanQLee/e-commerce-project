@@ -26,6 +26,11 @@ done
 
 # Go service
 cd services/Payment && go test ./...
+
+# Python service
+cd services/Analytics
+poetry install
+poetry run pytest
 ```
 
 Run frontend tests using Jest:
@@ -42,6 +47,16 @@ Bring up the stack locally with Docker:
 cd services
 docker compose up --build
 ```
+
+Alternatively, you can run all tests inside Docker containers. A helper compose
+file defines one-off runners:
+
+```bash
+cd services
+docker compose -f docker-compose.tests.yml up --build --abort-on-container-exit
+```
+
+See [testing.md](testing.md) for details.
 
 ## 4. Continuous Integration
 
@@ -75,3 +90,4 @@ The gateway keeps the services isolated and enforces contract-based routing.
 4. Update the gateway configuration with the new service versions
 
 This workflow keeps the microservices independent while providing a clear path from development to production.
+\nFor monitoring instructions see [monitoring.md](monitoring.md).
