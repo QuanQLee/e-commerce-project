@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  auth.tests:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "dotnet test services/Auth/Auth.Tests/Auth.Tests.csproj --no-build --verbosity normal"
+
+  payment.tests:
+    image: golang:1.23-alpine
+    working_dir: /workspace/services/Payment
+    volumes:
+      - ..:/workspace
+    command: go test ./...
+
+  analytics.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/Analytics
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
+  frontend.tests:
+    image: node:20
+    working_dir: /workspace/frontend
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "npm install --force && npm test --silent"

@@ -95,3 +95,26 @@ docker build -t frontend.app:custom
 ```
 
 Rebuild the image whenever the gateway address changes.
+
+## Monitoring
+
+A minimal Prometheus and Grafana setup is included. Start them from the `services` directory:
+
+```bash
+cd services
+docker compose up prometheus grafana
+```
+
+Prometheus scrapes the gateway and Analytics service using `services/prometheus.yml`. Access Grafana on <http://localhost:3001> (password `admin`) and add Prometheus (`http://prometheus:9090`) as a data source.
+
+## Running Tests in Docker
+
+Use the helper compose file to execute all backend and frontend tests inside containers:
+
+```bash
+cd services
+docker compose -f docker-compose.tests.yml up --build --abort-on-container-exit
+```
+
+Each container installs dependencies and runs the suite for its service. See [docs/testing.md](docs/testing.md) for more information.
+
