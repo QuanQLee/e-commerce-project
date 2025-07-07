@@ -75,3 +75,5 @@ public class AuthDbContext : DbContext
 {
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
 }
+
+public partial class Program {}
