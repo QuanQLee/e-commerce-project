@@ -84,7 +84,9 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ConnectionStrings__PaymentDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+      # Go's lib/pq driver expects a DSN in URI or key=value form, not the
+      # semicolon style used by the .NET services.
+      ConnectionStrings__PaymentDb: "postgres://catalog_admin:P@ssw0rd!@pg:5432/catalog?sslmode=disable"
     ports:
       - "7001:7001"
       - "7002:8080"
