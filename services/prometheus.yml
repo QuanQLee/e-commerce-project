@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'gateway'
+    static_configs:
+      - targets: ['gateway:8001']
+    metrics_path: /metrics
+
+  - job_name: 'analytics'
+    static_configs:
+      - targets: ['analytics.api:8000']
+    metrics_path: /prometheus
