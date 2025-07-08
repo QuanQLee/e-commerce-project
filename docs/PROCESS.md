@@ -63,14 +63,17 @@ See [testing.md](testing.md) for details.
 
 ## 4. Continuous Integration
 
-A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push. It performs the following:
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push. It now:
 
-1. Set up .NET 8 and Go
-2. Restore dependencies
-3. Run the unit tests
-4. Build Docker images for each service
+1. Sets up **.NET 8**, **Go**, **Python 3.12** and **Node 20**
+2. Restores dependencies and installs lint tools
+3. Executes unit tests for all services with coverage enabled
+4. Runs ESLint, golangci-lint and flake8 to catch style issues
+5. Launches `docker compose` to perform basic integration tests
+6. Builds Docker images for each service
 
-You can extend the workflow to push images to a registry or deploy to Kubernetes.
+When changes land on the `main` branch and all checks pass the workflow pushes
+images to the registry and can deploy to Kubernetes after manual approval.
 
 ## 5. API Gateway
 

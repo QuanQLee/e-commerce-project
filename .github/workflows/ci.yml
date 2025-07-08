@@ -1,10 +1,17 @@
 name: CI
 
+on:
+  push:
+  pull_request:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
@@ -16,14 +23,20 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      - name: Run tests
+      - name: Install tools
+        run: |
+          pip install flake8 poetry
+          npm install -g eslint
+      - name: Run tests and linters
         run: |
           for proj in services/*/*.Tests/*.csproj; do
             echo "Testing $proj"
-            dotnet test "$proj" --no-build
+            dotnet test "$proj" --no-build --collect:"XPlat Code Coverage"
           done
-          (cd services/Payment && go test ./...)
-          (cd frontend && npm ci && npm test --ci --silent)
+          (cd services/Payment && golangci-lint run && go test ./... -coverprofile=coverage.out)
+          (cd services/Admin && poetry install --no-interaction && flake8 app tests && poetry run pytest --cov)
+          (cd services/Analytics && poetry install --no-interaction && flake8 app tests && poetry run pytest --cov)
+          (cd frontend && npm ci --force && npx eslint src && npm test --ci --silent --coverage)
       - name: Build images
         run: docker compose -f services/docker-compose.yml build
       - name: Sync Kong config
@@ -31,3 +44,7 @@ jobs:
         with:
           command: sync
           config: services/Gateway/kong.yml
+      - name: Push images
+        if: github.ref == 'refs/heads/main'
+        run: docker compose -f services/docker-compose.yml push
+

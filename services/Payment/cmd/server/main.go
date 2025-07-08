@@ -117,8 +117,8 @@ func initDB() *gorm.DB {
 
 /********** 入口 **********/
 func main() {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
+    logger, _ := zap.NewProduction()
+    defer func() { _ = logger.Sync() }()
 	db := initDB()
 
 	/* ---------- gRPC ---------- */
