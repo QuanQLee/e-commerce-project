@@ -16,6 +16,9 @@ Prometheus will scrape metrics from:
 - `gateway:8001/metrics`
 - `analytics.api:8000/prometheus`
 - `notification.api:8000/prometheus`
+- `promotion.api:8000/prometheus`
+- `review.api:8000/prometheus`
+- `recommendation.api:8000/prometheus`
 
 Grafana is available on [http://localhost:3001](http://localhost:3001) with the default password `admin`. Add Prometheus (`http://prometheus:9090`) as a data source and import dashboards as needed.
 

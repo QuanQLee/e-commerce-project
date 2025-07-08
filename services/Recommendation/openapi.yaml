@@ -1,0 +1,29 @@
+openapi: 3.1.0
+info:
+  title: Recommendation API
+  version: v1
+paths:
+  /recommendations/{productId}:
+    get:
+      summary: Get recommendations for a product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK

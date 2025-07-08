@@ -23,6 +23,18 @@ scrape_configs:
     static_configs:
       - targets: ['notification.api:8000']
     metrics_path: /prometheus
+  - job_name: 'promotion'
+    static_configs:
+      - targets: ['promotion.api:8000']
+    metrics_path: /prometheus
+  - job_name: 'review'
+    static_configs:
+      - targets: ['review.api:8000']
+    metrics_path: /prometheus
+  - job_name: 'recommendation'
+    static_configs:
+      - targets: ['recommendation.api:8000']
+    metrics_path: /prometheus
   - job_name: 'admin'
     static_configs:
       - targets: ['admin.api:8000']

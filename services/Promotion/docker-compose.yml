@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  promotion.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: promotion.api:dev
+    container_name: promotion-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8400:8000"

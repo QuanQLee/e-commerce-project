@@ -182,6 +182,42 @@ services:
     ports:
       - "8200:8000"
 
+  promotion.api:
+    build:
+      context: ./Promotion
+      dockerfile: Dockerfile
+    image: promotion.api:dev
+    container_name: promotion-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8400:8000"
+
+  review.api:
+    build:
+      context: ./Review
+      dockerfile: Dockerfile
+    image: review.api:dev
+    container_name: review-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8500:8000"
+
+  recommendation.api:
+    build:
+      context: ./Recommendation
+      dockerfile: Dockerfile
+    image: recommendation.api:dev
+    container_name: recommendation-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8600:8000"
+
   admin.api:
     build:
       context: ./Admin
@@ -220,6 +256,9 @@ services:
       - auth.api
       - security.api
       - notification.api
+      - promotion.api
+      - review.api
+      - recommendation.api
     ports:
       - "8000:8000"
       - "8001:8001"

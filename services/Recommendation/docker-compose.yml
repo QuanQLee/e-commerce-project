@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  recommendation.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: recommendation.api:dev
+    container_name: recommendation-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8600:8000"
