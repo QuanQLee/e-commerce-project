@@ -1,0 +1,53 @@
+openapi: 3.1.0
+info:
+  title: Promotion API
+  version: v1
+paths:
+  /coupons:
+    post:
+      summary: Create a coupon
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Coupon'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+    get:
+      summary: List coupons
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Coupon'
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    Coupon:
+      type: object
+      properties:
+        code:
+          type: string
+        discount:
+          type: number
+      required:
+        - code
+        - discount

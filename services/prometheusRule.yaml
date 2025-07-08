@@ -34,4 +34,36 @@ spec:
       annotations:
         summary: "No admin traffic"
         description: "Admin service received no requests in 10 minutes."
+  - name: promotion.rules
+    rules:
+    - alert: CouponsCreatedSpike
+      expr: rate(coupons_created_total[5m]) > 10
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High coupon creation rate"
+        description: "More than 10 coupons created per minute in the last 5 minutes."
+
+  - name: review.rules
+    rules:
+    - alert: ReviewsCreatedSpike
+      expr: rate(reviews_created_total[5m]) > 20
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High review activity"
+        description: "More than 20 reviews created per minute in the last 5 minutes."
+
+  - name: recommendation.rules
+    rules:
+    - alert: RecommendationTrafficLow
+      expr: rate(recommendation_requests_total[10m]) == 0
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "No recommendation traffic"
+        description: "Recommendation service received no requests in 10 minutes."
 

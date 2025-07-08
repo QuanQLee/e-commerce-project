@@ -69,6 +69,30 @@ services:
           - /api/v1/inventory
         strip_path: true
 
+  - name: promotion
+    url: http://promotion.api:8000
+    routes:
+      - name: promotion
+        paths:
+          - /api/v1/promotion
+        strip_path: true
+
+  - name: review
+    url: http://review.api:8000
+    routes:
+      - name: review
+        paths:
+          - /api/v1/review
+        strip_path: true
+
+  - name: recommendation
+    url: http://recommendation.api:8000
+    routes:
+      - name: recommendation
+        paths:
+          - /api/v1/recommendation
+        strip_path: true
+
   - name: auth
     url: http://auth.api:80
     routes:

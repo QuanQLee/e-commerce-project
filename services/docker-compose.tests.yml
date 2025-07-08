@@ -31,6 +31,30 @@ services:
     command: >-
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
+  promotion.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/Promotion
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
+  review.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/Review
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
+  recommendation.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/Recommendation
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
   frontend.tests:
     image: node:20
     working_dir: /workspace/frontend

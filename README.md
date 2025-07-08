@@ -17,6 +17,9 @@ This repository contains microservices that together form a small e-commerce pla
   - **Auth** – provides authentication under `services/Auth`.
   - **Security** – offers security features under `services/Security`.
   - **Notification** – sends email alerts under `services/Notification`.
+  - **Promotion** – manages coupons under `services/Promotion`.
+  - **Review** – stores product reviews under `services/Review`.
+  - **Recommendation** – suggests related products under `services/Recommendation`.
 
 ## Gateway
 

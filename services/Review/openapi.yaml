@@ -1,0 +1,66 @@
+openapi: 3.1.0
+info:
+  title: Review API
+  version: v1
+paths:
+  /reviews:
+    post:
+      summary: Submit a review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+    
+  /reviews/{productId}:
+    get:
+      summary: List reviews for a product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+  /healthz:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    Review:
+      type: object
+      properties:
+        product_id:
+          type: string
+        user_id:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: string
+      required:
+        - product_id
+        - user_id
+        - rating
