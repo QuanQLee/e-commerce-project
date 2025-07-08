@@ -55,6 +55,10 @@ namespace Catalog.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Category");
+
+                    b.HasIndex("Name");
+
                     b.ToTable("products", "catalog");
                 });
 #pragma warning restore 612, 618

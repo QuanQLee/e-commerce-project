@@ -29,12 +29,20 @@ namespace Order.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Status")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric(12,2)");
+
+                    b.HasIndex("UserId", "CreatedAt");
 
                     b.HasKey("Id");
 

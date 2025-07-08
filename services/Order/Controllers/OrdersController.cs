@@ -26,13 +26,13 @@ public class OrdersController(OrderDbContext db) : ControllerBase
         => await db.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == id)
             is { } order ? Ok(order) : NotFound();
 
-    public record CreateOrderDto(List<CreateOrderItemDto> Items);
+    public record CreateOrderDto(Guid UserId, List<CreateOrderItemDto> Items);
     public record CreateOrderItemDto(string ProductName, decimal Price);
 
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateOrderDto dto)
     {
-        var order = new OrderEntity();
+        var order = new OrderEntity { UserId = dto.UserId };
         foreach (var item in dto.Items)
         {
             order.AddItem(item.ProductName, item.Price);

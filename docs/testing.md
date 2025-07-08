@@ -18,3 +18,21 @@ This spins up containers that install dependencies and run the test suites:
 - **frontend.tests** – installs Node modules and runs Jest
 
 Containers exit after finishing. Review their logs for results.
+
+## Local Runs
+
+You can also execute tests without Docker. Install dependencies with
+`poetry` and run `pytest` inside each service directory:
+
+```bash
+cd services/Analytics
+poetry install
+pytest
+
+cd ../Inventory
+poetry install
+pytest
+```
+
+When launching tests from the repository root, set `PYTHONPATH` to the
+service path so imports of the `app` package resolve correctly.

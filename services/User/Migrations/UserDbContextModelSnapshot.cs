@@ -40,6 +40,12 @@ namespace User.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
                     b.HasKey("Id");
 
                     b.ToTable("users", "user");

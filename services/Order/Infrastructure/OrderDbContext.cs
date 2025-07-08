@@ -15,9 +15,11 @@ public class OrderDbContext(DbContextOptions<OrderDbContext> options) : DbContex
         {
             eb.ToTable("orders");
             eb.HasKey(o => o.Id);
+            eb.Property(o => o.UserId).IsRequired();
             eb.Property(o => o.Status).HasConversion<int>();
             eb.Property(o => o.CreatedAt);
             eb.Property(o => o.TotalPrice).HasColumnType("numeric(12,2)");
+            eb.HasIndex(o => new { o.UserId, o.CreatedAt });
         });
 
         modelBuilder.Entity<OrderItem>(eb =>

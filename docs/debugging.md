@@ -62,3 +62,12 @@ cd services/Cart
 ./debug-cart.sh
 ```
 
+## Order Service
+
+Run the Order service in watch mode:
+
+```bash
+cd services/Order
+./debug-order.sh
+```
+

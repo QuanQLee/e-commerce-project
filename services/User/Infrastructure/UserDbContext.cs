@@ -17,6 +17,8 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
             eb.HasKey(u => u.Id);
             eb.Property(u => u.UserName).HasMaxLength(100);
             eb.Property(u => u.Email).HasMaxLength(200);
+            eb.HasIndex(u => u.UserName).IsUnique();
+            eb.HasIndex(u => u.Email).IsUnique();
         });
     }
 }

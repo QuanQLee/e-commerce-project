@@ -59,10 +59,16 @@ components:
     CreateOrderDto:
       type: object
       properties:
+        userId:
+          type: string
+          format: uuid
         items:
           type: array
           items:
             $ref: '#/components/schemas/CreateOrderItemDto'
+      required:
+        - userId
+        - items
   CreateOrderItemDto:
     type: object
     properties:
