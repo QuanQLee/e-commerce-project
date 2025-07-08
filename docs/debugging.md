@@ -71,3 +71,19 @@ cd services/Order
 ./debug-order.sh
 ```
 
+
+## Inventory Service
+
+Use the helper script to run with auto reload:
+```bash
+cd services/Inventory
+./debug-inventory.sh
+```
+
+## Payment Script
+
+A convenience wrapper exists for quickly starting the Payment service:
+```bash
+cd services/Payment
+./debug-payment.sh
+```

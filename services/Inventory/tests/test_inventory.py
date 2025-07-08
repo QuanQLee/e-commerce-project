@@ -1,3 +1,8 @@
+import os
+TEST_DB = os.path.join(os.path.dirname(__file__), "test.db")
+if os.path.exists(TEST_DB):
+    os.remove(TEST_DB)
+os.environ.setdefault("POSTGRES_DSN", f"sqlite:///{TEST_DB}")
 from fastapi.testclient import TestClient
 from app.main import app, init_db
 
