@@ -21,4 +21,8 @@ public class Product
         Category = category;
         Stock = stock;
     }
+
+    // Backwards compatible overload used in tests
+    public void Update(string name, string desc, decimal price)
+        => Update(name, desc, price, null, "", 0);
 }

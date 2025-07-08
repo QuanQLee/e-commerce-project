@@ -31,6 +31,9 @@ cd services/Payment && go test ./...
 cd services/Analytics
 poetry install
 poetry run pytest
+cd ../Inventory
+poetry install
+poetry run pytest
 ```
 
 Run frontend tests using Jest:

@@ -56,6 +56,14 @@ services:
           - /api/v1/analytics
         strip_path: true
 
+  - name: inventory
+    url: http://inventory.api:8000
+    routes:
+      - name: inventory
+        paths:
+          - /api/v1/inventory
+        strip_path: true
+
   - name: auth
     url: http://auth.api:80
     routes:

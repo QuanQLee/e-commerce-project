@@ -12,6 +12,7 @@ docker compose -f docker-compose.tests.yml up --build --abort-on-container-exit
 This spins up containers that install dependencies and run the test suites:
 
 - **analytics.tests** – runs `poetry install` and `pytest`
+- **inventory.tests** – runs `poetry install` and `pytest`
 - **auth.tests** – executes `dotnet test`
 - **payment.tests** – runs Go unit tests
 - **frontend.tests** – installs Node modules and runs Jest
