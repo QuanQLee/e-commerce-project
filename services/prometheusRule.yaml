@@ -14,3 +14,13 @@ spec:
       annotations:
         summary: "No orders progressing"
         description: "Orders are not transitioning status."
+  - name: payment.rules
+    rules:
+    - alert: PaymentFailuresHigh
+      expr: rate(payments_total{status="failed"}[5m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Payments failing"
+        description: "Payment failures detected in the last 5 minutes."
