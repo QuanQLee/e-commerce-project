@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+    spec:
+      containers:
+        - name: kong
+          image: kong:3.6
+          env:
+            - name: KONG_DATABASE
+              value: off
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /etc/kong/kong.yml
+          volumeMounts:
+            - name: config
+              mountPath: /etc/kong
+          ports:
+            - containerPort: 8000
+            - containerPort: 8443
+      volumes:
+        - name: config
+          configMap:
+            name: kong-config
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kong
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kong
+                port:
+                  number: 8000
