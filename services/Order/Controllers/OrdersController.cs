@@ -5,6 +5,7 @@ using Order.Api.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Prometheus;
 
 namespace Order.Api.Controllers;
 
@@ -12,6 +13,10 @@ namespace Order.Api.Controllers;
 [Route("orders")]
 public class OrdersController(OrderDbContext db) : ControllerBase
 {
+    private static readonly Counter OrdersCreated = Metrics.CreateCounter(
+        "orders_created_total", "Total orders created");
+    private static readonly Counter StatusChanged = Metrics.CreateCounter(
+        "orders_status_changed_total", "Order status transitions");
     [HttpGet]
     public async Task<ActionResult<IEnumerable<OrderEntity>>> GetAll()
         => await db.Orders.Include(o => o.Items).AsNoTracking().ToListAsync();
@@ -34,6 +39,20 @@ public class OrdersController(OrderDbContext db) : ControllerBase
         }
         db.Orders.Add(order);
         await db.SaveChangesAsync();
+        OrdersCreated.Inc();
         return CreatedAtAction(nameof(Get), new { id = order.Id }, order.Id);
+    }
+
+    public record UpdateStatusDto(OrderStatus Status);
+
+    [HttpPut("{id:guid}/status")]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateStatusDto dto)
+    {
+        var order = await db.Orders.FindAsync(id);
+        if (order == null) return NotFound();
+        order.UpdateStatus(dto.Status);
+        await db.SaveChangesAsync();
+        StatusChanged.Inc();
+        return Ok();
     }
 }

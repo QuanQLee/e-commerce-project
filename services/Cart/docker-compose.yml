@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: cart-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+  cart.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cart.api:dev
+    container_name: cart-api
+    depends_on:
+      - redis
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Redis: "redis:6379"
+    ports:
+      - "5010:80"

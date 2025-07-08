@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ecommerce-rules
+spec:
+  groups:
+  - name: order.rules
+    rules:
+    - alert: OrdersStuckPending
+      expr: rate(orders_status_changed_total[5m]) == 0
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "No orders progressing"
+        description: "Orders are not transitioning status."

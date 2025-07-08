@@ -35,6 +35,25 @@ paths:
           description: Order
         '404':
           description: Not found
+  /orders/{id}/status:
+    put:
+      summary: Update order status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusDto'
+      responses:
+        '200':
+          description: Updated
 components:
   schemas:
     CreateOrderDto:
@@ -44,11 +63,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CreateOrderItemDto'
-    CreateOrderItemDto:
-      type: object
-      properties:
-        productName:
-          type: string
-        price:
-          type: number
-          format: decimal
+  CreateOrderItemDto:
+    type: object
+    properties:
+      productName:
+        type: string
+      price:
+        type: number
+        format: decimal
+  UpdateStatusDto:
+    type: object
+    properties:
+      status:
+        $ref: '#/components/schemas/OrderStatus'
+    required:
+      - status
+  OrderStatus:
+    type: integer
+    description: Order status enum

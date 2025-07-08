@@ -8,6 +8,7 @@ public class OrderEntityTests
     public void AddItem_IncreasesTotalPrice()
     {
         var order = new OrderEntity();
+        Assert.Equal(OrderStatus.PendingPayment, order.Status);
         order.AddItem("Product", 10m);
         order.AddItem("Another", 5m);
         Assert.Equal(15m, order.TotalPrice);
