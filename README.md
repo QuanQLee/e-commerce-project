@@ -57,6 +57,9 @@ automatically on first run. Simply execute `./gradlew` in `services/Security`.
 
 ## Service Documentation
 
+- [Database guidelines](docs/database.md)
+- [Monitoring stack](docs/monitoring.md)
+- [Service communication and reliability](docs/service-communication.md)
 
 ## Frontend
 
