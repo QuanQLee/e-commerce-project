@@ -91,6 +91,28 @@ services:
       - "7001:7001"
       - "7002:8080"
 
+  cart.redis:
+    image: redis:7-alpine
+    container_name: cart-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  cart.api:
+    build:
+      context: ./Cart
+      dockerfile: Dockerfile
+    image: cart.api:dev
+    container_name: cart-api
+    depends_on:
+      - cart.redis
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Redis: "cart.redis:6379"
+    ports:
+      - "5010:80"
+
   analytics.api:
     build:
       context: ./Analytics
@@ -144,6 +166,7 @@ services:
       - user.api
       - shipping.api
       - payment.api
+      - cart.api
       - analytics.api
       - auth.api
       - security.api

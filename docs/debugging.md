@@ -53,3 +53,12 @@ npm run dev
 
 Most editors can attach their JavaScript debugger to the Vite dev server on port `5173`.
 
+## Cart Service
+
+Run the Cart service with hot reload and attached debugger:
+
+```bash
+cd services/Cart
+./debug-cart.sh
+```
+

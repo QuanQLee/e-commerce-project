@@ -1,0 +1,81 @@
+openapi: 3.1.0
+info:
+  title: Cart API
+  version: v1
+paths:
+  /cart/{userId}:
+    get:
+      summary: Get items in cart
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: List of cart items
+    post:
+      summary: Add item to cart
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyItemDto'
+      responses:
+        '200':
+          description: Added
+  /cart/{userId}/items/{productId}:
+    put:
+      summary: Update quantity
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: productId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyItemDto'
+      responses:
+        '200':
+          description: Updated
+  /cart/{userId}/checkout:
+    post:
+      summary: Checkout cart
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Order created
+components:
+  schemas:
+    ModifyItemDto:
+      type: object
+      properties:
+        productId:
+          type: string
+        quantity:
+          type: integer
+      required:
+        - productId
+        - quantity

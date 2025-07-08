@@ -16,8 +16,15 @@ using Microsoft.Extensions.Configuration;
 // using Rebus.ServiceProvider;
 // using Rebus.InMemory;
 using Quartz;
+using Serilog;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((ctx, cfg) => cfg
+    .ReadFrom.Configuration(ctx.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console());
 
 builder.WebHost.UseUrls("http://0.0.0.0:80");
 
@@ -48,11 +55,15 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 
 builder.Services.AddQuartz(q => { });
 builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+app.UseSerilogRequestLogging();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
+app.MapHealthChecks("/healthz");
+app.UseHttpMetrics();
 
 app.Run();
