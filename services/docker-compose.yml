@@ -154,6 +154,20 @@ services:
     ports:
       - "8082:8082"
 
+  notification.api:
+    build:
+      context: ./Notification
+      dockerfile: Dockerfile
+    image: notification.api:dev
+    container_name: notification-api
+    restart: unless-stopped
+    environment:
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
+      SMTP_FROM: no-reply@example.com
+    ports:
+      - "8200:8000"
+
   gateway:
     build:
       context: ./Gateway
@@ -170,6 +184,7 @@ services:
       - analytics.api
       - auth.api
       - security.api
+      - notification.api
     ports:
       - "8000:8000"
       - "8001:8001"
