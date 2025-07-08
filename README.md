@@ -13,6 +13,7 @@ This repository contains microservices that together form a small e-commerce pla
   - **Payment** – processes transactions under `services/Payment`.
   - **Inventory** – manages stock levels under `services/Inventory`.
   - **Analytics** – collects metrics under `services/Analytics`.
+  - **Admin** – backoffice APIs under `services/Admin`.
   - **Auth** – provides authentication under `services/Auth`.
   - **Security** – offers security features under `services/Security`.
   - **Notification** – sends email alerts under `services/Notification`.

@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "admin"
+version = "0.1.0"
+description = "Backoffice admin service"
+authors = ["Example <example@example.com>"]
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110"
+uvicorn = "^0.29"
+httpx = "^0.27"
+prometheus-client = "^0.20"
+structlog = "^24.1"
+opentelemetry-api = "^1.24"
+opentelemetry-sdk = "^1.24"
+opentelemetry-instrumentation-fastapi = "0.55b1"
+opentelemetry-instrumentation-httpx = "0.55b1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+pytest-asyncio = "^0.23"
+
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"
