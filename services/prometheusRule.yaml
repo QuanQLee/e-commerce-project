@@ -24,13 +24,4 @@ spec:
       annotations:
         summary: "Payments failing"
         description: "Payment failures detected in the last 5 minutes."
-  - name: inventory.rules
-    rules:
-    - alert: InventoryLow
-      expr: inventory_quantity < 5
-      for: 1m
-      labels:
-        severity: warning
-      annotations:
-        summary: "Inventory running low"
-        description: "Product inventory below threshold"
+

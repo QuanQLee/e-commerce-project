@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  notification.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: notification.api:dev
+    container_name: notification-api
+    restart: unless-stopped
+    environment:
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
+      SMTP_FROM: no-reply@example.com
+    ports:
+      - "8200:8000"
