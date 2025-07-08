@@ -65,15 +65,7 @@ See [testing.md](testing.md) for details.
 
 A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push. It now:
 
-1. Sets up **.NET 8**, **Go**, **Python 3.12** and **Node 20**
-2. Restores dependencies and installs lint tools
-3. Executes unit tests for all services with coverage enabled
-4. Runs ESLint, golangci-lint and flake8 to catch style issues
-5. Launches `docker compose` to perform basic integration tests
-6. Builds Docker images for each service
 
-When changes land on the `main` branch and all checks pass the workflow pushes
-images to the registry and can deploy to Kubernetes after manual approval.
 
 ## 5. API Gateway
 
@@ -94,6 +86,8 @@ The gateway keeps the services isolated and enforces contract-based routing.
 2. Push the images to your container registry
 3. Deploy the stack using Docker Compose or a Kubernetes manifest
 4. Update the gateway configuration with the new service versions
+5. Create a version tag (`vMAJOR.MINOR.PATCH`) so `release.yml` can publish the
+   multi-architecture images and generate release notes
 
 This workflow keeps the microservices independent while providing a clear path from development to production.
 \nFor monitoring instructions see [monitoring.md](monitoring.md).
