@@ -3,7 +3,7 @@
 This service manages user accounts for the platform. It is implemented in **.NET 8 WebAPI** with **Rebus** for asynchronous messaging and **Quartz.NET** for background jobs.
 
 ## Environment Variables
-- `ConnectionStrings__UserDb`: PostgreSQL connection string, for example `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!`.
+- `ConnectionStrings__UserDb`: PostgreSQL connection string, for example `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=<your-password>`.
 
 ## Database Schema
 Schema name: `user` with single table `users`.

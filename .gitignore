@@ -45,7 +45,7 @@ obj/
 *.vs/
 *.cache
 
-# Ç°¶Ë³£¼û
+# å‰ç«¯å¸¸è§
 bower_components/
 jspm_packages/
 dist/
@@ -56,14 +56,14 @@ tmp/
 coverage/
 .nyc_output/
 
-# IDE¡¢±à¼­Æ÷
+# IDEã€ç¼–è¾‘å™¨
 .vscode/
 .idea/
 *.code-workspace
 *.sublime-workspace
 *.sublime-project
 
-# ²Ù×÷ÏµÍ³&ÁÙÊ±
+# æ“ä½œç³»ç»Ÿ&ä¸´æ—¶
 .DS_Store
 Thumbs.db
 ehthumbs.db
@@ -74,7 +74,7 @@ Desktop.ini
 *.swo
 *.bak
 
-# Ñ¹Ëõ°ü/Êı¾İ¿â
+# å‹ç¼©åŒ…/æ•°æ®åº“
 *.zip
 *.tar.gz
 *.rar
@@ -102,3 +102,6 @@ docker-compose.override.yml
 *.avi
 *.mp3
 *.wav
+# Ignore TLS certificates but keep a placeholder file
+services/Gateway/certs/*
+!services/Gateway/certs/.gitkeep

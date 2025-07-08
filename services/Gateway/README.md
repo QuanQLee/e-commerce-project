@@ -17,7 +17,16 @@ Each microservice is available under the `/api/v1/` prefix, for example:
 
 Global plugins enable JWT authentication, ACL based authorisation, rate limiting and Prometheus metrics. New services are added by updating `kong.yml` and reloading Kong (handled by the CI pipeline).
 
-You can run the full stack from the `services` directory, or start a small test setup from this folder:
+You can run the full stack from the `services` directory, or start a small test
+setup from this folder. Provide a TLS certificate and key in `certs/` which will
+be mounted into the container. HTTPS is exposed on port **8443**:
 ```bash
 docker compose up --build
+```
+
+Ensure environment variables such as `DB_PASSWORD` are set (see `.env.example`). The gateway will serve HTTPS traffic on `https://localhost:8443`.
+If you do not have certificates yet, you can generate a self-signed pair using:
+```bash
+openssl req -x509 -nodes -newkey rsa:2048 -keyout certs/gateway.key \
+  -out certs/gateway.crt -subj '/CN=localhost'
 ```

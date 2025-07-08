@@ -5,9 +5,9 @@ services:
     container_name: catalog-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: catalog_admin
-      POSTGRES_PASSWORD: P@ssw0rd!
-      POSTGRES_DB: catalog
+      POSTGRES_USER: ${DB_USER:-catalog_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-catalog}
     ports:
       - "5432:5432"
     volumes:
@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
       - "5000:80"
       - "5001:443"
@@ -40,7 +40,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__OrderDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+      ConnectionStrings__OrderDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
       - "5002:80"
 
@@ -55,7 +55,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__UserDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+      ConnectionStrings__UserDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
       - "5003:80"
 
@@ -70,7 +70,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__ShippingDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+      ConnectionStrings__ShippingDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
       - "5004:80"
 
@@ -86,7 +86,7 @@ services:
     environment:
       # Go's lib/pq driver expects a DSN in URI or key=value form, not the
       # semicolon style used by the .NET services.
-      POSTGRES_DSN: "postgres://catalog_admin:P@ssw0rd!@pg:5432/catalog?sslmode=disable"
+      POSTGRES_DSN: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
     ports:
       - "7001:7001"
       - "7002:8080"
@@ -123,7 +123,7 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      POSTGRES_DSN: "postgres://catalog_admin:P@ssw0rd!@pg:5432/catalog?sslmode=disable"
+      POSTGRES_DSN: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
     ports:
       - "8200:8000"
 
@@ -137,7 +137,7 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ConnectionStrings__AnalyticsDb: "postgresql://catalog_admin:P@ssw0rd!@pg:5432/catalog"
+      ConnectionStrings__AnalyticsDb: "postgresql://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}"
     ports:
       - "8100:8000"
 
@@ -152,7 +152,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
       - "7000:80"
 
@@ -261,13 +261,17 @@ services:
       - recommendation.api
     ports:
       - "8000:8000"
+      - "8443:8443"
       - "8001:8001"
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /kong/kong.yml  # 注意路径
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_SSL_CERT: /certs/gateway.crt
+      KONG_SSL_CERT_KEY: /certs/gateway.key
     volumes:
       - ./Gateway/kong.yml:/kong/kong.yml
+      - ./Gateway/certs:/certs:ro
 
   frontend:
     build:

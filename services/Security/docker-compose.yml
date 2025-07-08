@@ -5,9 +5,9 @@ services:
     container_name: security-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: catalog_admin
-      POSTGRES_PASSWORD: P@ssw0rd!
-      POSTGRES_DB: catalog
+      POSTGRES_USER: ${DB_USER:-catalog_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-catalog}
     ports:
       - "5436:5432"
     volumes:
@@ -23,9 +23,9 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://pg:5432/catalog
-      SPRING_DATASOURCE_USERNAME: catalog_admin
-      SPRING_DATASOURCE_PASSWORD: P@ssw0rd!
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pg:5432/${DB_NAME:-catalog}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-catalog_admin}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_DATASOURCE_HIKARI_SCHEMA: security
     ports:
       - "8082:8082"
