@@ -28,3 +28,11 @@ Edit `services/prometheus.yml` to add additional scrape targets for other servic
 
 Alerting rules are defined in `services/prometheusRule.yaml`. Prometheus will trigger
 notifications when thresholds such as stalled orders or payment failures are exceeded.
+
+## Logging
+
+Each service writes structured logs to stdout. When running in Docker these can be collected by your container runtime or forwarded to a log aggregation stack such as the ELK stack or Loki. Log messages should include request identifiers so traces can be correlated across services.
+
+## Alert Rules
+
+Prometheus loads alert definitions from `services/prometheusRule.yaml`. Extend this file to watch for error rates, latency spikes or abnormal traffic in any service. Alertmanager forwards notifications to email or chat channels when a rule triggers.

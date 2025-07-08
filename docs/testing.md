@@ -36,3 +36,7 @@ pytest
 
 When launching tests from the repository root, set `PYTHONPATH` to the
 service path so imports of the `app` package resolve correctly.
+
+## Contract Tests
+
+Every service defines an `openapi.yaml` describing its API. Tools such as Dredd or Schemathesis can exercise the implementation against the contract to detect breaking changes. Integrate these checks into your CI pipeline alongside unit tests.
