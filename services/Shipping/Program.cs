@@ -2,13 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using Shipping.Api.Infrastructure;
 using MassTransit;
 using Hangfire;
-// ¡ï ÐÂÔöÐÐ£ºÒýÈëÄÚ´æ´æ´¢°ü
-using Hangfire.MemoryStorage;                     // <-- ÐÞ¸Ä
-// using Hangfire.PostgreSql;                    // ¡û ÕâÒ»ÐÐ¿ÉÒÔÉ¾µô»ò×¢ÊÍ
+//  Ð£Ú´æ´¢
+using Hangfire.MemoryStorage;                     // <-- Þ¸
+// using Hangfire.PostgreSql;                    //  Ò»Ð¿É¾×¢
 using Shipping.Api.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:80");
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -18,16 +20,16 @@ builder.Services.AddSwaggerGen(o =>
     o.SwaggerDoc("v1", new() { Title = "Shipping API", Version = "v1" });
 });
 
-// ¡ï ¸Ä³É In-Memory DB
+//  Ä³ In-Memory DB
 builder.Services.AddDbContext<ShippingDbContext>(options =>
 {
-    options.UseInMemoryDatabase("ShippingTest");  // <-- ÐÞ¸Ä
+    options.UseInMemoryDatabase("ShippingTest");  // <-- Þ¸
 });
 
-// ¡ï Hangfire Ò²»»³ÉÄÚ´æ´æ´¢
+//  Hangfire Ò²Ú´æ´¢
 builder.Services.AddHangfire(config =>
 {
-    config.UseMemoryStorage();                    // <-- ÐÞ¸Ä
+    config.UseMemoryStorage();                    // <-- Þ¸
 });
 builder.Services.AddHangfireServer();
 
@@ -47,7 +49,7 @@ app.UseRouting();
 app.UseHangfireDashboard();
 app.MapControllers();
 
-// ¡ï ¶¨Ê±ÈÎÎñÕÕ³£¿ÉÓÃ
+//  Ê±Õ³
 RecurringJob.AddOrUpdate<CheckPendingShipmentsJob>(
     "check-pending",
     job => job.Run(),

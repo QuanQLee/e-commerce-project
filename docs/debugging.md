@@ -87,3 +87,11 @@ A convenience wrapper exists for quickly starting the Payment service:
 cd services/Payment
 ./debug-payment.sh
 ```
+
+## Shipping Service
+
+Run the Shipping service with hot reload and console logging:
+```bash
+cd services/Shipping
+./debug-shipping.sh
+```
