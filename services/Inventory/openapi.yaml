@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Inventory API
+  version: v1
+paths:
+  /inventory/{productId}:
+    get:
+      summary: Get stock for a product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stock info
+    
+  /inventory/reserve:
+    post:
+      summary: Reserve stock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStock'
+      responses:
+        '200':
+          description: Reservation result
+  /inventory/release:
+    post:
+      summary: Release stock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStock'
+      responses:
+        '200':
+          description: Release result
+components:
+  schemas:
+    UpdateStock:
+      type: object
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: integer
+      required:
+        - product_id
+        - quantity

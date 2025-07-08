@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  inventory.api:
+    build: .
+    image: inventory.api:dev
+    container_name: inventory-api
+    restart: unless-stopped
+    environment:
+      POSTGRES_DSN: "postgres://catalog_admin:P@ssw0rd!@pg:5432/catalog?sslmode=disable"
+    ports:
+      - "8200:8000"

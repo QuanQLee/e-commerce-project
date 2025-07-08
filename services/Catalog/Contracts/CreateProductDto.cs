@@ -4,6 +4,6 @@ public record CreateProductDto(
     string Name,
     string Description,
     decimal Price,
-    string? ImageUrl,
-    string Category,
-    int Stock);
+    string? ImageUrl = null,
+    string Category = "",
+    int Stock = 0);

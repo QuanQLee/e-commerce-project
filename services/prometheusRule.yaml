@@ -24,13 +24,4 @@ spec:
       annotations:
         summary: "Payments failing"
         description: "Payment failures detected in the last 5 minutes."
-  - name: notification.rules
-    rules:
-    - alert: NotificationFailuresHigh
-      expr: rate(notifications_sent_total{status="failed"}[5m]) > 0
-      for: 5m
-      labels:
-        severity: critical
-      annotations:
-        summary: "Notification delivery failing"
-        description: "Failed notifications detected in the last 5 minutes."
+

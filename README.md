@@ -11,6 +11,7 @@ This repository contains microservices that together form a small e-commerce pla
   - **User** – manages user accounts under `services/User`.
   - **Shipping** – coordinates delivery under `services/Shipping`.
   - **Payment** – processes transactions under `services/Payment`.
+  - **Inventory** – manages stock levels under `services/Inventory`.
   - **Analytics** – collects metrics under `services/Analytics`.
   - **Auth** – provides authentication under `services/Auth`.
   - **Security** – offers security features under `services/Security`.

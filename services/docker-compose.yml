@@ -113,6 +113,20 @@ services:
     ports:
       - "5010:80"
 
+  inventory.api:
+    build:
+      context: ./Inventory
+      dockerfile: Dockerfile
+    image: inventory.api:dev
+    container_name: inventory-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_DSN: "postgres://catalog_admin:P@ssw0rd!@pg:5432/catalog?sslmode=disable"
+    ports:
+      - "8200:8000"
+
   analytics.api:
     build:
       context: ./Analytics
@@ -181,6 +195,7 @@ services:
       - shipping.api
       - payment.api
       - cart.api
+      - inventory.api
       - analytics.api
       - auth.api
       - security.api
