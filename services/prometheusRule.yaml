@@ -14,6 +14,14 @@ spec:
       annotations:
         summary: "No orders progressing"
         description: "Orders are not transitioning status."
+    - alert: OrdersPendingTooLong
+      expr: increase(orders_created_total[15m]) > 0 and rate(orders_status_changed_total[15m]) == 0
+      for: 15m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Orders stuck in pending state"
+        description: "New orders created but no status changes in the last 15 minutes."
   - name: payment.rules
     rules:
     - alert: PaymentFailuresHigh

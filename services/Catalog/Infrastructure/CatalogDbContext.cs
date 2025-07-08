@@ -23,12 +23,14 @@ public class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
               .HasMaxLength(1000);
               eb.Property(p => p.Price)
                 .HasColumnType("numeric(12,2)");
-              eb.Property(p => p.ImageUrl)
+            eb.Property(p => p.ImageUrl)
                 .HasMaxLength(500);
-              eb.Property(p => p.Category)
+            eb.Property(p => p.Category)
                 .HasMaxLength(200)
                 .IsRequired();
-              eb.Property(p => p.Stock);
-          });
+            eb.Property(p => p.Stock);
+            eb.HasIndex(p => p.Name);
+            eb.HasIndex(p => p.Category);
+        });
       }
   }

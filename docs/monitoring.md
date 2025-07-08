@@ -25,3 +25,6 @@ Grafana is available on [http://localhost:3001](http://localhost:3001) with the 
 ## Customising
 
 Edit `services/prometheus.yml` to add additional scrape targets for other services if they expose metrics endpoints.
+
+Alerting rules are defined in `services/prometheusRule.yaml`. Prometheus will trigger
+notifications when thresholds such as stalled orders or payment failures are exceeded.

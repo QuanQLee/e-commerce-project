@@ -133,3 +133,5 @@ docker compose -f docker-compose.tests.yml up --build --abort-on-container-exit
 
 Each container installs dependencies and runs the suite for its service. See [docs/testing.md](docs/testing.md) for more information.
 
+Database conventions and indexing tips are documented in [docs/database.md](docs/database.md).
+

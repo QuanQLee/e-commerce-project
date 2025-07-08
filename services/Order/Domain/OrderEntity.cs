@@ -17,6 +17,7 @@ public enum OrderStatus
 public class OrderEntity
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid UserId { get; set; }
     public List<OrderItem> Items { get; private set; } = new();
     public decimal TotalPrice { get; private set; }
     public OrderStatus Status { get; private set; } = OrderStatus.PendingPayment;
