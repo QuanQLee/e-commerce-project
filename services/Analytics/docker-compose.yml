@@ -5,9 +5,9 @@ services:
     container_name: analytics-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: catalog_admin
-      POSTGRES_PASSWORD: P@ssw0rd!
-      POSTGRES_DB: catalog
+      POSTGRES_USER: ${DB_USER:-catalog_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-catalog}
     ports:
       - "5435:5432"
     volumes:
@@ -23,7 +23,7 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ConnectionStrings__AnalyticsDb: "postgresql+asyncpg://catalog_admin:P@ssw0rd!@pg:5432/catalog"
+      ConnectionStrings__AnalyticsDb: "postgresql+asyncpg://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}"
     ports:
       - "8000:8000"
 

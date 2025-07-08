@@ -29,7 +29,7 @@ curl -X POST http://localhost:7000/connect/token \
 ```
 
 ## 环境变量
-- `ConnectionStrings__AuthDb`: PostgreSQL connection string, e.g. `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!`.
+- `ConnectionStrings__AuthDb`: PostgreSQL connection string, e.g. `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=<your-password>`.
 - `PORT`: Optional HTTP port for the service (default `80`).
 
 ## Database Schema

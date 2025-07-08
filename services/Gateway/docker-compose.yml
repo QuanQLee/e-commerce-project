@@ -5,9 +5,9 @@ services:
     container_name: gateway-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: catalog_admin
-      POSTGRES_PASSWORD: P@ssw0rd!
-      POSTGRES_DB: catalog
+      POSTGRES_USER: ${DB_USER:-catalog_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-catalog}
     ports:
       - "5432:5432"
     volumes:
@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
       - "5000:80"
 
@@ -38,10 +38,16 @@ services:
       - catalog.api
     ports:
       - "8000:8000"
+      - "8443:8443"
       - "8001:8001"
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /kong/kong.yml  # 注意路径
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_SSL_CERT: /certs/gateway.crt
+      KONG_SSL_CERT_KEY: /certs/gateway.key
+    volumes:
+      - ./kong.yml:/kong/kong.yml
+      - ./certs:/certs:ro
 volumes:
   pgdata:

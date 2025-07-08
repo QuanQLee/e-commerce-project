@@ -32,10 +32,18 @@ hey -z 30s http://localhost/api/v1/catalog/products
 
 ## Building and Running
 
-From the `services` directory you can spin up the entire stack:
+From the `services` directory you can spin up the entire stack. Copy `.env.example` to `.env` and adjust the values to set database credentials before launching:
 
 ```bash
 docker compose up --build
+```
+
+The gateway also serves HTTPS traffic on `https://localhost:8443`. Provide your
+own TLS key and certificate under `services/Gateway/certs` so they are mounted
+into the container at startup. A self-signed pair can be created with:
+```bash
+openssl req -x509 -nodes -newkey rsa:2048 -keyout services/Gateway/certs/gateway.key \
+  -out services/Gateway/certs/gateway.crt -subj '/CN=localhost'
 ```
 
 Run a single service for local testing using its Docker Compose file:

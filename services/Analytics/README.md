@@ -11,7 +11,7 @@ Features:
 ## Minimum Requirements
 
 - **Database**: PostgreSQL schema `analytics`.
-- **Environment Variable** `ConnectionStrings__AnalyticsDb` with the PostgreSQL DSN (e.g. `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!`).
+- **Environment Variable** `ConnectionStrings__AnalyticsDb` with the PostgreSQL DSN (e.g. `Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=<your-password>`).
 - **Port**: `8000` (HTTP/JSON)
 
 ## Development

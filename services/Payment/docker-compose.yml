@@ -5,9 +5,9 @@ services:
     container_name: payment-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: catalog_admin
-      POSTGRES_PASSWORD: P@ssw0rd!
-      POSTGRES_DB: catalog
+      POSTGRES_USER: ${DB_USER:-catalog_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-catalog}
     ports:
       - "5434:5432"
     volumes:
@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     environment:
       # Use a lib/pq compatible DSN when running under Go
-      ConnectionStrings__PaymentDb: "postgres://catalog_admin:P@ssw0rd!@pg:5432/catalog?sslmode=disable"
+      ConnectionStrings__PaymentDb: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
     ports:
       - "7001:7001"
       - "7002:8080"

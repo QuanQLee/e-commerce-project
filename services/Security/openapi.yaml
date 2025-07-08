@@ -88,6 +88,8 @@ components:
           type: string
         password:
           type: string
+        otp:
+          type: string
     TokenResponse:
       type: object
       properties:

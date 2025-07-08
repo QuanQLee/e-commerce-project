@@ -6,7 +6,7 @@ This service handles payment processing for the e-commerce platform. It is imple
 
 - **Database**: PostgreSQL. Set the connection string via the `ConnectionStrings__PaymentDb` environment variable.
   Use a lib/pq compatible DSN, for example:
-  `postgres://catalog_admin:P@ssw0rd!@pg:5432/catalog?sslmode=disable`
+  `postgres://catalog_admin:<your-password>@pg:5432/catalog?sslmode=disable`
 - **Ports**:
   - gRPC: `7001`
   - HTTP (gRPC Gateway): `8080`

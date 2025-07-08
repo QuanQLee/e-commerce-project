@@ -6,6 +6,6 @@ services:
     container_name: inventory-api
     restart: unless-stopped
     environment:
-      POSTGRES_DSN: "postgres://catalog_admin:P@ssw0rd!@pg:5432/catalog?sslmode=disable"
+      POSTGRES_DSN: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
     ports:
       - "8200:8000"

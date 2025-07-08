@@ -5,9 +5,9 @@ services:
     container_name: auth-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: catalog_admin
-      POSTGRES_PASSWORD: P@ssw0rd!
-      POSTGRES_DB: catalog
+      POSTGRES_USER: ${DB_USER:-catalog_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-catalog}
     ports:
       - "5432:5432"
     volumes:
@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=catalog;Username=catalog_admin;Password=P@ssw0rd!"
+      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
       - "7000:80"
 

@@ -1,3 +1,6 @@
 package com.example.security.model;
 
-public record LoginRequest(String username, String password) {}
+/**
+ * Login request with optional one time password for two-factor auth.
+ */
+public record LoginRequest(String username, String password, String otp) {}
