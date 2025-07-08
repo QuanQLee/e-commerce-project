@@ -16,6 +16,11 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
+      - uses: docker/setup-buildx-action@v3
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y trivy
       - name: Run tests
         run: |
           for proj in services/*/*.Tests/*.csproj; do
@@ -24,8 +29,24 @@ jobs:
           done
           (cd services/Payment && go test ./...)
           (cd frontend && npm ci && npm test --ci --silent)
-      - name: Build images
-        run: docker compose -f services/docker-compose.yml build
+      - name: Build service images
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          for d in services/*/Dockerfile; do
+            name=$(basename $(dirname $d) | tr '[:upper:]' '[:lower:]')
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              --cache-from type=gha,scope=$name \
+              --cache-to type=gha,mode=max,scope=$name \
+              -t $name:ci \
+              -f $d $(dirname $d)
+          done
+      - name: Scan images
+        run: |
+          for img in $(docker images --format '{{.Repository}}:{{.Tag}}' | grep ':ci'); do
+            trivy image --severity HIGH,CRITICAL --exit-code 0 $img
+          done
       - name: Sync Kong config
         uses: kong/deck@v1
         with:
