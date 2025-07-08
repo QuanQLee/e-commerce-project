@@ -14,6 +14,7 @@ This repository contains microservices that together form a small e-commerce pla
   - **Analytics** – collects metrics under `services/Analytics`.
   - **Auth** – provides authentication under `services/Auth`.
   - **Security** – offers security features under `services/Security`.
+  - **Notification** – sends email alerts under `services/Notification`.
 
 ## Gateway
 
