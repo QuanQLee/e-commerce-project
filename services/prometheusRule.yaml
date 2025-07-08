@@ -24,4 +24,14 @@ spec:
       annotations:
         summary: "Payments failing"
         description: "Payment failures detected in the last 5 minutes."
+  - name: admin.rules
+    rules:
+    - alert: AdminLowActivity
+      expr: rate(admin_requests_total[10m]) == 0
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "No admin traffic"
+        description: "Admin service received no requests in 10 minutes."
 

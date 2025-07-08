@@ -6,6 +6,11 @@ consumers:
       - key: mytestkey123
     acls:
       - group: frontend-group
+  - username: admin
+    keyauth_credentials:
+      - key: adminkey456
+    acls:
+      - group: admin-group
   
 services:
   - name: catalog
@@ -79,6 +84,18 @@ services:
         paths:
           - /api/v1/security
         strip_path: true
+  - name: admin
+    url: http://admin.api:8000
+    routes:
+      - name: admin
+        paths:
+          - /api/v1/admin
+        strip_path: true
+    plugins:
+      - name: acl
+        config:
+          allow:
+            - admin-group
 
 plugins:
   - name: cors
@@ -91,8 +108,9 @@ plugins:
   - name: key-auth
   - name: acl
     config:
-      allow: 
+      allow:
         - frontend-group
+        - admin-group
   - name: rate-limiting
     config:
       minute: 60

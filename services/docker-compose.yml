@@ -182,6 +182,26 @@ services:
     ports:
       - "8200:8000"
 
+  admin.api:
+    build:
+      context: ./Admin
+      dockerfile: Dockerfile
+    image: admin.api:dev
+    container_name: admin-api
+    depends_on:
+      - catalog.api
+      - order.api
+      - user.api
+      - inventory.api
+    restart: unless-stopped
+    environment:
+      CATALOG_URL: http://catalog.api:80
+      ORDER_URL: http://order.api:80
+      USER_URL: http://user.api:80
+      INVENTORY_URL: http://inventory.api:8000
+    ports:
+      - "8300:8000"
+
   gateway:
     build:
       context: ./Gateway
