@@ -23,6 +23,13 @@ service PaymentService {
     };
   }
 
+  rpc UpdatePaymentStatus (UpdatePaymentStatusRequest) returns (PaymentResponse) {
+    option (google.api.http) = {
+      post: "/v1/payment/{payment_id}/status"
+      body: "*"
+    };
+  }
+
 }
 
 message CreatePaymentRequest {
@@ -39,6 +46,11 @@ message PaymentItem {
   string payment_id = 1;
   double amount     = 2;
   string status     = 3;
+}
+
+message UpdatePaymentStatusRequest {
+  string payment_id = 1;
+  string status     = 2;
 }
 
 message ListPaymentsResponse {
