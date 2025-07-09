@@ -27,3 +27,11 @@ async def test_get_metrics():
         resp = await ac.get("/metrics")
         assert resp.status_code == 200
         assert isinstance(resp.json(), dict)
+
+@pytest.mark.asyncio
+async def test_event_payload_too_large():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        big = {"data": "x" * 2000}
+        resp = await ac.post("/events", json={"event_type": "view", "payload": big})
+        assert resp.status_code == 422

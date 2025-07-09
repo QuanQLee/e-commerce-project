@@ -2,6 +2,8 @@ package com.example.security.controller;
 
 import com.example.security.model.*;
 import com.example.security.service.AuditService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +20,13 @@ public class SecurityController {
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private final Map<String, Integer> attempts = new ConcurrentHashMap<>();
     private final AuditService auditService;
+    private final Counter riskBlocks;
 
-    public SecurityController(AuditService auditService) {
+    public SecurityController(AuditService auditService, MeterRegistry registry) {
         this.auditService = auditService;
+        this.riskBlocks = Counter.builder("security_risk_blocks_total")
+                .description("Number of requests blocked by risk check")
+                .register(registry);
     }
 
     @PostMapping("/auth/login")
@@ -46,11 +52,23 @@ public class SecurityController {
 
     @PostMapping("/risk/order-check")
     public RiskCheckResponse orderCheck(@RequestBody RiskCheckRequest req) {
+        if ("fraud".equalsIgnoreCase(req.userId()) ||
+            req.action() != null && req.action().toLowerCase().contains("fraud")) {
+            riskBlocks.increment();
+            log.warn("order blocked for user {}", req.userId());
+            return new RiskCheckResponse(false, "suspicious activity");
+        }
         return new RiskCheckResponse(true, "");
     }
 
     @PostMapping("/risk/payment-check")
     public RiskCheckResponse paymentCheck(@RequestBody RiskCheckRequest req) {
+        if ("fraud".equalsIgnoreCase(req.userId()) ||
+            req.action() != null && req.action().toLowerCase().contains("fraud")) {
+            riskBlocks.increment();
+            log.warn("payment blocked for user {}", req.userId());
+            return new RiskCheckResponse(false, "suspicious activity");
+        }
         return new RiskCheckResponse(true, "");
     }
 

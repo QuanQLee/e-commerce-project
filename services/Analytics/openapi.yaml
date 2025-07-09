@@ -48,9 +48,11 @@ components:
       properties:
         event_type:
           type: string
+          maxLength: 50
         payload:
           type: object
           additionalProperties: true
+          description: JSON object limited to 1000 characters when serialized
       required:
         - event_type
         - payload
