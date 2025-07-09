@@ -13,6 +13,9 @@ logging.basicConfig(format='%(message)s', level=logging.INFO)
 logger = logging.getLogger("inventory")
 
 STOCK_COUNTER = Counter("inventory_updates_total", "Inventory updates", ["action"])
+INSUFFICIENT_COUNTER = Counter(
+    "inventory_insufficient_total", "Inventory reservation failures"
+)
 LOW_GAUGE = Gauge("inventory_quantity", "Current inventory quantity", ["product_id"])
 
 class StockUpdate(BaseModel):
@@ -55,6 +58,7 @@ def reserve_stock(update: StockUpdate, db: Session = Depends(get_db)):
         inv = Inventory(product_id=update.product_id, quantity=0)
         db.add(inv)
     if inv.quantity < update.quantity:
+        INSUFFICIENT_COUNTER.inc()
         raise HTTPException(status_code=400, detail="insufficient stock")
     inv.quantity -= update.quantity
     db.commit()
