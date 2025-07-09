@@ -24,6 +24,14 @@ Grafana supports forecast plugins that extrapolate metric trends. Adding such pa
 
 An example alert rule for latency is included in `services/prometheusRule.yaml` under `notification.rules`. It triggers when the email send P95 latency exceeds one second for five minutes.
 
+When load tests reveal bottlenecks you can scale services in two ways:
+
+- **Vertical scaling** – increase CPU or memory for individual pods or database instances to handle heavier requests.
+- **Horizontal scaling** – run more replicas behind the gateway and spread traffic via the load balancer. Kubernetes Horizontal Pod Autoscalers (HPA) can automatically add or remove pods based on CPU or custom metrics such as QPS.
+- **Stateful components** like PostgreSQL or message queues can be read‑replicated or sharded to improve throughput while keeping writes consistent.
+
+Define capacity alarms so that when average CPU usage stays above 70% for more than ten minutes an alert is raised. See the `capacity.rules` section in `services/prometheusRule.yaml` for a Prometheus example.
+
 ## Error Tracking
 
 Integrate Sentry or a similar platform to collect unhandled exceptions from both backend and frontend code. These reports, combined with Prometheus alerts, enable quick detection of production issues.

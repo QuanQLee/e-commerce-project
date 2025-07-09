@@ -86,3 +86,14 @@ spec:
         summary: "Notification latency high"
         description: "P95 email send time exceeded 1s for 5m"
 
+  - name: capacity.rules
+    rules:
+    - alert: ServiceCpuHigh
+      expr: avg by(pod)(rate(container_cpu_usage_seconds_total{image!=""}[5m])) * 100 > 70
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage"
+        description: "CPU usage above 70% for 10 minutes. Consider scaling."
+
