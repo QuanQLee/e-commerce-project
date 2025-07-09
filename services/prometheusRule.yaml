@@ -75,3 +75,14 @@ spec:
         summary: "No recommendation traffic"
         description: "Recommendation service received no requests in 10 minutes."
 
+  - name: notification.rules
+    rules:
+    - alert: NotificationLatencyHigh
+      expr: histogram_quantile(0.95, rate(notification_send_seconds_bucket[5m])) > 1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Notification latency high"
+        description: "P95 email send time exceeded 1s for 5m"
+

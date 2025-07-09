@@ -4,7 +4,7 @@ from email.message import EmailMessage
 
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel, EmailStr
-from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 import aiosmtplib
 
@@ -14,6 +14,11 @@ logger = logging.getLogger("notification")
 app = FastAPI(title="Notification API", version="v1")
 
 SEND_COUNTER = Counter("notifications_sent_total", "Total notifications sent", ["status"])
+SEND_DURATION = Histogram(
+    "notification_send_seconds",
+    "Time spent sending an email",
+    buckets=(0.1, 0.25, 0.5, 1, 2, 5)
+)
 
 class EmailRequest(BaseModel):
     to: EmailStr
@@ -27,7 +32,8 @@ async def _send_email(to: str, subject: str, body: str) -> None:
     msg["Subject"] = subject
     msg.set_content(body)
     try:
-        await aiosmtplib.send(
+        with SEND_DURATION.time():
+            await aiosmtplib.send(
             msg,
             hostname=os.getenv("SMTP_HOST", "localhost"),
             port=int(os.getenv("SMTP_PORT", "25")),
