@@ -19,6 +19,7 @@ Prometheus will scrape metrics from:
 - `promotion.api:8000/prometheus`
 - `review.api:8000/prometheus`
 - `recommendation.api:8000/prometheus`
+- `inventory.api:8000/metrics`
 
 Grafana is available on [http://localhost:3001](http://localhost:3001) with the default password `admin`. Add Prometheus (`http://prometheus:9090`) as a data source and import dashboards as needed.
 
@@ -32,6 +33,8 @@ notifications when thresholds such as stalled orders or payment failures are exc
 ## Logging
 
 Each service writes structured logs to stdout. When running in Docker these can be collected by your container runtime or forwarded to a log aggregation stack such as the ELK stack or Loki. Log messages should include request identifiers so traces can be correlated across services.
+
+The Inventory service tracks reservation failures via the `inventory_insufficient_total` counter.
 
 ## Alert Rules
 

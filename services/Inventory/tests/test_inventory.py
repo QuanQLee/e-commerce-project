@@ -25,3 +25,10 @@ def test_reserve_and_release():
     assert r.status_code == 200
     r = client.get('/inventory/product1')
     assert r.json()['quantity'] == 6
+
+def test_insufficient_counter():
+    # attempt to reserve more than available
+    r = client.post('/inventory/reserve', json={'product_id': 'product1', 'quantity': 100})
+    assert r.status_code == 400
+    metrics = client.get('/metrics').text
+    assert 'inventory_insufficient_total 1.0' in metrics
