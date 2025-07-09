@@ -13,6 +13,12 @@ import AddPayment from './pages/AddPayment'
 import Metrics from './pages/Metrics'
 import Login from './pages/Login'
 import RiskCheck from './pages/RiskCheck'
+import Inventory from './pages/Inventory'
+import AddCoupon from './pages/AddCoupon'
+import CouponList from './pages/CouponList'
+import AddReview from './pages/AddReview'
+import ReviewList from './pages/ReviewList'
+import Recommendation from './pages/Recommendation'
 
 export default function App() {
   return (
@@ -29,6 +35,12 @@ export default function App() {
           <Button color="inherit" component={Link} to="/add-shipment">Add Shipment</Button>
           <Button color="inherit" component={Link} to="/payments">Payments</Button>
           <Button color="inherit" component={Link} to="/add-payment">Add Payment</Button>
+          <Button color="inherit" component={Link} to="/coupons">Coupons</Button>
+          <Button color="inherit" component={Link} to="/add-coupon">Add Coupon</Button>
+          <Button color="inherit" component={Link} to="/reviews">Reviews</Button>
+          <Button color="inherit" component={Link} to="/add-review">Add Review</Button>
+          <Button color="inherit" component={Link} to="/recommendations">Recommendations</Button>
+          <Button color="inherit" component={Link} to="/inventory">Inventory</Button>
           <Button color="inherit" component={Link} to="/metrics">Metrics</Button>
           <Button color="inherit" component={Link} to="/risk-check">Risk Check</Button>
           <Button color="inherit" component={Link} to="/login">Login</Button>
@@ -46,6 +58,12 @@ export default function App() {
           <Route path="/add-shipment" element={<AddShipment />} />
           <Route path="/payments" element={<PaymentList />} />
           <Route path="/add-payment" element={<AddPayment />} />
+          <Route path="/coupons" element={<CouponList />} />
+          <Route path="/add-coupon" element={<AddCoupon />} />
+          <Route path="/reviews" element={<ReviewList />} />
+          <Route path="/add-review" element={<AddReview />} />
+          <Route path="/recommendations" element={<Recommendation />} />
+          <Route path="/inventory" element={<Inventory />} />
           <Route path="/metrics" element={<Metrics />} />
           <Route path="/login" element={<Login />} />
           <Route path="/risk-check" element={<RiskCheck />} />
