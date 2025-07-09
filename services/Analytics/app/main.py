@@ -1,5 +1,8 @@
 from fastapi import FastAPI, Depends
-from pydantic import BaseModel
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel, field_validator
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,10 +27,33 @@ app.add_middleware(
 )
 
 EVENT_COUNTER = Counter("analytics_events_total", "Total events", ["event_type"])
+INVALID_COUNTER = Counter("analytics_invalid_events_total", "Total invalid events")
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    logger.warning("invalid analytics event: %s", exc.errors())
+    INVALID_COUNTER.inc()
+    return JSONResponse(status_code=422, content={"detail": jsonable_encoder(exc.errors())})
 
 class EventIn(BaseModel):
     event_type: str
     payload: dict
+
+    @field_validator("event_type")
+    @classmethod
+    def validate_event_type(cls, v: str) -> str:
+        if len(v) > 50:
+            raise ValueError("event_type too long")
+        return v
+
+    @field_validator("payload")
+    @classmethod
+    def validate_payload(cls, v: dict) -> dict:
+        import json
+        if len(json.dumps(v)) > 1000:
+            raise ValueError("payload too large")
+        return v
 
 async def get_session() -> AsyncSession:
     async with AsyncSessionLocal() as session:
