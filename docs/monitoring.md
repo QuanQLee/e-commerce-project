@@ -39,3 +39,5 @@ The Inventory service tracks reservation failures via the `inventory_insufficien
 ## Alert Rules
 
 Prometheus loads alert definitions from `services/prometheusRule.yaml`. Extend this file to watch for error rates, latency spikes or abnormal traffic in any service. Alertmanager forwards notifications to email or chat channels when a rule triggers.
+
+For latency analysis and capacity planning tips see [performance.md](performance.md).

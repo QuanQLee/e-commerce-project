@@ -5,6 +5,7 @@ This microservice provides email notification capabilities using **FastAPI**. It
 Features:
 - Asynchronous email sending with `aiosmtplib`
 - Prometheus metrics for sent/failed emails
+- Histogram `notification_send_seconds` to track send duration
 - JSON structured logging
 - Health check endpoint
 - Unit tests with pytest
@@ -41,3 +42,5 @@ docker compose up --build
 ```
 
 Refer to `openapi.yaml` for the complete API specification.
+
+To run with hot reload and debugging use `./debug-notification.sh`.
