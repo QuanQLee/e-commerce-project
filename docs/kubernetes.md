@@ -50,4 +50,7 @@ providers offer similar services if you prefer a vendor neutral setup.
 - Use the provided debug scripts (see `docs/debugging.md`) for local
   troubleshooting.
 - Extend `services/prometheusRule.yaml` with alert rules for your environment.
+- Apply Kubernetes `NetworkPolicy` objects to restrict traffic between pods.
+  See `docs/security-best-practices.md` for an example that locks down
+  PostgreSQL access.
 

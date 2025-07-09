@@ -27,3 +27,13 @@ An example alert rule for latency is included in `services/prometheusRule.yaml` 
 ## Error Tracking
 
 Integrate Sentry or a similar platform to collect unhandled exceptions from both backend and frontend code. These reports, combined with Prometheus alerts, enable quick detection of production issues.
+
+## Optimisation Strategies
+
+To handle high concurrency the services rely on multiple techniques:
+
+- **Caching** – Frequently accessed data such as product lists or popular items can be stored in Redis or in‑memory caches. Set appropriate expirations and update the cache when the underlying records change.
+- **Asynchronous processing** – Non‑critical tasks like sending emails or writing audit logs should run in the background using queues or scheduled jobs. This keeps request latency low.
+- **Database tuning** – Add indexes to columns used in searches, split large queries or employ pagination to reduce load. Monitor slow query logs and refactor them when needed.
+- **APM tools** – Integrate application performance monitoring to identify slow functions and memory issues. Optimise algorithms or choose more efficient data structures when hotspots are discovered.
+- **Frontend improvements** – Serve compressed assets, minimise bundle size and use a CDN. Efficient client‑side code reduces the pressure on backend services.
