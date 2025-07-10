@@ -1,4 +1,4 @@
-version: "3.9"
+﻿version: "3.9"
 services:
   recommendation.api:
     build:
@@ -11,3 +11,8 @@ services:
       - PYTHONUNBUFFERED=1
     ports:
       - "8600:8000"
+
+
+
+
+

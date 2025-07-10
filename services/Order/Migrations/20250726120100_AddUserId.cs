@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -50,3 +50,4 @@ public partial class AddUserId : Migration
             table: "orders");
     }
 }
+

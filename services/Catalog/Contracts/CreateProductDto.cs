@@ -1,4 +1,4 @@
-namespace Catalog.Api.Contracts;
+﻿namespace Catalog.Api.Contracts;
 
 public record CreateProductDto(
     string Name,
@@ -7,3 +7,4 @@ public record CreateProductDto(
     string? ImageUrl = null,
     string Category = "",
     int Stock = 0);
+

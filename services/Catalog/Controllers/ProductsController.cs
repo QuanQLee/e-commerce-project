@@ -1,4 +1,4 @@
-using Catalog.Api.Contracts;
+﻿using Catalog.Api.Contracts;
 using Catalog.Api.Domain;
 using Catalog.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -32,3 +32,4 @@ public class ProductsController(CatalogDbContext db) : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = product.Id }, product.Id);
     }
 }
+

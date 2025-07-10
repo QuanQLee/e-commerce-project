@@ -1,4 +1,4 @@
-using Duende.IdentityServer;
+﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Test;
 using Microsoft.AspNetCore.Builder;
@@ -77,3 +77,4 @@ public class AuthDbContext : DbContext
 }
 
 public partial class Program {}
+

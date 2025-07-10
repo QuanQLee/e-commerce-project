@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Order.Api.Infrastructure;
@@ -67,3 +67,4 @@ app.MapHealthChecks("/healthz");
 app.UseHttpMetrics();
 
 app.Run();
+

@@ -1,4 +1,4 @@
-using Shipping.Api.Domain;
+﻿using Shipping.Api.Domain;
 
 namespace Shipping.Tests;
 
@@ -12,3 +12,4 @@ public class ShipmentTests
         Assert.True(shipment.CreatedAt <= DateTime.UtcNow);
     }
 }
+

@@ -1,4 +1,4 @@
-version: "3.9"
+﻿version: "3.9"
 services:
   auth.tests:
     image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -62,3 +62,8 @@ services:
       - ..:/workspace
     command: >-
       bash -c "npm install --force && npm test --silent"
+
+
+
+
+

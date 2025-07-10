@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Shipping.Api.Infrastructure;
@@ -13,3 +13,4 @@ public class CheckPendingShipmentsJob(ShippingDbContext db)
         Console.WriteLine($"Pending shipments: {count}");
     }
 }
+

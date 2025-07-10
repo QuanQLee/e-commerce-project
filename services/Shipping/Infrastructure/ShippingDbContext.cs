@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shipping.Api.Domain;
 
 namespace Shipping.Api.Infrastructure;
@@ -19,3 +19,4 @@ public class ShippingDbContext(DbContextOptions<ShippingDbContext> options) : Db
         });
     }
 }
+

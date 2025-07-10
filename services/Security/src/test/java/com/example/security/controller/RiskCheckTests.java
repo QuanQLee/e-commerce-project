@@ -1,4 +1,4 @@
-package com.example.security.controller;
+﻿package com.example.security.controller;
 
 import com.example.security.service.AuditService;
 import org.junit.jupiter.api.Test;
@@ -26,3 +26,4 @@ public class RiskCheckTests {
             .andExpect(content().string("{\"allowed\":false,\"reason\":\"suspicious activity\"}"));
     }
 }
+

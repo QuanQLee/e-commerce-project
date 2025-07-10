@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using User.Api.Domain;
 
 namespace User.Api.Infrastructure;
@@ -22,3 +22,4 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
         });
     }
 }
+

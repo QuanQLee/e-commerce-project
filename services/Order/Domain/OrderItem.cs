@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
 
 namespace Order.Api.Domain;
@@ -12,3 +12,4 @@ public class OrderItem
     [JsonIgnore]
     public OrderEntity? Order { get; set; }
 }
+

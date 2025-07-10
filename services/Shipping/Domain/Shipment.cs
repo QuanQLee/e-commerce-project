@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Shipping.Api.Domain;
 
@@ -9,3 +9,4 @@ public class Shipment
     public string Status { get; set; } = "Created";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
+

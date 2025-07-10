@@ -1,4 +1,4 @@
-using Catalog.Api.Domain;
+﻿using Catalog.Api.Domain;
 
 namespace Catalog.Tests;
 
@@ -15,3 +15,4 @@ public class ProductTests
         Assert.Equal(199m, product.Price);
     }
 }
+

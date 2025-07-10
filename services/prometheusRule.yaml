@@ -1,4 +1,4 @@
-apiVersion: monitoring.coreos.com/v1
+﻿apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: ecommerce-rules
@@ -96,4 +96,9 @@ spec:
       annotations:
         summary: "High CPU usage"
         description: "CPU usage above 70% for 10 minutes. Consider scaling."
+
+
+
+
+
 

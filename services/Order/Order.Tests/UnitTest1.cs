@@ -1,4 +1,4 @@
-using Order.Api.Domain;
+﻿using Order.Api.Domain;
 
 namespace Order.Tests;
 
@@ -15,3 +15,4 @@ public class OrderEntityTests
         Assert.Equal(2, order.Items.Count);
     }
 }
+

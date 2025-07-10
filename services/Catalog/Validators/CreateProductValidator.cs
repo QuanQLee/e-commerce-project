@@ -1,4 +1,4 @@
-using Catalog.Api.Contracts;
+﻿using Catalog.Api.Contracts;
 using FluentValidation;
 
 namespace Catalog.Api.Validators;
@@ -12,3 +12,4 @@ public class CreateProductValidator : AbstractValidator<CreateProductDto>
         RuleFor(x => x.Price).GreaterThan(0);
     }
 }
+

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cart.Api.Domain;
 
@@ -10,3 +10,4 @@ public interface ICartStore
     Task SetCartAsync(string userId, IList<CartItem> items);
     Task ClearCartAsync(string userId);
 }
+

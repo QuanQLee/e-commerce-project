@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Shipping.Api.Infrastructure;
 using MassTransit;
 using Hangfire;
-//  Уڴ洢
-using Hangfire.MemoryStorage;                     // <-- ޸
-// using Hangfire.PostgreSql;                    //  һпɾע
+//  校诖娲?
+using Hangfire.MemoryStorage;                     // <-- 薷
+// using Hangfire.PostgreSql;                    //  一锌删注
 using Shipping.Api.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,16 +20,16 @@ builder.Services.AddSwaggerGen(o =>
     o.SwaggerDoc("v1", new() { Title = "Shipping API", Version = "v1" });
 });
 
-//  ĳ In-Memory DB
+//  某 In-Memory DB
 builder.Services.AddDbContext<ShippingDbContext>(options =>
 {
-    options.UseInMemoryDatabase("ShippingTest");  // <-- ޸
+    options.UseInMemoryDatabase("ShippingTest");  // <-- 薷
 });
 
-//  Hangfire Ҳڴ洢
+//  Hangfire 也诖娲?
 builder.Services.AddHangfire(config =>
 {
-    config.UseMemoryStorage();                    // <-- ޸
+    config.UseMemoryStorage();                    // <-- 薷
 });
 builder.Services.AddHangfireServer();
 
@@ -49,10 +49,11 @@ app.UseRouting();
 app.UseHangfireDashboard();
 app.MapControllers();
 
-//  ʱճ
+//  时粘
 RecurringJob.AddOrUpdate<CheckPendingShipmentsJob>(
     "check-pending",
     job => job.Run(),
     Cron.Minutely);
 
 app.Run();
+

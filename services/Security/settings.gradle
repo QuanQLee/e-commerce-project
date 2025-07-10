@@ -1,29 +1,29 @@
-/****  settings.gradle  ¡ª¡ª  ¼æÈİ Gradle 8.x  ****/
+ï»¿/****  settings.gradle  â€”â€”  å…¼å®¹ Gradle 8.x  ****/
 
-// 1) Gradle ²å¼ş²Ö¿â£¨×ßÌÚÑ¶¾µÏñ£©
+// 1) Gradle æ’ä»¶ä»“åº“ï¼ˆèµ°è…¾è®¯é•œåƒï¼‰
 pluginManagement {
     repositories {
         maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/gradle-plugin/' }
-        gradlePluginPortal()      // ¾µÏñÃ»ÓĞµÄ²å¼şÔÙ»ØÂä¹Ù·½
+        gradlePluginPortal()      // é•œåƒæ²¡æœ‰çš„æ’ä»¶å†å›è½å®˜æ–¹
     }
 }
 
-// 2) ÒÀÀµ½âÎö²Ö¿â£¨×ßÌÚÑ¶¾µÏñ£©
+// 2) ä¾èµ–è§£æä»“åº“ï¼ˆèµ°è…¾è®¯é•œåƒï¼‰
 dependencyResolutionManagement {
-    // ¡ï Gradle-8 Ö»ÔÊĞí FAIL_ON_PROJECT_REPOS / PREFER_SETTINGS / PREFER_PROJECT
-    //   ÒÔÇ°µÄ REPLACE ÒÑ±»É¾³ı£»ÕâÀïÓÃ×î¡°¸É¾»¡±µÄ FAIL_ON_PROJECT_REPOS
+    // â˜… Gradle-8 åªå…è®¸ FAIL_ON_PROJECT_REPOS / PREFER_SETTINGS / PREFER_PROJECT
+    //   ä»¥å‰çš„ REPLACE å·²è¢«åˆ é™¤ï¼›è¿™é‡Œç”¨æœ€â€œå¹²å‡€â€çš„ FAIL_ON_PROJECT_REPOS
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 
     repositories {
         maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
-        mavenCentral()            // ¾µÏñÃ»ÓĞµÄÒÀÀµÔÙ»ØÂä¹Ù·½
+        mavenCentral()            // é•œåƒæ²¡æœ‰çš„ä¾èµ–å†å›è½å®˜æ–¹
     }
 }
 
-// 3) °´ĞèĞŞ¸ÄÄãµÄ¸ùÏîÄ¿Ãû
+// 3) æŒ‰éœ€ä¿®æ”¹ä½ çš„æ ¹é¡¹ç›®å
 rootProject.name = 'e-commerce-project'
 
-// 4) ¶àÄ£¿éÉùÃ÷ ¡ª¡ª ¶ÔÓ¦²Ö¿âÏÂµÄÊµ¼ÊÄ¿Â¼£¬´óĞ¡Ğ´±£³ÖÒ»ÖÂ
+// 4) å¤šæ¨¡å—å£°æ˜ â€”â€” å¯¹åº”ä»“åº“ä¸‹çš„å®é™…ç›®å½•ï¼Œå¤§å°å†™ä¿æŒä¸€è‡´
 include 'services:Catalog',
         'services:Order',
         'services:User',
@@ -32,4 +32,5 @@ include 'services:Catalog',
         'services:Analytics',
         'services:Auth',
         'services:Security',
-        'frontend'                // Èç¹ûÇ°¶ËÒ²ÏëÓÃ Gradle ¹ÜÀí£¬¿É±£Áô£»·ñÔòÉ¾³ı
+        'frontend'                // å¦‚æœå‰ç«¯ä¹Ÿæƒ³ç”¨ Gradle ç®¡ç†ï¼Œå¯ä¿ç•™ï¼›å¦åˆ™åˆ é™¤
+

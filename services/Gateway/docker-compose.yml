@@ -51,3 +51,8 @@ services:
       - ./certs:/certs:ro
 volumes:
   pgdata:
+
+
+
+
+

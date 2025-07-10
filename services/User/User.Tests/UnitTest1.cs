@@ -1,4 +1,4 @@
-using User.Api.Domain;
+﻿using User.Api.Domain;
 
 namespace User.Tests;
 
@@ -12,3 +12,4 @@ public class UserEntityTests
         Assert.True(user.CreatedAt <= DateTime.UtcNow);
     }
 }
+

@@ -1,4 +1,4 @@
-namespace Catalog.Api.Domain;
+﻿namespace Catalog.Api.Domain;
 
 using System;
 
@@ -26,3 +26,4 @@ public class Product
     public void Update(string name, string desc, decimal price)
         => Update(name, desc, price, null, "", 0);
 }
+

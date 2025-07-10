@@ -1,4 +1,4 @@
-version: '3.9'
+﻿version: '3.9'
 services:
   inventory.api:
     build: .
@@ -9,3 +9,8 @@ services:
       POSTGRES_DSN: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
     ports:
       - "8200:8000"
+
+
+
+
+

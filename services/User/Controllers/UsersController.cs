@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using User.Api.Domain;
 using User.Api.Infrastructure;
@@ -31,3 +31,4 @@ public class UsersController(UserDbContext db) : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = user.Id }, user.Id);
     }
 }
+

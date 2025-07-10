@@ -39,3 +39,4 @@ namespace Catalog.Migrations
         }
     }
 }
+

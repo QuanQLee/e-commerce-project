@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using User.Api.Infrastructure;
@@ -56,3 +56,4 @@ app.UseSwaggerUI();
 app.MapControllers();
 
 app.Run();
+

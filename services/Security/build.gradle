@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.3'
     id 'java'
@@ -12,9 +12,9 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-// 📌 仓库统一在 settings.gradle 中集中配置（使用腾讯镜像），
-//    这里无需再声明 repositories，否则与
-//    RepositoriesMode.FAIL_ON_PROJECT_REPOS 冲突。
+// 馃搶 浠撳簱缁熶竴鍦?settings.gradle 涓泦涓厤缃紙浣跨敤鑵捐闀滃儚锛夛紝
+//    杩欓噷鏃犻渶鍐嶅０鏄?repositories锛屽惁鍒欎笌
+//    RepositoriesMode.FAIL_ON_PROJECT_REPOS 鍐茬獊銆?
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -22,8 +22,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
-    // 本地测试用内存数据库
+    // 鏈湴娴嬭瘯鐢ㄥ唴瀛樻暟鎹簱
     runtimeOnly 'com.h2database:h2'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+

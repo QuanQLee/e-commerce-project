@@ -1,4 +1,4 @@
-using Catalog.Api.Contracts;
+﻿using Catalog.Api.Contracts;
 using Catalog.Api.Controllers;
 using Catalog.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -25,3 +25,4 @@ public class ProductsControllerTests
         Assert.Single(db.Products);
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.security.controller;
+﻿package com.example.security.controller;
 
 import com.example.security.model.*;
 import com.example.security.service.AuditService;
@@ -82,3 +82,4 @@ public class SecurityController {
         auditService.record(req);
     }
 }
+

@@ -1,4 +1,4 @@
-version: "3.9"
+﻿version: "3.9"
 services:
   notification.api:
     build:
@@ -13,3 +13,8 @@ services:
       SMTP_FROM: no-reply@example.com
     ports:
       - "8200:8000"
+
+
+
+
+

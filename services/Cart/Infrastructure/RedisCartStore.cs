@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Cart.Api.Domain;
@@ -30,3 +30,4 @@ public class RedisCartStore(IDistributedCache cache) : ICartStore
 
     private static string Key(string userId) => $"cart:{userId}";
 }
+

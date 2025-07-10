@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -34,3 +34,4 @@ public partial class AddIndexes : Migration
             table: "products");
     }
 }
+

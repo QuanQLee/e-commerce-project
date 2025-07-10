@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Order.Api.Domain;
 
 namespace Order.Api.Infrastructure;
@@ -34,3 +34,4 @@ public class OrderDbContext(DbContextOptions<OrderDbContext> options) : DbContex
         });
     }
 }
+

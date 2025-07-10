@@ -1,4 +1,4 @@
-using Catalog.Api.Domain;
+﻿using Catalog.Api.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Api.Infrastructure;
@@ -34,3 +34,4 @@ public class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
         });
       }
   }
+

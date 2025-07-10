@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -23,3 +23,4 @@ public class RootEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal("Auth Service running", text);
     }
 }
+

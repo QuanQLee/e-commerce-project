@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Order.Api.Domain;
 using Order.Api.Infrastructure;
@@ -56,3 +56,4 @@ public class OrdersController(OrderDbContext db) : ControllerBase
         return Ok();
     }
 }
+

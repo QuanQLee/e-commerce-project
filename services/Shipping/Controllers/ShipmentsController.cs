@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -63,3 +63,4 @@ public class ShipmentsController(ShippingDbContext db, IPublishEndpoint publishe
     [HttpPost("/labels/callback")]
     public IActionResult LabelCallback() => NoContent();
 }
+

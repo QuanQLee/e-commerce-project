@@ -1,4 +1,4 @@
-version: "3.9"
+﻿version: "3.9"
 services:
   redis:
     image: redis:7-alpine
@@ -20,3 +20,8 @@ services:
       ConnectionStrings__Redis: "redis:6379"
     ports:
       - "5010:80"
+
+
+
+
+

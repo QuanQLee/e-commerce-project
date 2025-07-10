@@ -1,4 +1,4 @@
-package com.example.security.controller;
+﻿package com.example.security.controller;
 
 import com.example.security.model.AuditLog;
 import com.example.security.service.AuditService;
@@ -52,3 +52,4 @@ public class LoginControllerTests {
         assertEquals(1, auditService.getEntries().size());
     }
 }
+

@@ -1,15 +1,17 @@
-﻿FROM eclipse-temurin:17-jdk-jammy as build
-WORKDIR /app
-COPY build/libs/*.jar app.jar
-COPY gradle gradle
+FROM eclipse-temurin:17-jdk-jammy AS builder
+WORKDIR /workspace
+
 COPY gradlew gradlew
-COPY gradlew.bat gradlew.bat
+COPY gradle  gradle
 COPY build.gradle settings.gradle ./
 COPY src src
-RUN chmod +x gradlew && ./gradlew clean bootJar --no-daemon
+
+RUN --mount=type=cache,target=/root/.gradle \
+    chmod +x gradlew \
+ && ./gradlew :security.api:clean :security.api:bootJar --no-daemon
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=builder /workspace/security.api/build/libs/*.jar app.jar
 EXPOSE 8082
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Shipping.Api.Controllers;
 
 namespace Shipping.Tests;
@@ -14,3 +14,4 @@ public class ShipmentsControllerTests
         Assert.Equal(2m * 1.25m, ok.Value);
     }
 }
+

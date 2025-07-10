@@ -1,7 +1,7 @@
-using FluentValidation;
+ï»¿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
-using Catalog.Api.Infrastructure; // ÄãµÄ DbContext ËùÔÚÃüÃû¿Õ¼ä
+using Catalog.Api.Infrastructure; // ä½ çš„ DbContext æ‰€åœ¨å‘½åç©ºé—´
 using System;
 using System.Threading.Tasks;
 using System.Collections.Immutable;
@@ -14,15 +14,15 @@ using Microsoft.AspNetCore.Hosting;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.Extensions.Configuration;
 
-// ÆäËû using ...
+// å…¶ä»– using ...
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Ç¿ÖÆ¼àÌý 0.0.0.0:80 ¶Ë¿Ú£¬ÊÊÅä Docker
+// å¼ºåˆ¶ç›‘å¬ 0.0.0.0:80 ç«¯å£ï¼Œé€‚é… Docker
 builder.WebHost.UseUrls("http://0.0.0.0:80");
 
-// ...ÒÔÏÂ±£³Ö²»±ä
+// ...ä»¥ä¸‹ä¿æŒä¸å˜
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o =>
@@ -46,3 +46,4 @@ app.UseSwaggerUI();
 app.MapControllers();
 
 app.Run();
+
