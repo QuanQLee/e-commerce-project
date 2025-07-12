@@ -1,6 +1,7 @@
 FROM eclipse-temurin:17-jdk-jammy AS builder
 WORKDIR /workspace
 
+COPY gradle-8.14.2/gradle-8.14.2-bin.zip gradle-8.14.2/
 COPY gradlew gradlew
 COPY gradle  gradle
 COPY build.gradle settings.gradle ./
