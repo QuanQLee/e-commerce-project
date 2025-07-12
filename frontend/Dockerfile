@@ -1,27 +1,27 @@
-# ---------- 基础镜像 ----------
+# ---------- Base image ----------
 FROM node:20-slim AS deps
 
-# ---------- 复制依赖清单 ----------
+# ---------- Copy dependency list ----------
 WORKDIR /app
 COPY package.json ./
 
-# ---------- 安装依赖 ----------
-# 1. 先把 npm 升级到最新（>= 11，可自动处理很多 peer-dependency 提示）
-# 2. 再安装依赖，并使用 --legacy-peer-deps 跳过 React 19 与 testing-library 的冲突
+# ---------- Install dependencies ----------
+# 1. First upgrade npm to the latest version (>= 11) so it handles many peer-dependency warnings
+# 2. Then install packages using --legacy-peer-deps to avoid conflicts with React 19 and testing-library
 RUN npm install -g npm@latest \
  && npm install --legacy-peer-deps
 
-# ---------- 拷贝源码 ----------
+# ---------- Copy source code ----------
 COPY . .
 
-# ---------- 构建前端 ----------
-# 这里以 Vite 为例：把产物输出到 /app/dist
+# ---------- Build frontend ----------
+# Here using Vite as an example: output artifacts to /app/dist
 RUN npm run build
 
-# ---------- 生产镜像 ----------
+# ---------- Production image ----------
 FROM nginx:1.27-alpine
 COPY --from=deps /app/dist /usr/share/nginx/html
-# 可选：自定义 nginx.conf
+# Optional: custom nginx.conf
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
