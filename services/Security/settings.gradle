@@ -2,7 +2,7 @@
 
 pluginManagement {
     repositories {
-        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/gradle-plugin/' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         gradlePluginPortal()      // fallback to official when mirror misses
     }
 }
@@ -10,7 +10,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
+        maven { url 'https://maven.aliyun.com/repository/public' }
         mavenCentral()
     }
 }
