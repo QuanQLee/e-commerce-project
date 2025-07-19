@@ -4,8 +4,7 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["Cart.csproj", "."]
-RUN dotnet nuget add source https://mirrors.tuna.tsinghua.edu.cn/nuget/nuget/index.json -n tsinghua \
-    && dotnet restore "Cart/Cart.csproj" --source https://mirrors.tuna.tsinghua.edu.cn/nuget/nuget/index.json
+RUN dotnet restore "./Cart.csproj"
 COPY . .
 RUN dotnet build "Cart.csproj" -c Release -o /app/build
 RUN dotnet publish "Cart.csproj" -c Release -o /app/publish /p:UseAppHost=false
