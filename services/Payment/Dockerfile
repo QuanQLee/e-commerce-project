@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1   # syntax directive for BuildKit
-
 ##################### 1. Build stage #####################
 FROM golang:1.23.4-alpine AS builder
 ENV GOPROXY=https://goproxy.cn,direct

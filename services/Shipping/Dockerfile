@@ -5,7 +5,12 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["Shipping.csproj", "."]
 RUN dotnet nuget add source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json -n tsinghua \
-    && dotnet restore "./Shipping.csproj" --source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json
+    && dotnet nuget add source https://mirrors.cloud.tencent.com/nuget/index.json -n tencent \
+    && dotnet nuget add source https://mirrors.huaweicloud.com/repository/nuget/v3/index.json -n huawei \
+    && dotnet restore "./Shipping.csproj" \
+        --source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json \
+        --source https://mirrors.cloud.tencent.com/nuget/index.json \
+        --source https://mirrors.huaweicloud.com/repository/nuget/v3/index.json
 COPY . .
 RUN dotnet build "Shipping.csproj" -c Release -o /app/build
 RUN dotnet publish "Shipping.csproj" -c Release -o /app/publish /p:UseAppHost=false
