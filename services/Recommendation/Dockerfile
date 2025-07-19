@@ -1,8 +1,11 @@
 FROM python:3.12-slim
-RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir poetry
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple \
+        --default-timeout=120 poetry
 WORKDIR /app
 COPY pyproject.toml ./
-RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi --no-root
+RUN poetry config virtualenvs.create false && \
+    poetry config repositories.tsinghua https://pypi.tuna.tsinghua.edu.cn/simple && \
+    poetry install --no-interaction --no-ansi --no-root
 COPY ./app ./app
 RUN poetry install --no-interaction --no-ansi
 EXPOSE 8000
