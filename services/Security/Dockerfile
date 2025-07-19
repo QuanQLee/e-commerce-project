@@ -9,7 +9,7 @@ COPY src src
 
 RUN --mount=type=cache,target=/root/.gradle \
     chmod +x gradlew \
- && ./gradlew :security.api:clean :security.api:bootJar --no-daemon
+ && ./gradlew clean bootJar --no-daemon
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app

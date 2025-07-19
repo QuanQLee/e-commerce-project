@@ -19,10 +19,17 @@ rootProject.name = 'e-commerce-project'
 
 include 'services:Catalog',
         'services:Order',
+        'services:Cart',
         'services:User',
         'services:Shipping',
         'services:Payment',
+        'services:Inventory',
         'services:Analytics',
+        'services:Admin',
         'services:Auth',
         'services:Security',
+        'services:Notification',
+        'services:Promotion',
+        'services:Review',
+        'services:Recommendation',
         'frontend'

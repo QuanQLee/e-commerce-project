@@ -1,4 +1,4 @@
-﻿package com.example.security.service;
+package com.example.security.service;
 
 import com.example.security.model.AuditLog;
 import org.slf4j.Logger;

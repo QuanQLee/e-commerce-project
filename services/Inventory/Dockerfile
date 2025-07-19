@@ -3,9 +3,12 @@ WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
 
-RUN pip install --no-cache-dir poetry \
-    && poetry config virtualenvs.create false \
-    && poetry install --only main --no-root  
+RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple \
+        --default-timeout=120 poetry && \
+    poetry config virtualenvs.create false && \
+    poetry config repositories.tsinghua https://pypi.tuna.tsinghua.edu.cn/simple && \
+    poetry install --only main --no-root -vvv
+
 
 COPY app ./app
 
