@@ -4,9 +4,11 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["User.csproj", "."]
-RUN dotnet nuget add source https://nuget.aliyun.com/repository/nuget/v3/index.json -n aliyun \
+RUN dotnet nuget add source https://pypi.tuna.tsinghua.edu.cn/simple -n tuna \
+    && dotnet nuget add source https://mirrors.cloud.tencent.com/nuget/index.json -n tencent \
     && dotnet restore "./User.csproj" \
-        --source https://nuget.aliyun.com/repository/nuget/v3/index.json
+        --source https://pypi.tuna.tsinghua.edu.cn/simple \
+        --source https://mirrors.cloud.tencent.com/nuget/index.json
 COPY . .
 RUN dotnet build "User.csproj" -c Release -o /app/build
 RUN dotnet publish "User.csproj" -c Release -o /app/publish /p:UseAppHost=false
