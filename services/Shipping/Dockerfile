@@ -4,10 +4,8 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["Shipping.csproj", "."]
-RUN dotnet nuget add source https://pypi.tuna.tsinghua.edu.cn/simple -n tuna \
-    && dotnet nuget add source https://mirrors.cloud.tencent.com/nuget/index.json -n tencent \
+RUN dotnet nuget add source https://mirrors.cloud.tencent.com/nuget/index.json -n tencent \
     && dotnet restore "./Shipping.csproj" \
-        --source https://pypi.tuna.tsinghua.edu.cn/simple \
         --source https://mirrors.cloud.tencent.com/nuget/index.json
 COPY . .
 RUN dotnet build "Shipping.csproj" -c Release -o /app/build
