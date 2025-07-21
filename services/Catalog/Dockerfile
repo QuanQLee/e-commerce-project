@@ -3,17 +3,19 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["Catalog.csproj", "."]
-RUN dotnet nuget add source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json -n tsinghua \
-    && dotnet nuget add source https://nuget.azure.cn/v3/index.json -n azure \
-    && dotnet restore "./Catalog.csproj" \
-        --source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json \
-        --source https://nuget.azure.cn/v3/index.json
+
+COPY ["Catalog.csproj", "./"]
+
+RUN dotnet restore "Catalog.csproj" --disable-parallel
+
 COPY . .
-RUN dotnet build "Catalog.csproj" -c Release -o /app/build
-RUN dotnet publish "Catalog.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Catalog.csproj" \
+    -c Release \
+    -o /app/publish \
+    /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+
 ENTRYPOINT ["dotnet", "Catalog.dll"]
