@@ -1,17 +1,17 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["Auth.csproj", "."]
-RUN dotnet nuget add source https://nuget.azure.cn/v3/index.json -n azure \
-    && dotnet restore "./Auth.csproj" \
-        --source https://nuget.azure.cn/v3/index.json
-COPY . .
-RUN dotnet build "Auth.csproj" -c Release -o /app/build
+
+COPY Auth/Auth.csproj ./Auth.csproj
+
+RUN dotnet restore "Auth.csproj" \
+    --source https://api.nuget.org/v3/index.json \
+    --disable-parallel
+
+COPY Auth/. ./
 RUN dotnet publish "Auth.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
+EXPOSE 80
 ENTRYPOINT ["dotnet", "Auth.dll"]
