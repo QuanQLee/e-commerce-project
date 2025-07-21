@@ -6,7 +6,9 @@ WORKDIR /src
 
 COPY ["Catalog.csproj", "./"]
 
-RUN dotnet restore "Catalog.csproj" --disable-parallel
+RUN dotnet nuget add source https://nuget.azure.cn/v3/index.json -n azure \
+    && dotnet restore "Catalog.csproj" --disable-parallel \
+        --source https://nuget.azure.cn/v3/index.json
 
 COPY . .
 RUN dotnet publish "Catalog.csproj" \

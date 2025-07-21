@@ -4,10 +4,8 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["User.csproj", "."]
-RUN dotnet nuget add source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json -n tsinghua \
-    && dotnet nuget add source https://nuget.azure.cn/v3/index.json -n azure \
+RUN dotnet nuget add source https://nuget.azure.cn/v3/index.json -n azure \
     && dotnet restore "./User.csproj" \
-        --source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json \
         --source https://nuget.azure.cn/v3/index.json
 COPY . .
 RUN dotnet build "User.csproj" -c Release -o /app/build
