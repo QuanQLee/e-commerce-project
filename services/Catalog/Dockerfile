@@ -4,9 +4,11 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["Catalog.csproj", "."]
-RUN dotnet nuget add source https://mirrors.cloud.tencent.com/nuget/index.json -n tencent \
+RUN dotnet nuget add source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json -n tsinghua \
+    && dotnet nuget add source https://nuget.azure.cn/v3/index.json -n azure \
     && dotnet restore "./Catalog.csproj" \
-        --source https://mirrors.cloud.tencent.com/nuget/index.json
+        --source https://mirrors.tuna.tsinghua.edu.cn/nuget/index.json \
+        --source https://nuget.azure.cn/v3/index.json
 COPY . .
 RUN dotnet build "Catalog.csproj" -c Release -o /app/build
 RUN dotnet publish "Catalog.csproj" -c Release -o /app/publish /p:UseAppHost=false
