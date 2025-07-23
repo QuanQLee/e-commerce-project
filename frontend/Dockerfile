@@ -3,13 +3,13 @@ FROM node:20-slim AS deps
 
 # ---------- Copy dependency manifest ----------
 WORKDIR /app
-COPY package.json ./
+COPY package.json package-lock.json ./
 
 # ---------- Install dependencies ----------
 # 1. Upgrade npm to the latest version (>= 11) to handle most peer dependency warnings automatically
 # 2. Install dependencies with --legacy-peer-deps to skip React 19/testing-library conflicts
 RUN npm install -g npm@latest \
- && npm install --legacy-peer-deps
+ && npm ci --legacy-peer-deps
 
 # ---------- Copy source code ----------
 COPY . .
