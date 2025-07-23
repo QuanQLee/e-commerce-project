@@ -31,11 +31,10 @@ jobs:
             dotnet test "$proj" --no-build --collect:"XPlat Code Coverage"
           done
 
+      - name: Setup decK
+        uses: kong/setup-deck@v1
       - name: Sync Kong config
-        uses: kong/deck@v1
-        with:
-          command: sync
-          config: services/Gateway/kong.yml
+        run: deck sync --state services/Gateway/kong.yml
       - name: Push images
         if: github.ref == 'refs/heads/main'
         run: docker compose -f services/docker-compose.yml push
