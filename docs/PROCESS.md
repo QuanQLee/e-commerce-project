@@ -21,7 +21,7 @@ Run unit tests for all services before committing:
 ```bash
 # .NET services
 for proj in services/*/*.Tests/*.csproj; do
-    dotnet test "$proj" --no-build
+    dotnet test --no-build "$proj"
 done
 
 # Go service
