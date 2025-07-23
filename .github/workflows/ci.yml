@@ -28,7 +28,7 @@ jobs:
         run: |
           for proj in services/*/*.Tests/*.csproj; do
             echo "Testing $proj"
-            dotnet test --no-build --collect:"XPlat Code Coverage" "$proj"
+            dotnet test --collect:"XPlat Code Coverage" "$proj"
           done
 
       - name: Setup decK
