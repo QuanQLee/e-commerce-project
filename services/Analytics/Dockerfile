@@ -9,8 +9,9 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple \
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false \
- && poetry config repositories.aliyun https://mirrors.aliyun.com/pypi/simple \
- && poetry install --no-interaction --no-ansi --no-root   # install dependencies only
+ && poetry config repositories.tuna https://pypi.tuna.tsinghua.edu.cn/simple \
+ && poetry install --no-interaction --no-ansi --no-root
+
 
 # 4. Copy source code and install root package
 COPY ./app ./app
