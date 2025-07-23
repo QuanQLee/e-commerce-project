@@ -6,10 +6,7 @@ WORKDIR /src
 
 COPY ["Cart.csproj", "."]
 
-RUN dotnet nuget remove source azure || true \
-    && dotnet nuget remove source tsinghua || true \
-    && dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget \
-    && dotnet restore "./Cart.csproj" --source https://api.nuget.org/v3/index.json --disable-parallel
+RUN  dotnet restore "./Cart.csproj" --source https://api.nuget.org/v3/index.json --disable-parallel
 
 COPY . .
 RUN dotnet build "Cart.csproj" -c Release -o /app/build

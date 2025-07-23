@@ -13,6 +13,6 @@ RUN --mount=type=cache,target=/root/.gradle \
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=builder /workspace/security.api/build/libs/*.jar app.jar
+COPY --from=builder /workspace/build/libs/*.jar app.jar
 EXPOSE 8082
 ENTRYPOINT ["java","-jar","app.jar"]
