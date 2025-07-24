@@ -24,6 +24,7 @@ yarn-error.log*
 # Java
 *.class
 *.jar
+!**/gradle/wrapper/gradle-wrapper.jar
 *.war
 *.ear
 *.iml
