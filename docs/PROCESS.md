@@ -64,9 +64,10 @@ See [testing.md](testing.md) for details.
 ## 4. Continuous Integration
 
 A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push. It now:
-
-
-
+- installs Python, Go, .NET and Node toolchains
+- runs service and frontend tests
+- builds the Docker images defined in `services/docker-compose.yml`
+- pushes the images when changes land on the main branch
 ## 5. API Gateway
 
 The stack uses [Kong Gateway 3.x](https://docs.konghq.com/gateway/) running from the `services/Gateway` container. Routes are declared in `kong.yml` and share the `/api/v1/` prefix. Kong applies authentication, authorisation and rate limiting while exposing Prometheus metrics. When a new service is added, generate its `openapi.yaml`, update `kong.yml` and let the CI pipeline sync the gateway.
