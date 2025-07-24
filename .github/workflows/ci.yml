@@ -24,6 +24,21 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Run frontend tests
+        working-directory: frontend
+        run: |
+          npm ci --legacy-peer-deps
+          npm test --silent
+
+      - name: Run Python tests
+        run: |
+          for service in Admin Analytics Inventory; do
+            cd services/$service
+            poetry install -n
+            poetry run pytest -q
+            cd ../../
+          done
+
       - name: Run .NET tests
         run: |
           for proj in services/*/*.Tests/*.csproj; do
@@ -50,10 +65,10 @@ jobs:
             sleep 5
           done
       - name: Sync Kong config
-        run: deck sync --state services/Gateway/kong.yml
+        run: deck sync --state services/Gateway/kong.yml --kong-addr http://127.0.0.1:8001
       - name: Stop Kong Gateway
         run: docker rm -f kong-test
       - name: Push images
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: docker compose -f services/docker-compose.yml push
 
