@@ -23,11 +23,12 @@ jobs:
         env:
           VERSION: ${{ github.ref_name }}
         run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           for d in services/*/Dockerfile; do
             name=$(basename $(dirname $d) | tr '[:upper:]' '[:lower:]')
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
-              --tag ghcr.io/${{ github.repository_owner }}/$name:$VERSION \
+              --tag ghcr.io/$owner/$name:$VERSION \
               --push \
               -f $d $(dirname $d)
           done
