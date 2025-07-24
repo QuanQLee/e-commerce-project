@@ -72,6 +72,8 @@ jobs:
         run: deck sync --state services/Gateway/kong.yml --kong-addr http://127.0.0.1:8001
       - name: Stop Kong Gateway
         run: docker rm -f kong-test
+      - name: Build images
+        run: docker compose -f services/docker-compose.yml build
       - name: Push images
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: docker compose -f services/docker-compose.yml push
