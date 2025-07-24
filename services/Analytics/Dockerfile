@@ -15,7 +15,6 @@ RUN poetry config virtualenvs.create false \
 
 # 4. Copy source code and install root package
 COPY ./app ./app
-COPY .env .env
 RUN poetry install --no-interaction --no-ansi              # install root package
 
 # 5. Run the service
