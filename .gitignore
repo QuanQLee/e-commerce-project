@@ -103,3 +103,4 @@ docker-compose.override.yml
 # Ignore TLS certificates but keep a placeholder file
 services/Gateway/certs/*
 !services/Gateway/certs/.gitkeep
+.coverage
