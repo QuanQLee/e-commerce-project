@@ -117,8 +117,8 @@ func initDB() *gorm.DB {
 
 /********** 入口 **********/
 func main() {
-    logger, _ := zap.NewProduction()
-    defer func() { _ = logger.Sync() }()
+	logger, _ := zap.NewProduction()
+	defer func() { _ = logger.Sync() }()
 	db := initDB()
 
 	/* ---------- gRPC ---------- */
@@ -148,7 +148,9 @@ func main() {
 	router := gin.Default()
 	router.GET("/healthz", func(c *gin.Context) { c.Status(200) })
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	router.Any("/*any", gin.WrapH(mux))
+	// Serve the gRPC-Gateway under a dedicated prefix to avoid
+	// conflicts with exact routes like /healthz and /metrics.
+	router.Any("/v1/*any", gin.WrapH(mux))
 
 	logger.Info("HTTP listening", zap.String("addr", ":8080"))
 	if err := router.Run(":8080"); err != nil {

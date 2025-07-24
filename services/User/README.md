@@ -25,4 +25,18 @@ The service automatically creates its database schema on startup using
 `EnsureCreated()`. Make sure the configured PostgreSQL instance is reachable
 before running the container.
 
+### Troubleshooting
+
+If the container fails to start with an error similar to:
+
+```
+password authentication failed for user "catalog_admin" (SqlState: 28P01)
+```
+
+verify that the username and password in `ConnectionStrings__UserDb` match the
+credentials used by the PostgreSQL container. Changing the value of
+`DB_PASSWORD` after the database volume has been created will not update the
+stored password. Remove the `pgdata` volume or adjust the connection string so
+the credentials align.
+
 See `Minimum.md` for integration details and `openapi.yaml` for the full API contract.
