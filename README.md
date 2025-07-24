@@ -52,6 +52,9 @@ Run a single service for local testing using its Docker Compose file:
 cd services/<ServiceName>
 docker compose up --build
 ```
+Set the `REGISTRY` environment variable to prefix images when you plan to push
+them to a registry. For example the CI pipeline uses
+`REGISTRY=ghcr.io/<owner>/` so images are pushed to GitHub Container Registry.
 When using the Security service, the Gradle wrapper JAR is downloaded
 automatically on first run. Simply execute `./gradlew` in `services/Security`.
 

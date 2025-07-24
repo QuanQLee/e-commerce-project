@@ -17,7 +17,7 @@ services:
     build:
       context: ./Catalog
       dockerfile: Dockerfile
-    image: catalog.api:dev
+    image: ${REGISTRY}catalog.api:dev
     container_name: catalog-api
     depends_on:
       - pg
@@ -33,7 +33,7 @@ services:
     build:
       context: ./Order
       dockerfile: Dockerfile
-    image: order.api:dev
+    image: ${REGISTRY}order.api:dev
     container_name: order-api
     depends_on:
       - pg
@@ -48,7 +48,7 @@ services:
     build:
       context: ./User
       dockerfile: Dockerfile
-    image: user.api:dev
+    image: ${REGISTRY}user.api:dev
     container_name: user-api
     depends_on:
       - pg
@@ -63,7 +63,7 @@ services:
     build:
       context: ./Shipping
       dockerfile: Dockerfile
-    image: shipping.api:dev
+    image: ${REGISTRY}shipping.api:dev
     container_name: shipping-api
     depends_on:
       - pg
@@ -78,7 +78,7 @@ services:
     build:
       context: ./Payment
       dockerfile: Dockerfile
-    image: payment.api:dev
+    image: ${REGISTRY}payment.api:dev
     container_name: payment-api
     depends_on:
       - pg
@@ -102,7 +102,7 @@ services:
     build:
       context: ./Cart
       dockerfile: Dockerfile
-    image: cart.api:dev
+    image: ${REGISTRY}cart.api:dev
     container_name: cart-api
     depends_on:
       - cart.redis
@@ -117,7 +117,7 @@ services:
     build:
       context: ./Inventory
       dockerfile: Dockerfile
-    image: inventory.api:dev
+    image: ${REGISTRY}inventory.api:dev
     container_name: inventory-api
     depends_on:
       - pg
@@ -131,7 +131,7 @@ services:
     build:
       context: ./Analytics
       dockerfile: Dockerfile
-    image: analytics.api:dev
+    image: ${REGISTRY}analytics.api:dev
     container_name: analytics-api
     depends_on:
       - pg
@@ -145,7 +145,7 @@ services:
     build:
       context: ./Auth
       dockerfile: Dockerfile
-    image: auth.api:dev
+    image: ${REGISTRY}auth.api:dev
     container_name: auth-api
     depends_on:
       - pg
@@ -160,7 +160,7 @@ services:
     build:
       context: ./Security
       dockerfile: Dockerfile
-    image: security.api:dev
+    image: ${REGISTRY}security.api:dev
     container_name: security-api
     depends_on:
       - pg
@@ -172,7 +172,7 @@ services:
     build:
       context: ./Notification
       dockerfile: Dockerfile
-    image: notification.api:dev
+    image: ${REGISTRY}notification.api:dev
     container_name: notification-api
     restart: unless-stopped
     environment:
@@ -186,7 +186,7 @@ services:
     build:
       context: ./Promotion
       dockerfile: Dockerfile
-    image: promotion.api:dev
+    image: ${REGISTRY}promotion.api:dev
     container_name: promotion-api
     restart: unless-stopped
     environment:
@@ -198,7 +198,7 @@ services:
     build:
       context: ./Review
       dockerfile: Dockerfile
-    image: review.api:dev
+    image: ${REGISTRY}review.api:dev
     container_name: review-api
     restart: unless-stopped
     environment:
@@ -210,7 +210,7 @@ services:
     build:
       context: ./Recommendation
       dockerfile: Dockerfile
-    image: recommendation.api:dev
+    image: ${REGISTRY}recommendation.api:dev
     container_name: recommendation-api
     restart: unless-stopped
     environment:
@@ -222,7 +222,7 @@ services:
     build:
       context: ./Admin
       dockerfile: Dockerfile
-    image: admin.api:dev
+    image: ${REGISTRY}admin.api:dev
     container_name: admin-api
     depends_on:
       - catalog.api
@@ -242,7 +242,7 @@ services:
     build:
       context: ./Gateway
       dockerfile: Dockerfile
-    image: kong.gateway:dev
+    image: ${REGISTRY}kong.gateway:dev
     container_name: gateway
     depends_on:
       - catalog.api
@@ -281,7 +281,7 @@ services:
         # Use the host URL so browser requests resolve correctly
         VITE_API_BASE_URL: http://localhost:8000
         VITE_API_KEY: mytestkey123
-    image: frontend.app:dev
+    image: ${REGISTRY}frontend.app:dev
     container_name: frontend
     depends_on:
       - gateway
