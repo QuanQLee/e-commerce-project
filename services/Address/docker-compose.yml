@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  address.api:
+    build: .
+    image: address.api:dev
+    container_name: address-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9030:8000"

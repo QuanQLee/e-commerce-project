@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  currency.api:
+    build: .
+    image: currency.api:dev
+    container_name: currency-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9020:8000"
