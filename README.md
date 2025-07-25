@@ -20,6 +20,11 @@ This repository contains microservices that together form a small e-commerce pla
   - **Promotion** – manages coupons under `services/Promotion`.
   - **Review** – stores product reviews under `services/Review`.
   - **Recommendation** – suggests related products under `services/Recommendation`.
+  - **Search** – product search APIs under `services/Search`.
+  - **Facet** – attribute-based filtering under `services/Facet`.
+  - **Attribute** – manages product attributes under `services/Attribute`.
+  - **Asset** – stores media assets under `services/Asset`.
+  - **Seo** – generates sitemaps under `services/Seo`.
 
 ## Gateway
 
