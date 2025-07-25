@@ -66,6 +66,7 @@ automatically on first run. Simply execute `./gradlew` in `services/Security`.
 - [Service communication and reliability](docs/service-communication.md)
 - [Kubernetes deployment guide](docs/kubernetes.md)
 - [Security best practices](docs/security-best-practices.md)
+- [Docker image registry](docs/registry.md)
 
 ## Frontend
 
