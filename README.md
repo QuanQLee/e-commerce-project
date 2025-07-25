@@ -79,8 +79,10 @@ automatically on first run. Simply execute `./gradlew` in `services/Security`.
 
 Every push to the `main` branch triggers the
 `docker-images.yml` workflow which builds a container image for each service and
-the frontend, then publishes them to GitHub Container Registry.  See
-[docs/registry.md](docs/registry.md) for details on the image names and how to
+the frontend, then publishes them to GitHub Container Registry. The workflow
+automatically scans the `services` directory so newly added microservices are
+picked up without modification.
+See [docs/registry.md](docs/registry.md) for details on the image names and how to
 pull them locally. This allows you to run the stack using remote images instead
 of building them on your machine.
 
@@ -90,6 +92,7 @@ of building them on your machine.
 - [Monitoring stack](docs/monitoring.md)
 - [Service communication and reliability](docs/service-communication.md)
 - [Kubernetes deployment guide](docs/kubernetes.md)
+- [Platform services overview](docs/platform-services.md)
 - [Security best practices](docs/security-best-practices.md)
 - [Docker image registry](docs/registry.md)
 

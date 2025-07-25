@@ -22,8 +22,7 @@ ghcr.io/<owner>/frontend.app:latest
 
 The workflow defined in `.github/workflows/docker-images.yml` builds all services and pushes them to GHCR. It runs on every push to `main` and can also be triggered manually from the GitHub Actions tab.
 
-Each microservice has its own Dockerfile under `services/<ServiceName>`. The workflow loops over these directories and publishes an image per service. When you add new services simply create a Dockerfile and push the code – the pipeline will automatically build and tag `ghcr.io/<owner>/<service>.api:latest`.
-The workflow automatically detects any folder under `services/` containing a Dockerfile, so newly added microservices like `Search` or `Facet` will be built without further changes.
+Each microservice has its own Dockerfile under `services/<ServiceName>`. The workflow scans every subfolder for a `Dockerfile` and publishes an image per service. When you add new services simply create a Dockerfile and push the code – the pipeline will automatically build and tag `ghcr.io/<owner>/<service>.api:latest` without editing the workflow.
 
 ## Pulling Images Locally
 
