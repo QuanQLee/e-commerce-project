@@ -2,6 +2,7 @@ package com.example.security.controller;
 
 import com.example.security.model.*;
 import com.example.security.service.AuditService;
+import com.example.security.service.OtpService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,10 +21,12 @@ public class SecurityController {
     private static final int MAX_FAILED_ATTEMPTS = 5;
     private final Map<String, Integer> attempts = new ConcurrentHashMap<>();
     private final AuditService auditService;
+    private final OtpService otpService;
     private final Counter riskBlocks;
 
-    public SecurityController(AuditService auditService, MeterRegistry registry) {
+    public SecurityController(AuditService auditService, OtpService otpService, MeterRegistry registry) {
         this.auditService = auditService;
+        this.otpService = otpService;
         this.riskBlocks = Counter.builder("security_risk_blocks_total")
                 .description("Number of requests blocked by risk check")
                 .register(registry);
@@ -32,19 +35,19 @@ public class SecurityController {
     @PostMapping("/auth/login")
     public TokenResponse login(@RequestBody LoginRequest req, HttpServletRequest http) {
         String ip = http.getRemoteAddr();
-        int failCount = attempts.getOrDefault(ip, 0);
+        int failCount = attempts.getOrDefault(req.username(), 0);
         if (failCount >= MAX_FAILED_ATTEMPTS) {
-            log.warn("blocked login from {}", ip);
+            log.warn("blocked login for user {} from {}", req.username(), ip);
             auditService.record(new AuditLog(req.username(), "login-blocked", "ip=" + ip));
             return new TokenResponse("blocked");
         }
-        if (req.otp() == null || !req.otp().matches("\\d{6}")) {
+        if (!otpService.verify(req.username(), req.otp())) {
             log.warn("invalid otp from {} for user {}", ip, req.username());
-            attempts.put(ip, failCount + 1);
+            attempts.put(req.username(), failCount + 1);
             auditService.record(new AuditLog(req.username(), "login-invalid-otp", "ip=" + ip));
             return new TokenResponse("invalid-otp");
         }
-        attempts.remove(ip);
+        attempts.remove(req.username());
         log.info("successful login for user {} from {}", req.username(), ip);
         auditService.record(new AuditLog(req.username(), "login-success", "ip=" + ip));
         return new TokenResponse("demo-token");
