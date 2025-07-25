@@ -18,6 +18,8 @@ using Microsoft.Extensions.Configuration;
 using Quartz;
 using Serilog;
 using Prometheus;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +48,15 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
 {
     var cs = builder.Configuration.GetConnectionString("OrderDb");
     options.UseNpgsql(cs);
+});
+
+builder.Services.AddOpenTelemetry().WithTracing(b =>
+{
+    b.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("order"))
+     .AddAspNetCoreInstrumentation()
+     .AddHttpClientInstrumentation()
+     .AddEntityFrameworkCoreInstrumentation()
+     .AddConsoleExporter();
 });
 
 // Rebus is skipped during this build

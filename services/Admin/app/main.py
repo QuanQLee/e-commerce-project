@@ -3,6 +3,7 @@ import sys
 import logging
 import httpx
 from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
@@ -33,6 +34,21 @@ app.add_middleware(
 FastAPIInstrumentor.instrument_app(app)
 HTTPXClientInstrumentor().instrument()
 
+@app.exception_handler(httpx.HTTPError)
+async def httpx_error_handler(_: Request, exc: httpx.HTTPError):
+    logger.error("httpx_error", error=str(exc))
+    return JSONResponse(status_code=502, content={"error": str(exc)})
+
+def handle_response(resp: httpx.Response):
+    if resp.status_code >= 400:
+        try:
+            data = resp.json()
+            detail = data.get("error", resp.text)
+        except ValueError:
+            detail = resp.text
+        raise HTTPException(status_code=resp.status_code, detail={"error": detail})
+    return resp.json()
+
 REQUEST_COUNTER = Counter("admin_requests_total", "Admin requests", ["endpoint"])
 
 CATALOG_URL = os.getenv("CATALOG_URL", "http://catalog.api:80")
@@ -57,16 +73,13 @@ async def healthz():
 async def list_products(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("list_products").inc()
     resp = await client.get(f"{CATALOG_URL}/products")
-    resp.raise_for_status()
-    return resp.json()
+    return handle_response(resp)
 
 @app.put("/products/{pid}")
 async def update_product(pid: str, payload: dict, client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("update_product").inc()
     resp = await client.put(f"{CATALOG_URL}/products/{pid}", json=payload)
-    if resp.status_code >= 400:
-        raise HTTPException(status_code=resp.status_code, detail=resp.text)
-    return resp.json()
+    return handle_response(resp)
 
 class AdjustQty(BaseModel):
     quantity: int
@@ -78,23 +91,19 @@ async def adjust_inventory(pid: str, body: AdjustQty, client: httpx.AsyncClient 
         f"{INVENTORY_URL}/inventory/release",
         json={"product_id": pid, "quantity": body.quantity},
     )
-    if resp.status_code >= 400:
-        raise HTTPException(status_code=resp.status_code, detail=resp.text)
-    return resp.json()
+    return handle_response(resp)
 
 @app.get("/orders")
 async def list_orders(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("orders").inc()
     resp = await client.get(f"{ORDER_URL}/orders")
-    resp.raise_for_status()
-    return resp.json()
+    return handle_response(resp)
 
 @app.get("/users")
 async def list_users(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("users").inc()
     resp = await client.get(f"{USER_URL}/users")
-    resp.raise_for_status()
-    return resp.json()
+    return handle_response(resp)
 
 @app.get("/metrics")
 async def metrics():
