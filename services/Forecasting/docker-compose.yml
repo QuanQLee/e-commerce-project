@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  forecasting.api:
+    build: .
+    image: forecasting.api:dev
+    container_name: forecasting-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9120:8000"

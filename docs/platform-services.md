@@ -22,6 +22,22 @@ A dedicated notification service handles email, SMS, push and in-app messages. I
 
 Aggregate structured logs and audit records in a single place. Apply redaction for sensitive fields and configure alerts when suspicious activity is detected.
 
+## Data Warehouse / Data Lake
+
+Store cleaned events in an analytical database such as **Snowflake**, **BigQuery** or **ClickHouse**. The warehouse powers offline reporting and complex queries without impacting transactional workloads.
+
+## Inventory Forecasting
+
+Predict product demand and generate replenishment plans automatically. Forecasts can feed into purchasing workflows to ensure healthy stock levels.
+
+## Customer Support / Ticketing
+
+Track customer issues through a ticketing system. The service can later integrate with chatbots or other AI assistants to help resolve common problems.
+
+## Moderation Service
+
+Review user-generated content like comments, images or videos. Built-in rules flag inappropriate material and third-party APIs can be called for deeper analysis.
+
 ## Monitoring and Tracing
 
 Use **Prometheus** and **Grafana** for metrics alongside **Jaeger** for distributed traces. Instrument services with **OpenTelemetry** so requests can be followed end-to-end.

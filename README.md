@@ -15,7 +15,7 @@ This repository contains microservices that together form a small e-commerce pla
   - **FraudDetection** – detects suspicious orders under `services/FraudDetection`.
   - **Consent** – manages user privacy consent under `services/Consent`.
   - **Inventory** – manages stock levels under `services/Inventory` and logs in JSON using structlog.
-  - **Analytics** – collects metrics under `services/Analytics`.
+  - **Analytics** – collects events and metrics under `services/Analytics`.
   - **Admin** – backoffice APIs under `services/Admin`.
   - **Auth** – provides authentication under `services/Auth`.
   - **Security** – offers security features under `services/Security`.
@@ -39,6 +39,10 @@ This repository contains microservices that together form a small e-commerce pla
   - **Bff** – aggregates APIs for each frontend under `services/Bff`.
   - **Performance** – handles SSR and caching under `services/Performance`.
   - **Tenant** – manages multi-tenant shops under `services/Tenant`.
+  - **DataWarehouse** – offline analytics under `services/DataWarehouse`.
+  - **Forecasting** – predicts sales under `services/Forecasting`.
+  - **Ticketing** – customer support tickets under `services/Ticketing`.
+  - **Moderation** – reviews user content under `services/Moderation`.
 
 ## Gateway
 

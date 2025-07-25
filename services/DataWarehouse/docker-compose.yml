@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  datawarehouse.api:
+    build: .
+    image: datawarehouse.api:dev
+    container_name: datawarehouse-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9110:8000"

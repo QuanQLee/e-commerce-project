@@ -386,6 +386,54 @@ services:
     ports:
       - "9100:8000"
 
+  datawarehouse.api:
+    build:
+      context: ./DataWarehouse
+      dockerfile: Dockerfile
+    image: ${REGISTRY}datawarehouse.api:dev
+    container_name: datawarehouse-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9110:8000"
+
+  forecasting.api:
+    build:
+      context: ./Forecasting
+      dockerfile: Dockerfile
+    image: ${REGISTRY}forecasting.api:dev
+    container_name: forecasting-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9120:8000"
+
+  ticketing.api:
+    build:
+      context: ./Ticketing
+      dockerfile: Dockerfile
+    image: ${REGISTRY}ticketing.api:dev
+    container_name: ticketing-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9130:8000"
+
+  moderation.api:
+    build:
+      context: ./Moderation
+      dockerfile: Dockerfile
+    image: ${REGISTRY}moderation.api:dev
+    container_name: moderation-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9140:8000"
+
   admin.api:
     build:
       context: ./Admin
@@ -441,6 +489,10 @@ services:
       - bff.api
       - performance.api
       - tenant.api
+      - datawarehouse.api
+      - forecasting.api
+      - ticketing.api
+      - moderation.api
     ports:
       - "8000:8000"
       - "8443:8443"

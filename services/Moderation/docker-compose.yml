@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  moderation.api:
+    build: .
+    image: moderation.api:dev
+    container_name: moderation-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9140:8000"

@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  ticketing.api:
+    build: .
+    image: ticketing.api:dev
+    container_name: ticketing-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9130:8000"
