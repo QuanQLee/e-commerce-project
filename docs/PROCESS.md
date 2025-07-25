@@ -90,5 +90,8 @@ The gateway keeps the services isolated and enforces contract-based routing.
 5. Create a version tag (`vMAJOR.MINOR.PATCH`) so `release.yml` can publish the
    multi-architecture images and generate release notes
 
+For details on how the images are built and where to pull them from, see
+[registry.md](registry.md).
+
 This workflow keeps the microservices independent while providing a clear path from development to production.
 \nFor monitoring instructions see [monitoring.md](monitoring.md).

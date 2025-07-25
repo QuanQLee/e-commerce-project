@@ -1,0 +1,35 @@
+name: Build Docker Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/**/Dockerfile'
+      - '.github/workflows/docker-images.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [Admin, Analytics, Auth, Cart, Catalog, Gateway, Inventory, Notification, Order, Payment, Promotion, Recommendation, Review, Security, Shipping, User]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t ghcr.io/$owner/${{ matrix.service }}.api:latest \
+            --push \
+            -f services/${{ matrix.service }}/Dockerfile services/${{ matrix.service }}
