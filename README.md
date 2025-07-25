@@ -11,7 +11,7 @@ This repository contains microservices that together form a small e-commerce pla
   - **User** – manages user accounts under `services/User`.
   - **Shipping** – coordinates delivery under `services/Shipping`.
   - **Payment** – processes transactions under `services/Payment`.
-  - **Inventory** – manages stock levels under `services/Inventory`.
+  - **Inventory** – manages stock levels under `services/Inventory` and logs in JSON using structlog.
   - **Analytics** – collects metrics under `services/Analytics`.
   - **Admin** – backoffice APIs under `services/Admin`.
   - **Auth** – provides authentication under `services/Auth`.
@@ -58,6 +58,15 @@ them to a registry. For example the CI pipeline uses
 `REGISTRY=ghcr.io/<owner>/` so images are pushed to GitHub Container Registry.
 When using the Security service, the Gradle wrapper JAR is downloaded
 automatically on first run. Simply execute `./gradlew` in `services/Security`.
+
+### Automated Docker Builds
+
+Every push to the `main` branch triggers the
+`docker-images.yml` workflow which builds a container image for each service and
+publishes it to GitHub Container Registry.  See
+[docs/registry.md](docs/registry.md) for details on the image names and how to
+pull them locally. This allows you to run the stack using remote images instead
+of building them on your machine.
 
 ## Service Documentation
 
