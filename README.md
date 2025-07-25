@@ -11,6 +11,9 @@ This repository contains microservices that together form a small e-commerce pla
   - **User** – manages user accounts under `services/User`.
   - **Shipping** – coordinates delivery under `services/Shipping`.
   - **Payment** – processes transactions under `services/Payment`.
+  - **PaymentGateway** – routes third-party payments under `services/PaymentGateway`.
+  - **FraudDetection** – detects suspicious orders under `services/FraudDetection`.
+  - **Consent** – manages user privacy consent under `services/Consent`.
   - **Inventory** – manages stock levels under `services/Inventory` and logs in JSON using structlog.
   - **Analytics** – collects metrics under `services/Analytics`.
   - **Admin** – backoffice APIs under `services/Admin`.

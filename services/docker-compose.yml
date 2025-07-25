@@ -314,6 +314,42 @@ services:
     ports:
       - "9040:8000"
 
+  paymentgateway.api:
+    build:
+      context: ./PaymentGateway
+      dockerfile: Dockerfile
+    image: ${REGISTRY}paymentgateway.api:dev
+    container_name: paymentgateway-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9050:8000"
+
+  frauddetection.api:
+    build:
+      context: ./FraudDetection
+      dockerfile: Dockerfile
+    image: ${REGISTRY}frauddetection.api:dev
+    container_name: frauddetection-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9060:8000"
+
+  consent.api:
+    build:
+      context: ./Consent
+      dockerfile: Dockerfile
+    image: ${REGISTRY}consent.api:dev
+    container_name: consent-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9070:8000"
+
   admin.api:
     build:
       context: ./Admin
@@ -363,6 +399,9 @@ services:
       - currency.api
       - address.api
       - shippingrate.api
+      - paymentgateway.api
+      - frauddetection.api
+      - consent.api
     ports:
       - "8000:8000"
       - "8443:8443"
