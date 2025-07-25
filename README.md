@@ -36,6 +36,9 @@ This repository contains microservices that together form a small e-commerce pla
   - **Currency** – provides exchange rates under `services/Currency`.
   - **Address** – offers address validation under `services/Address`.
   - **ShippingRate** – aggregates shipping quotes under `services/ShippingRate`.
+  - **Bff** – aggregates APIs for each frontend under `services/Bff`.
+  - **Performance** – handles SSR and caching under `services/Performance`.
+  - **Tenant** – manages multi-tenant shops under `services/Tenant`.
 
 ## Gateway
 
