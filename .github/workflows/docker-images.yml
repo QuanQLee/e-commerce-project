@@ -18,8 +18,9 @@ jobs:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          services=$(find services -mindepth 1 -maxdepth 1 -type f -name Dockerfile \
-            | sed -e 's#services/##' -e 's#/Dockerfile##')
+          services=$(find services -mindepth 1 -maxdepth 1 -type d \
+            -exec test -f {}/Dockerfile \; -print \
+            | sed 's#services/##')
           arr=$(printf '%s\n' $services Frontend | jq -R -s -c 'split("\n")[:-1]')
           echo "matrix={\"service\":$arr}" >> "$GITHUB_OUTPUT"
 
