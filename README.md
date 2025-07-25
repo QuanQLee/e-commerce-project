@@ -32,9 +32,10 @@ hey -z 30s http://localhost/api/v1/catalog/products
 
 ## Building and Running
 
-From the `services` directory you can spin up the entire stack. Copy `.env.example` **into that folder** as `.env` and adjust the values to set database credentials before launching:
+From the `services` directory you can spin up the entire stack. Copy `.env.example` **into that folder** as `.env` and adjust the values to set database credentials before launching. If you change the credentials later, remove the `pgdata` volume to reinitialise the database:
 
 ```bash
+docker compose down -v
 docker compose up --build
 ```
 
