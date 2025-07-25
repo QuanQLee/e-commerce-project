@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: CMS API
+  version: v1
+paths:
+  /articles:
+    post:
+      summary: Create an article
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+    get:
+      summary: List articles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+components:
+  schemas:
+    Article:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string

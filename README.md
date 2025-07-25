@@ -20,6 +20,9 @@ This repository contains microservices that together form a small e-commerce pla
   - **Promotion** – manages coupons under `services/Promotion`.
   - **Review** – stores product reviews under `services/Review`.
   - **Recommendation** – suggests related products under `services/Recommendation`.
+  - **Wishlist** – stores user wishlists under `services/Wishlist`.
+  - **Experiment** – simple A/B testing under `services/Experiment`.
+  - **Cms** – manages articles and pages under `services/Cms`.
   - **Search** – product search APIs under `services/Search`.
   - **Facet** – attribute-based filtering under `services/Facet`.
   - **Attribute** – manages product attributes under `services/Attribute`.

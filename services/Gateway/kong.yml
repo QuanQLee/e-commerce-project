@@ -95,6 +95,30 @@ services:
           - /api/v1/recommendation
         strip_path: true
 
+  - name: wishlist
+    url: http://wishlist.api:8000
+    routes:
+      - name: wishlist
+        paths:
+          - /api/v1/wishlist
+        strip_path: true
+
+  - name: experiment
+    url: http://experiment.api:8000
+    routes:
+      - name: experiment
+        paths:
+          - /api/v1/experiment
+        strip_path: true
+
+  - name: cms
+    url: http://cms.api:8000
+    routes:
+      - name: cms
+        paths:
+          - /api/v1/cms
+        strip_path: true
+
   - name: auth
     url: http://auth.api:80
     routes:

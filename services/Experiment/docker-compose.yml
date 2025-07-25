@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  experiment.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: experiment.api:dev
+    container_name: experiment-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8800:8000"

@@ -218,6 +218,42 @@ services:
     ports:
       - "8600:8000"
 
+  wishlist.api:
+    build:
+      context: ./Wishlist
+      dockerfile: Dockerfile
+    image: ${REGISTRY}wishlist.api:dev
+    container_name: wishlist-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8700:8000"
+
+  experiment.api:
+    build:
+      context: ./Experiment
+      dockerfile: Dockerfile
+    image: ${REGISTRY}experiment.api:dev
+    container_name: experiment-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8800:8000"
+
+  cms.api:
+    build:
+      context: ./Cms
+      dockerfile: Dockerfile
+    image: ${REGISTRY}cms.api:dev
+    container_name: cms-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8900:8000"
+
   admin.api:
     build:
       context: ./Admin
@@ -259,6 +295,9 @@ services:
       - promotion.api
       - review.api
       - recommendation.api
+      - wishlist.api
+      - experiment.api
+      - cms.api
     ports:
       - "8000:8000"
       - "8443:8443"

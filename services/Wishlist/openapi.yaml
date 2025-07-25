@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  title: Wishlist API
+  version: v1
+paths:
+  /wishlist/{userId}/{productId}:
+    post:
+      summary: Add item to wishlist
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Added
+          content:
+            application/json:
+              schema:
+                type: object
+  /wishlist/{userId}:
+    get:
+      summary: Get wishlist items
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
