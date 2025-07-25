@@ -6,6 +6,7 @@ using Cart.Api.Infrastructure;
 using Prometheus;
 using Serilog;
 using Microsoft.AspNetCore.Hosting;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 builder.Services.AddSingleton<ICartStore, RedisCartStore>();
+var inventoryUrl = builder.Configuration["INVENTORY_URL"] ?? "http://inventory.api:8000";
+builder.Services.AddHttpClient("inventory", client => client.BaseAddress = new Uri(inventoryUrl));
 
 builder.Services.AddHealthChecks();
 

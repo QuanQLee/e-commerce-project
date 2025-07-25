@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
@@ -33,6 +33,8 @@ coupons: List[Coupon] = []
 
 @app.post("/coupons")
 async def create_coupon(coupon: Coupon):
+    if coupon.discount < 0 or coupon.discount > 100:
+        raise HTTPException(status_code=400, detail="discount must be between 0 and 100")
     coupons.append(coupon)
     logger.info("created coupon", extra={"code": coupon.code})
     COUPON_COUNTER.inc()

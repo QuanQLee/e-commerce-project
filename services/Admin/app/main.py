@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 import httpx
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
@@ -44,19 +44,24 @@ async def get_client():
     async with httpx.AsyncClient() as client:
         yield client
 
+def verify_admin(request: Request):
+    groups = request.headers.get("X-Consumer-Groups", "")
+    if "admin-group" not in groups.split(","):
+        raise HTTPException(status_code=403, detail="forbidden")
+
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok"}
 
 @app.get("/products")
-async def list_products(client: httpx.AsyncClient = Depends(get_client)):
+async def list_products(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("list_products").inc()
     resp = await client.get(f"{CATALOG_URL}/products")
     resp.raise_for_status()
     return resp.json()
 
 @app.put("/products/{pid}")
-async def update_product(pid: str, payload: dict, client: httpx.AsyncClient = Depends(get_client)):
+async def update_product(pid: str, payload: dict, client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("update_product").inc()
     resp = await client.put(f"{CATALOG_URL}/products/{pid}", json=payload)
     if resp.status_code >= 400:
@@ -67,7 +72,7 @@ class AdjustQty(BaseModel):
     quantity: int
 
 @app.post("/products/{pid}/inventory")
-async def adjust_inventory(pid: str, body: AdjustQty, client: httpx.AsyncClient = Depends(get_client)):
+async def adjust_inventory(pid: str, body: AdjustQty, client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("adjust_inventory").inc()
     resp = await client.post(
         f"{INVENTORY_URL}/inventory/release",
@@ -78,14 +83,14 @@ async def adjust_inventory(pid: str, body: AdjustQty, client: httpx.AsyncClient 
     return resp.json()
 
 @app.get("/orders")
-async def list_orders(client: httpx.AsyncClient = Depends(get_client)):
+async def list_orders(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("orders").inc()
     resp = await client.get(f"{ORDER_URL}/orders")
     resp.raise_for_status()
     return resp.json()
 
 @app.get("/users")
-async def list_users(client: httpx.AsyncClient = Depends(get_client)):
+async def list_users(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
     REQUEST_COUNTER.labels("users").inc()
     resp = await client.get(f"{USER_URL}/users")
     resp.raise_for_status()

@@ -12,6 +12,9 @@ async def test_create_coupon():
         assert resp.status_code == 200
         assert resp.json()["status"] == "created"
 
+        resp = await ac.post("/coupons", json={"code": "BAD", "discount": 150})
+        assert resp.status_code == 400
+
         resp = await ac.get("/coupons")
         data = resp.json()
         assert any(c["code"] == "SAVE10" for c in data)
