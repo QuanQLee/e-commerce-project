@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  wishlist.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wishlist.api:dev
+    container_name: wishlist-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8700:8000"

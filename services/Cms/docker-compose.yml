@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  cms.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cms.api:dev
+    container_name: cms-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8900:8000"

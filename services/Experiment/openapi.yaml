@@ -1,0 +1,26 @@
+openapi: 3.1.0
+info:
+  title: Experiment API
+  version: v1
+paths:
+  /assign/{experimentId}:
+    get:
+      summary: Assign a variant
+      parameters:
+        - in: path
+          name: experimentId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  experiment:
+                    type: string
+                  variant:
+                    type: string
