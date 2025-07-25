@@ -350,6 +350,42 @@ services:
     ports:
       - "9070:8000"
 
+  bff.api:
+    build:
+      context: ./Bff
+      dockerfile: Dockerfile
+    image: ${REGISTRY}bff.api:dev
+    container_name: bff-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9080:8000"
+
+  performance.api:
+    build:
+      context: ./Performance
+      dockerfile: Dockerfile
+    image: ${REGISTRY}performance.api:dev
+    container_name: performance-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9091:8000"
+
+  tenant.api:
+    build:
+      context: ./Tenant
+      dockerfile: Dockerfile
+    image: ${REGISTRY}tenant.api:dev
+    container_name: tenant-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9100:8000"
+
   admin.api:
     build:
       context: ./Admin
@@ -402,6 +438,9 @@ services:
       - paymentgateway.api
       - frauddetection.api
       - consent.api
+      - bff.api
+      - performance.api
+      - tenant.api
     ports:
       - "8000:8000"
       - "8443:8443"
