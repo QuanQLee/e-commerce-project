@@ -75,11 +75,6 @@ public class SecurityController {
         return new RiskCheckResponse(true, "");
     }
 
-    @PostMapping("/rate-limit")
-    public RateLimitResponse rateLimit(@RequestBody RateLimitRequest req) {
-        return new RateLimitResponse(true);
-    }
-
     @PostMapping("/audit")
     public void audit(@RequestBody AuditLog req) {
         auditService.record(req);

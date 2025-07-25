@@ -28,7 +28,7 @@ Uses PostgreSQL schema `security` in the shared instance. Configure the datasour
 
 ## API Contract
 
-Endpoints cover authentication, order/payment risk checks, rate limiting and audit logging. The REST API is documented in [openapi.yaml](openapi.yaml).
+Endpoints cover authentication, order/payment risk checks and audit logging. The REST API is documented in [openapi.yaml](openapi.yaml).
 
 ## Audit Logs
 

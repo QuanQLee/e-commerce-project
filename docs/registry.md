@@ -1,6 +1,6 @@
 # Docker Image Registry
 
-This project publishes container images for every microservice to **GitHub Container Registry (GHCR)**. Images are built automatically whenever the `main` branch is updated.
+This project publishes container images for every microservice and the frontend to **GitHub Container Registry (GHCR)**. Images are built automatically whenever the `main` branch is updated.
 
 ## Images
 
@@ -11,6 +11,12 @@ ghcr.io/<owner>/<service>.api:latest
 ```
 
 Where `<owner>` is your GitHub user or organisation and `<service>` matches the directory name (for example `Catalog`).
+
+The frontend image is built from the `frontend` directory as:
+
+```
+ghcr.io/<owner>/frontend.app:latest
+```
 
 ## Building and Publishing
 
