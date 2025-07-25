@@ -32,3 +32,7 @@ def test_insufficient_counter():
     assert r.status_code == 400
     metrics = client.get('/metrics').text
     assert 'inventory_insufficient_total 1.0' in metrics
+
+def test_negative_quantity():
+    r = client.post('/inventory/release', json={'product_id': 'p', 'quantity': 0})
+    assert r.status_code == 400

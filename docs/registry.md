@@ -16,6 +16,8 @@ Where `<owner>` is your GitHub user or organisation and `<service>` matches the 
 
 The workflow defined in `.github/workflows/docker-images.yml` builds all services and pushes them to GHCR. It runs on every push to `main` and can also be triggered manually from the GitHub Actions tab.
 
+Each microservice has its own Dockerfile under `services/<ServiceName>`. The workflow loops over these directories and publishes an image per service. When you add new services simply create a Dockerfile and push the code – the pipeline will automatically build and tag `ghcr.io/<owner>/<service>.api:latest`.
+
 ## Pulling Images Locally
 
 To use the published images on your machine:

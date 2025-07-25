@@ -25,7 +25,7 @@ The repository already contains an **Auth** service based on Duende IdentityServ
 3. The frontend stores the tokens and includes the access token in the `Authorization: Bearer <token>` header.
 4. Configure the Kong gateway with the `jwt` or `openid-connect` plugin. The plugin verifies the signature using the Auth service's public key and rejects expired or malformed tokens.
    The plugin can point to the Auth service's JWKS endpoint so that signing keys
-   rotate automatically.
+   rotate automatically. Combine this with the `acl` plugin so that only members of the right groups can call sensitive endpoints.
 5. Remove the `key-auth` plugin from `kong.yml` and delete the `demo-token` login endpoint in `Security`.
 
 The Auth service should pull user records from the **User** service database. Extend the user table to include password hashes and roles. Use a strong hashing algorithm such as **BCrypt** or **scrypt**. Alternatively, point IdentityServer's user store directly at the User database. For production deployments consider a managed identity provider such as **Keycloak** or **Auth0** to reduce maintenance overhead.

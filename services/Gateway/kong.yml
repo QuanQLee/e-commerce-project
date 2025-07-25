@@ -2,13 +2,15 @@
 _transform: true
 consumers:
   - username: frontend
-    keyauth_credentials:
-      - key: mytestkey123
+    jwt_secrets:
+      - key: frontend
+        secret: myfrontendsecret
     acls:
       - group: frontend-group
   - username: admin
-    keyauth_credentials:
-      - key: adminkey456
+    jwt_secrets:
+      - key: admin
+        secret: myadminsecret
     acls:
       - group: admin-group
   
@@ -129,7 +131,7 @@ plugins:
       headers: ["*"]
       exposed_headers: ["*"]
       credentials: true
-  - name: key-auth
+  - name: jwt
   - name: acl
     config:
       allow:

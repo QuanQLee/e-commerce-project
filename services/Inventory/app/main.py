@@ -53,6 +53,8 @@ def get_stock(product_id: str, db: Session = Depends(get_db)):
 
 @app.post("/inventory/reserve")
 def reserve_stock(update: StockUpdate, db: Session = Depends(get_db)):
+    if update.quantity <= 0:
+        raise HTTPException(status_code=400, detail="quantity must be positive")
     inv = db.get(Inventory, update.product_id)
     if inv is None:
         inv = Inventory(product_id=update.product_id, quantity=0)
@@ -69,6 +71,8 @@ def reserve_stock(update: StockUpdate, db: Session = Depends(get_db)):
 
 @app.post("/inventory/release")
 def release_stock(update: StockUpdate, db: Session = Depends(get_db)):
+    if update.quantity <= 0:
+        raise HTTPException(status_code=400, detail="quantity must be positive")
     inv = db.get(Inventory, update.product_id)
     if inv is None:
         inv = Inventory(product_id=update.product_id, quantity=0)

@@ -66,9 +66,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CreateOrderItemDto'
+        total:
+          type: number
       required:
         - userId
         - items
+        - total
   CreateOrderItemDto:
     type: object
     properties:
