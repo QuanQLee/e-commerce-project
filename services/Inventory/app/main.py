@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-import logging, json
+import structlog
 from prometheus_client import Counter, Gauge, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 
@@ -9,8 +9,8 @@ from .db import SessionLocal, init_db
 from .models import Inventory
 
 app = FastAPI(title="Inventory API", version="v1")
-logging.basicConfig(format='%(message)s', level=logging.INFO)
-logger = logging.getLogger("inventory")
+structlog.configure(processors=[structlog.processors.JSONRenderer()])
+logger = structlog.get_logger("inventory")
 
 STOCK_COUNTER = Counter("inventory_updates_total", "Inventory updates", ["action"])
 INSUFFICIENT_COUNTER = Counter(
@@ -66,7 +66,7 @@ def reserve_stock(update: StockUpdate, db: Session = Depends(get_db)):
     db.commit()
     STOCK_COUNTER.labels("reserve").inc()
     LOW_GAUGE.labels(inv.product_id).set(inv.quantity)
-    logger.info(json.dumps({"action": "reserve", "product_id": inv.product_id, "quantity": inv.quantity}))
+    logger.info("reserve", product_id=inv.product_id, quantity=inv.quantity)
     return {"reserved": update.quantity}
 
 @app.post("/inventory/release")
@@ -81,7 +81,7 @@ def release_stock(update: StockUpdate, db: Session = Depends(get_db)):
     db.commit()
     STOCK_COUNTER.labels("release").inc()
     LOW_GAUGE.labels(inv.product_id).set(inv.quantity)
-    logger.info(json.dumps({"action": "release", "product_id": inv.product_id, "quantity": inv.quantity}))
+    logger.info("release", product_id=inv.product_id, quantity=inv.quantity)
     return {"released": update.quantity}
 
 @app.get("/metrics")
