@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'services/**/Dockerfile'
+      - 'frontend/Dockerfile'
       - '.github/workflows/docker-images.yml'
   workflow_dispatch:
 
@@ -16,7 +17,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        service: [Admin, Analytics, Auth, Cart, Catalog, Gateway, Inventory, Notification, Order, Payment, Promotion, Recommendation, Review, Security, Shipping, User]
+        service: [Admin, Analytics, Auth, Cart, Catalog, Gateway, Inventory, Notification, Order, Payment, Promotion, Recommendation, Review, Security, Shipping, User, Frontend]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -28,8 +29,16 @@ jobs:
       - name: Build and push
         run: |
           owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            -t ghcr.io/$owner/${{ matrix.service }}.api:latest \
-            --push \
-            -f services/${{ matrix.service }}/Dockerfile services/${{ matrix.service }}
+          if [ "${{ matrix.service }}" = "Frontend" ]; then
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              -t ghcr.io/$owner/frontend.app:latest \
+              --push \
+              -f frontend/Dockerfile frontend
+          else
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              -t ghcr.io/$owner/${{ matrix.service }}.api:latest \
+              --push \
+              -f services/${{ matrix.service }}/Dockerfile services/${{ matrix.service }}
+          fi

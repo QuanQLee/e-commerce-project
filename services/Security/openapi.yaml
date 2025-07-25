@@ -51,22 +51,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RiskCheckResponse'
-  /rate-limit:
-    post:
-      summary: Rate limit check
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RateLimitRequest'
-      responses:
-        '200':
-          description: result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RateLimitResponse'
   /audit:
     post:
       summary: Audit log
@@ -109,18 +93,6 @@ components:
           type: boolean
         reason:
           type: string
-    RateLimitRequest:
-      type: object
-      properties:
-        userId:
-          type: string
-        action:
-          type: string
-    RateLimitResponse:
-      type: object
-      properties:
-        allowed:
-          type: boolean
     AuditLog:
       type: object
       properties:

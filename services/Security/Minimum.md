@@ -16,7 +16,6 @@ This document lists the minimal information required to integrate with the Secur
 - `POST /auth/login` – obtain authentication token
 - `POST /risk/order-check` – order risk check
 - `POST /risk/payment-check` – payment risk check
-- `POST /rate-limit` – rate limiting check
 - `POST /audit` – submit audit log
 
 Refer to `openapi.yaml` for full schema details.
