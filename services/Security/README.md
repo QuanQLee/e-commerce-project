@@ -34,6 +34,8 @@ Endpoints cover authentication, order/payment risk checks, rate limiting and aud
 
 The `/audit` endpoint accepts JSON payloads describing user or admin actions. Entries are stored in `logs/audit.log` by the `AuditService` and can be forwarded to a central log stack such as ELK. Login attempts are automatically audited with action codes `login-success`, `login-invalid-otp` and `login-blocked`.
 
+The login endpoint verifies Time-based One Time Passwords (TOTP). A demo secret is configured for user `u` and tests compute the current code to authenticate. In production the secrets would be provided by the User service or an external provider.
+
 ## Metrics
 
 Prometheus metrics are exposed via the Spring Boot Actuator at [`/actuator/prometheus`](http://localhost:8082/actuator/prometheus). These include login counts and other JVM statistics for use in Grafana dashboards.
