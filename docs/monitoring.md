@@ -36,6 +36,13 @@ Each service writes structured logs to stdout. When running in Docker these can 
 
 The Inventory service tracks reservation failures via the `inventory_insufficient_total` counter.
 
+## Distributed Tracing
+
+Admin and Order services emit OpenTelemetry spans for incoming requests and outgoing HTTP calls. You can
+run a collector such as Jaeger to aggregate traces and visualise the full request flow across microservices.
+Extend the instrumentation to other services as needed so a single trace ID follows an order through
+Inventory and Payment.
+
 ## Alert Rules
 
 Prometheus loads alert definitions from `services/prometheusRule.yaml`. Extend this file to watch for error rates, latency spikes or abnormal traffic in any service. Alertmanager forwards notifications to email or chat channels when a rule triggers.

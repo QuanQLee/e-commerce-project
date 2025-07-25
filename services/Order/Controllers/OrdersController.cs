@@ -4,6 +4,7 @@ using Order.Api.Domain;
 using Order.Api.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Prometheus;
 

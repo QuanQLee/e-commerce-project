@@ -1,12 +1,13 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
-	"net"
-	"os"
-	"strings"
+        "context"
+        "errors"
+        "fmt"
+        "log"
+        "net"
+        "os"
+        "strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
@@ -15,9 +16,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+        "google.golang.org/grpc/codes"
+        "google.golang.org/grpc/status"
+        "google.golang.org/protobuf/types/known/emptypb"
+        "gorm.io/driver/postgres"
+        "gorm.io/gorm"
 
 	pb "github.com/QuanQLee/e-commerce-project/services/Payment/api"
 )
@@ -52,9 +55,10 @@ func (s *server) CreatePayment(ctx context.Context, in *pb.CreatePaymentRequest)
 		Amount:  in.Amount,
 		Status:  "PENDING",
 	}
-	if err := s.db.Create(&p).Error; err != nil {
-		return nil, err
-	}
+        if err := s.db.Create(&p).Error; err != nil {
+                s.logger.Error("create payment", zap.Error(err))
+                return nil, status.Error(codes.Internal, "CREATE_PAYMENT_FAILED")
+        }
 	paymentCounter.WithLabelValues(strings.ToLower(p.Status)).Inc()
 	s.logger.Info("payment created", zap.String("payment_id", fmt.Sprint(p.ID)), zap.String("status", p.Status))
 	return &pb.PaymentResponse{
@@ -65,9 +69,10 @@ func (s *server) CreatePayment(ctx context.Context, in *pb.CreatePaymentRequest)
 
 func (s *server) ListPayments(ctx context.Context, _ *emptypb.Empty) (*pb.ListPaymentsResponse, error) {
 	var entries []Payment
-	if err := s.db.Find(&entries).Error; err != nil {
-		return nil, err
-	}
+        if err := s.db.Find(&entries).Error; err != nil {
+                s.logger.Error("list payments", zap.Error(err))
+                return nil, status.Error(codes.Internal, "LIST_PAYMENTS_FAILED")
+        }
 	res := make([]*pb.PaymentItem, len(entries))
 	for i, p := range entries {
 		res[i] = &pb.PaymentItem{
@@ -80,14 +85,19 @@ func (s *server) ListPayments(ctx context.Context, _ *emptypb.Empty) (*pb.ListPa
 }
 
 func (s *server) UpdatePaymentStatus(ctx context.Context, in *pb.UpdatePaymentStatusRequest) (*pb.PaymentResponse, error) {
-	var p Payment
-	if err := s.db.First(&p, in.PaymentId).Error; err != nil {
-		return nil, err
-	}
-	p.Status = in.Status
-	if err := s.db.Save(&p).Error; err != nil {
-		return nil, err
-	}
+        var p Payment
+        if err := s.db.First(&p, in.PaymentId).Error; err != nil {
+                if errors.Is(err, gorm.ErrRecordNotFound) {
+                        return nil, status.Error(codes.NotFound, "PAYMENT_NOT_FOUND")
+                }
+                s.logger.Error("read payment", zap.Error(err))
+                return nil, status.Error(codes.Internal, "READ_PAYMENT_FAILED")
+        }
+        p.Status = in.Status
+        if err := s.db.Save(&p).Error; err != nil {
+                s.logger.Error("update payment", zap.Error(err))
+                return nil, status.Error(codes.Internal, "UPDATE_PAYMENT_FAILED")
+        }
 	paymentCounter.WithLabelValues(strings.ToLower(in.Status)).Inc()
 	s.logger.Info("payment updated", zap.String("payment_id", fmt.Sprint(p.ID)), zap.String("status", p.Status))
 	return &pb.PaymentResponse{PaymentId: fmt.Sprint(p.ID), Status: p.Status}, nil
@@ -113,6 +123,14 @@ func initDB() *gorm.DB {
 		log.Fatalf("migrate: %v", err)
 	}
 	return db
+}
+
+func dbHealthy(db *gorm.DB) bool {
+        sqlDB, err := db.DB()
+        if err != nil {
+                return false
+        }
+        return sqlDB.Ping() == nil
 }
 
 /********** 入口 **********/
@@ -145,8 +163,14 @@ func main() {
 	}
 
 	/* ---------- Gin ---------- */
-	router := gin.Default()
-	router.GET("/healthz", func(c *gin.Context) { c.Status(200) })
+        router := gin.Default()
+        router.GET("/healthz", func(c *gin.Context) {
+                if dbHealthy(db) {
+                        c.JSON(200, gin.H{"status": "ok"})
+                } else {
+                        c.JSON(503, gin.H{"status": "db unavailable"})
+                }
+        })
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	// Serve the gRPC-Gateway under a dedicated prefix to avoid
 	// conflicts with exact routes like /healthz and /metrics.
