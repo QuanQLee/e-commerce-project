@@ -79,6 +79,46 @@ services:
     command: >-
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
+  rma.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/Rma
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
+  tax.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/Tax
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
+  currency.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/Currency
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
+  address.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/Address
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
+  shippingrate.tests:
+    image: python:3.12-slim
+    working_dir: /workspace/services/ShippingRate
+    volumes:
+      - ..:/workspace
+    command: >-
+      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+
   frontend.tests:
     image: node:20
     working_dir: /workspace/frontend

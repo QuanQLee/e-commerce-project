@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  shippingrate.api:
+    build: .
+    image: shippingrate.api:dev
+    container_name: shippingrate-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9040:8000"

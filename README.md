@@ -28,6 +28,11 @@ This repository contains microservices that together form a small e-commerce pla
   - **Attribute** – manages product attributes under `services/Attribute`.
   - **Asset** – stores media assets under `services/Asset`.
   - **Seo** – generates sitemaps under `services/Seo`.
+  - **RMA** – handles returns and refunds under `services/Rma`.
+  - **Tax** – calculates duties and tax under `services/Tax`.
+  - **Currency** – provides exchange rates under `services/Currency`.
+  - **Address** – offers address validation under `services/Address`.
+  - **ShippingRate** – aggregates shipping quotes under `services/ShippingRate`.
 
 ## Gateway
 

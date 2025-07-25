@@ -118,6 +118,45 @@ services:
         paths:
           - /api/v1/cms
         strip_path: true
+  - name: rma
+    url: http://rma.api:8000
+    routes:
+      - name: rma
+        paths:
+          - /api/v1/rma
+        strip_path: true
+
+  - name: tax
+    url: http://tax.api:8000
+    routes:
+      - name: tax
+        paths:
+          - /api/v1/tax
+        strip_path: true
+
+  - name: currency
+    url: http://currency.api:8000
+    routes:
+      - name: currency
+        paths:
+          - /api/v1/currency
+        strip_path: true
+
+  - name: address
+    url: http://address.api:8000
+    routes:
+      - name: address
+        paths:
+          - /api/v1/address
+        strip_path: true
+
+  - name: shippingrate
+    url: http://shippingrate.api:8000
+    routes:
+      - name: shippingrate
+        paths:
+          - /api/v1/shippingrate
+        strip_path: true
 
   - name: auth
     url: http://auth.api:80

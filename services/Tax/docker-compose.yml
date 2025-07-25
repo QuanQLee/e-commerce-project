@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  tax.api:
+    build: .
+    image: tax.api:dev
+    container_name: tax-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9010:8000"

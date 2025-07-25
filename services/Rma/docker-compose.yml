@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  rma.api:
+    build: .
+    image: rma.api:dev
+    container_name: rma-api
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "9000:8000"

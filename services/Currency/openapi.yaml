@@ -1,0 +1,18 @@
+openapi: 3.0.0
+info:
+  title: Currency API
+  version: v1
+paths:
+  /rate/{currency}:
+    get:
+      summary: Get exchange rate
+      parameters:
+        - in: path
+          name: currency
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+components: {}
