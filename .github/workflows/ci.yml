@@ -1,11 +1,12 @@
 name: CI
 
 on:
-  push:
   pull_request:
+    types: [closed]
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     permissions:
       contents: read
       packages: write

@@ -49,7 +49,7 @@ services:
 
   recommendation.tests:
     image: python:3.12-slim
-    working_dir: /workspace/services/Recommendation
+    working_dir: /workspace/services/Search/recommendation
     volumes:
       - ..:/workspace
     command: >-
@@ -113,7 +113,7 @@ services:
 
   shippingrate.tests:
     image: python:3.12-slim
-    working_dir: /workspace/services/ShippingRate
+    working_dir: /workspace/services/Shipping/rate
     volumes:
       - ..:/workspace
     command: >-

@@ -156,18 +156,6 @@ services:
     ports:
       - "7000:80"
 
-  security.api:
-    build:
-      context: ./Security
-      dockerfile: Dockerfile
-    image: ${REGISTRY}security.api:dev
-    container_name: security-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    ports:
-      - "8082:8082"
-
   notification.api:
     build:
       context: ./Notification
@@ -206,17 +194,6 @@ services:
     ports:
       - "8500:8000"
 
-  recommendation.api:
-    build:
-      context: ./Recommendation
-      dockerfile: Dockerfile
-    image: ${REGISTRY}recommendation.api:dev
-    container_name: recommendation-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "8600:8000"
 
   wishlist.api:
     build:
@@ -302,41 +279,8 @@ services:
     ports:
       - "9030:8000"
 
-  shippingrate.api:
-    build:
-      context: ./ShippingRate
-      dockerfile: Dockerfile
-    image: ${REGISTRY}shippingrate.api:dev
-    container_name: shippingrate-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9040:8000"
 
-  paymentgateway.api:
-    build:
-      context: ./PaymentGateway
-      dockerfile: Dockerfile
-    image: ${REGISTRY}paymentgateway.api:dev
-    container_name: paymentgateway-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9050:8000"
 
-  frauddetection.api:
-    build:
-      context: ./FraudDetection
-      dockerfile: Dockerfile
-    image: ${REGISTRY}frauddetection.api:dev
-    container_name: frauddetection-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9060:8000"
 
   consent.api:
     build:
@@ -362,17 +306,6 @@ services:
     ports:
       - "9080:8000"
 
-  performance.api:
-    build:
-      context: ./Performance
-      dockerfile: Dockerfile
-    image: ${REGISTRY}performance.api:dev
-    container_name: performance-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9091:8000"
 
   tenant.api:
     build:
@@ -386,53 +319,9 @@ services:
     ports:
       - "9100:8000"
 
-  datawarehouse.api:
-    build:
-      context: ./DataWarehouse
-      dockerfile: Dockerfile
-    image: ${REGISTRY}datawarehouse.api:dev
-    container_name: datawarehouse-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9110:8000"
 
-  forecasting.api:
-    build:
-      context: ./Forecasting
-      dockerfile: Dockerfile
-    image: ${REGISTRY}forecasting.api:dev
-    container_name: forecasting-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9120:8000"
 
-  ticketing.api:
-    build:
-      context: ./Ticketing
-      dockerfile: Dockerfile
-    image: ${REGISTRY}ticketing.api:dev
-    container_name: ticketing-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9130:8000"
 
-  moderation.api:
-    build:
-      context: ./Moderation
-      dockerfile: Dockerfile
-    image: ${REGISTRY}moderation.api:dev
-    container_name: moderation-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9140:8000"
 
   admin.api:
     build:
@@ -470,11 +359,9 @@ services:
       - inventory.api
       - analytics.api
       - auth.api
-      - security.api
       - notification.api
       - promotion.api
       - review.api
-      - recommendation.api
       - wishlist.api
       - experiment.api
       - cms.api
@@ -482,17 +369,9 @@ services:
       - tax.api
       - currency.api
       - address.api
-      - shippingrate.api
-      - paymentgateway.api
-      - frauddetection.api
       - consent.api
       - bff.api
-      - performance.api
       - tenant.api
-      - datawarehouse.api
-      - forecasting.api
-      - ticketing.api
-      - moderation.api
     ports:
       - "8000:8000"
       - "8443:8443"
