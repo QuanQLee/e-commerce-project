@@ -5,12 +5,14 @@ consumers:
     jwt_secrets:
       - key: frontend
         secret: myfrontendsecret
+        algorithm: HS256
     acls:
       - group: frontend-group
   - username: admin
     jwt_secrets:
       - key: admin
         secret: myadminsecret
+        algorithm: HS256
     acls:
       - group: admin-group
   
