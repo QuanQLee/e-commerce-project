@@ -10,7 +10,7 @@ Each service folder under `services/` produces an image named:
 ghcr.io/<owner>/<service>.api:latest
 ```
 
-Where `<owner>` is your GitHub user or organisation and `<service>` matches the directory name (for example `Catalog`).
+Where `<owner>` is your GitHub user or organisation and `<service>` matches the service directory name. Image repositories on GHCR must be lowercase, so the workflow automatically converts the service name to lowercase when tagging (for example `Catalog` becomes `catalog`).
 
 The frontend image is built from the `frontend` directory as:
 

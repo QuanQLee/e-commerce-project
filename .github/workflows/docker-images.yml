@@ -43,6 +43,7 @@ jobs:
       - name: Build and push
         run: |
           owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          name=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
           if [ "${{ matrix.service }}" = "Frontend" ]; then
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
@@ -52,7 +53,7 @@ jobs:
           else
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
-              -t ghcr.io/$owner/${{ matrix.service }}.api:latest \
+              -t ghcr.io/$owner/$name.api:latest \
               --push \
               -f services/${{ matrix.service }}/Dockerfile services/${{ matrix.service }}
           fi
