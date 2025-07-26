@@ -5,44 +5,31 @@ This repository contains microservices that together form a small e-commerce pla
 ## Architecture
 
 - **Services**:
-  - **Catalog** – manages products under `services/Catalog`.
-  - **Order** – handles customer orders under `services/Order`.
-  - **Cart** – manages shopping carts under `services/Cart`.
-  - **User** – manages user accounts under `services/User`.
-  - **Shipping** – coordinates delivery under `services/Shipping`.
-  - **Payment** – processes transactions under `services/Payment`.
-  - **PaymentGateway** – routes third-party payments under `services/PaymentGateway`.
-  - **FraudDetection** – detects suspicious orders under `services/FraudDetection`.
-  - **Consent** – manages user privacy consent under `services/Consent`.
-  - **Inventory** – manages stock levels under `services/Inventory` and logs in JSON using structlog.
-  - **Analytics** – collects events and metrics under `services/Analytics`.
-  - **Admin** – backoffice APIs under `services/Admin`.
-  - **Auth** – provides authentication under `services/Auth`.
-  - **Security** – offers security features under `services/Security`.
-  - **Notification** – sends email alerts under `services/Notification`.
-  - **Promotion** – manages coupons under `services/Promotion`.
-  - **Review** – stores product reviews under `services/Review`.
-  - **Recommendation** – suggests related products under `services/Recommendation`.
-  - **Wishlist** – stores user wishlists under `services/Wishlist`.
-  - **Experiment** – simple A/B testing under `services/Experiment`.
-  - **Cms** – manages articles and pages under `services/Cms`.
-  - **Search** – product search APIs under `services/Search`.
-  - **Facet** – attribute-based filtering under `services/Facet`.
-  - **Attribute** – manages product attributes under `services/Attribute`.
-  - **Asset** – stores media assets under `services/Asset`.
-  - **Seo** – generates sitemaps under `services/Seo`.
-  - **RMA** – handles returns and refunds under `services/Rma`.
-  - **Tax** – calculates duties and tax under `services/Tax`.
-  - **Currency** – provides exchange rates under `services/Currency`.
-  - **Address** – offers address validation under `services/Address`.
-  - **ShippingRate** – aggregates shipping quotes under `services/ShippingRate`.
-  - **Bff** – aggregates APIs for each frontend under `services/Bff`.
-  - **Performance** – handles SSR and caching under `services/Performance`.
-  - **Tenant** – manages multi-tenant shops under `services/Tenant`.
-  - **DataWarehouse** – offline analytics under `services/DataWarehouse`.
-  - **Forecasting** – predicts sales under `services/Forecasting`.
-  - **Ticketing** – customer support tickets under `services/Ticketing`.
-  - **Moderation** – reviews user content under `services/Moderation`.
+- **Catalog** – manages products under `services/Catalog`.
+- **Order** – handles customer orders under `services/Order`.
+- **Cart** – manages shopping carts under `services/Cart`.
+- **User** – manages user accounts under `services/User`.
+- **Shipping** – handles shipments and rate aggregation under `services/Shipping`.
+- **Payment** – processes transactions and external gateway logic under `services/Payment`.
+- **Consent** – manages user privacy consent under `services/Consent`.
+- **Inventory** – manages stock levels under `services/Inventory` and logs in JSON using structlog.
+- **Analytics** – collects events, forecasting and warehouse tasks under `services/Analytics`.
+- **Admin** – backoffice APIs under `services/Admin`.
+- **Auth** – authentication with integrated security and fraud checks under `services/Auth`.
+- **Notification** – email, ticketing and moderation features under `services/Notification`.
+- **Promotion** – manages coupons under `services/Promotion`.
+- **Review** – stores product reviews under `services/Review`.
+- **Search** – search, facets, attributes and recommendations under `services/Search`.
+- **Wishlist** – stores user wishlists under `services/Wishlist`.
+- **Experiment** – simple A/B testing under `services/Experiment`.
+- **Cms** – manages content and SEO under `services/Cms`.
+- **Asset** – stores media assets under `services/Asset`.
+- **RMA** – handles returns and refunds under `services/Rma`.
+- **Tax** – calculates duties and tax under `services/Tax`.
+- **Currency** – provides exchange rates under `services/Currency`.
+- **Address** – offers address validation under `services/Address`.
+- **Bff** – frontend aggregation and performance under `services/Bff`.
+- **Tenant** – manages multi-tenant shops under `services/Tenant`.
 
 ## Gateway
 
@@ -79,19 +66,14 @@ docker compose up --build
 Set the `REGISTRY` environment variable to prefix images when you plan to push
 them to a registry. For example the CI pipeline uses
 `REGISTRY=ghcr.io/<owner>/` so images are pushed to GitHub Container Registry.
-When using the Security service, the Gradle wrapper JAR is downloaded
-automatically on first run. Simply execute `./gradlew` in `services/Security`.
 
-### Automated Docker Builds
+### Continuous Integration
 
-Every push to the `main` branch triggers the
-`docker-images.yml` workflow which builds a container image for each service and
-the frontend, then publishes them to GitHub Container Registry. The workflow
-automatically scans the `services` directory so newly added microservices are
-picked up without modification.
-See [docs/registry.md](docs/registry.md) for details on the image names and how to
-pull them locally. This allows you to run the stack using remote images instead
-of building them on your machine.
+The single `ci.yml` workflow runs after a pull request is merged. It builds the
+images for all services, executes the tests and, if the merge targets the
+default branch, publishes the Docker images. See
+[docs/registry.md](docs/registry.md) for details on the image names and how to
+pull them locally.
 
 ## Service Documentation
 
