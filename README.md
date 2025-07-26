@@ -102,6 +102,7 @@ of building them on your machine.
 - [Platform services overview](docs/platform-services.md)
 - [Security best practices](docs/security-best-practices.md)
 - [Docker image registry](docs/registry.md)
+- [Frontend architecture](docs/frontend-architecture.md)
 
 ## Frontend
 
