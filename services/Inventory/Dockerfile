@@ -1,7 +1,7 @@
 FROM python:3.11-slim AS build
 WORKDIR /app
 COPY pyproject.toml poetry.lock* ./
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple         --default-timeout=120 poetry &&         poetry config virtualenvs.create false &&         poetry config repositories.aliyun https://mirrors.aliyun.com/pypi/simple &&         poetry install --no-interaction --no-ansi
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple         --default-timeout=120 poetry &&         poetry config virtualenvs.create false &&         poetry config repositories.aliyun https://mirrors.aliyun.com/pypi/simple &&         poetry install --no-interaction --no-ansi --no-root
 COPY app ./app
 RUN poetry build -f wheel
 

@@ -5,7 +5,7 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple \
     --default-timeout=120 poetry && \
     poetry config virtualenvs.create false && \
     poetry config repositories.aliyun https://mirrors.aliyun.com/pypi/simple && \
-    poetry install --no-interaction --no-ansi
+    poetry install --no-interaction --no-ansi --no-root
 COPY app ./app
 RUN poetry build -f wheel
 
