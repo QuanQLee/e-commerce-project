@@ -84,9 +84,10 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      # Go's lib/pq driver expects a DSN in URI or key=value form, not the
-      # semicolon style used by the .NET services.
-      POSTGRES_DSN: "postgresql://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
+      # Use Postgres in tests instead of falling back to SQLite
+      ConnectionStrings__PaymentDb: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
+      # Backward compatible alias if needed by tooling
+      POSTGRES_DSN: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
     ports:
       - "7001:7001"
       - "7002:8080"

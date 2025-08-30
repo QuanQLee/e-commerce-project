@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Container, Typography, Card, CardContent } from '@mui/material'
+import { Container, Card, CardContent } from '@mui/material'
 import api from '../api/api'
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
+import EmptyState from '../components/EmptyState'
+import PageHeader from '../components/PageHeader'
 
 interface Coupon {
   code: string
@@ -9,21 +13,27 @@ interface Coupon {
 
 export default function CouponList() {
   const [coupons, setCoupons] = useState<Coupon[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     api.get('/api/v1/promotion/coupons')
       .then(res => setCoupons(res.data))
-      .catch(err => console.error(err))
+      .catch(err => { console.error(err); setError('Failed to load coupons') })
+      .finally(() => setLoading(false))
   }, [])
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>Coupons</Typography>
-      {coupons.map(c => (
+      <PageHeader title="Coupons" />
+      {loading && <Loading lines={3} />}
+      {error && <ErrorState message={error} />}
+      {!loading && !error && coupons.length === 0 && <EmptyState message="No coupons found" />}
+      {!loading && !error && coupons.map(c => (
         <Card key={c.code} sx={{ mb: 2 }}>
           <CardContent>
-            <Typography variant="h6">{c.code}</Typography>
-            <Typography>Discount: {c.discount}</Typography>
+            <strong>{c.code}</strong>
+            <div>Discount: {c.discount}</div>
           </CardContent>
         </Card>
       ))}

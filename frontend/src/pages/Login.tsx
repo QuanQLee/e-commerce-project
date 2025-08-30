@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Container, TextField, Button, Typography, MenuItem } from '@mui/material'
+import { Container, TextField, Button, Typography, MenuItem, Stack } from '@mui/material'
 import api from '../api/api'
+import { useSnackbar } from '../providers/SnackbarProvider'
+import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
   const [clientId, setClientId] = useState('')
@@ -8,6 +10,9 @@ export default function Login() {
   const [grantType, setGrantType] = useState('client_credentials')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { success, error } = useSnackbar()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (clientId === '1' || clientId === '2') {
@@ -27,6 +32,7 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      setLoading(true)
       const params = new URLSearchParams()
       params.append('grant_type', grantType)
       params.append('client_id', clientId)
@@ -37,18 +43,24 @@ export default function Login() {
         params.append('username', username)
         params.append('password', password)
       }
-      await api.post('/api/v1/auth/connect/token', params, {
+      const res = await api.post('/api/v1/auth/connect/token', params, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
+      const token = res.data?.access_token
+      if (token) {
+        localStorage.setItem('access_token', token)
+      }
       setClientId('')
       setClientSecret('')
       setUsername('')
       setPassword('')
-      alert('Logged in!')
+      success('Logged in')
+      navigate('/')
     } catch (err) {
       console.error(err)
-      alert('Failed to login')
+      error('Failed to login')
     }
+    finally { setLoading(false) }
   }
 
   return (
@@ -71,7 +83,10 @@ export default function Login() {
             <TextField label="Password" type="password" fullWidth margin="normal" value={password} onChange={e => setPassword(e.target.value)} />
           </>
         )}
-        <Button variant="contained" type="submit">Login</Button>
+        <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+          <Button variant="contained" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</Button>
+          <Button variant="outlined" onClick={() => localStorage.removeItem('access_token')}>Logout</Button>
+        </Stack>
       </form>
     </Container>
   )

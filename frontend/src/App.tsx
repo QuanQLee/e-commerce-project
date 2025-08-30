@@ -1,5 +1,18 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
-import { AppBar, Toolbar, Button, Container } from '@mui/material'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Container } from '@mui/material'
+import Layout, { type NavItem } from './components/Layout'
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import AddBoxIcon from '@mui/icons-material/AddBox'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
+import PeopleIcon from '@mui/icons-material/People'
+import LocalShippingIcon from '@mui/icons-material/LocalShipping'
+import PaymentsIcon from '@mui/icons-material/Payments'
+import InventoryIcon from '@mui/icons-material/Inventory'
+import PercentIcon from '@mui/icons-material/Percent'
+import ReviewsIcon from '@mui/icons-material/Reviews'
+import AutoGraphIcon from '@mui/icons-material/AutoGraph'
+import SecurityIcon from '@mui/icons-material/Security'
+import LoginIcon from '@mui/icons-material/Login'
 import ProductList from './pages/ProductList'
 import AddProduct from './pages/AddProduct'
 import OrderList from './pages/OrderList'
@@ -21,54 +34,54 @@ import ReviewList from './pages/ReviewList'
 import Recommendation from './pages/Recommendation'
 
 export default function App() {
+  const nav: NavItem[] = [
+    { label: 'Products', path: '/', icon: <DashboardIcon /> },
+    { label: 'Add Product', path: '/add-product', icon: <AddBoxIcon /> },
+    { label: 'Orders', path: '/orders', icon: <ShoppingCartIcon /> },
+    { label: 'Add Order', path: '/add-order', icon: <AddBoxIcon /> },
+    { label: 'Users', path: '/users', icon: <PeopleIcon /> },
+    { label: 'Add User', path: '/add-user', icon: <AddBoxIcon /> },
+    { label: 'Shipments', path: '/shipments', icon: <LocalShippingIcon /> },
+    { label: 'Add Shipment', path: '/add-shipment', icon: <AddBoxIcon /> },
+    { label: 'Payments', path: '/payments', icon: <PaymentsIcon /> },
+    { label: 'Add Payment', path: '/add-payment', icon: <AddBoxIcon /> },
+    { label: 'Coupons', path: '/coupons', icon: <PercentIcon /> },
+    { label: 'Add Coupon', path: '/add-coupon', icon: <AddBoxIcon /> },
+    { label: 'Reviews', path: '/reviews', icon: <ReviewsIcon /> },
+    { label: 'Add Review', path: '/add-review', icon: <AddBoxIcon /> },
+    { label: 'Recommendations', path: '/recommendations', icon: <AutoGraphIcon /> },
+    { label: 'Inventory', path: '/inventory', icon: <InventoryIcon /> },
+    { label: 'Metrics', path: '/metrics', icon: <AutoGraphIcon /> },
+    { label: 'Risk Check', path: '/risk-check', icon: <SecurityIcon /> },
+    { label: 'Login', path: '/login', icon: <LoginIcon /> },
+  ]
   return (
     <BrowserRouter>
-      <AppBar position="static">
-        <Toolbar sx={{ flexWrap: 'wrap' }}>
-          <Button color="inherit" component={Link} to="/">Products</Button>
-          <Button color="inherit" component={Link} to="/add-product">Add Product</Button>
-          <Button color="inherit" component={Link} to="/orders">Orders</Button>
-          <Button color="inherit" component={Link} to="/add-order">Add Order</Button>
-          <Button color="inherit" component={Link} to="/users">Users</Button>
-          <Button color="inherit" component={Link} to="/add-user">Add User</Button>
-          <Button color="inherit" component={Link} to="/shipments">Shipments</Button>
-          <Button color="inherit" component={Link} to="/add-shipment">Add Shipment</Button>
-          <Button color="inherit" component={Link} to="/payments">Payments</Button>
-          <Button color="inherit" component={Link} to="/add-payment">Add Payment</Button>
-          <Button color="inherit" component={Link} to="/coupons">Coupons</Button>
-          <Button color="inherit" component={Link} to="/add-coupon">Add Coupon</Button>
-          <Button color="inherit" component={Link} to="/reviews">Reviews</Button>
-          <Button color="inherit" component={Link} to="/add-review">Add Review</Button>
-          <Button color="inherit" component={Link} to="/recommendations">Recommendations</Button>
-          <Button color="inherit" component={Link} to="/inventory">Inventory</Button>
-          <Button color="inherit" component={Link} to="/metrics">Metrics</Button>
-          <Button color="inherit" component={Link} to="/risk-check">Risk Check</Button>
-          <Button color="inherit" component={Link} to="/login">Login</Button>
-        </Toolbar>
-      </AppBar>
-      <Container sx={{ mt: 2 }}>
-        <Routes>
-          <Route path="/" element={<ProductList />} />
-          <Route path="/add-product" element={<AddProduct />} />
-          <Route path="/orders" element={<OrderList />} />
-          <Route path="/add-order" element={<AddOrder />} />
-          <Route path="/users" element={<UserList />} />
-          <Route path="/add-user" element={<AddUser />} />
-          <Route path="/shipments" element={<ShipmentList />} />
-          <Route path="/add-shipment" element={<AddShipment />} />
-          <Route path="/payments" element={<PaymentList />} />
-          <Route path="/add-payment" element={<AddPayment />} />
-          <Route path="/coupons" element={<CouponList />} />
-          <Route path="/add-coupon" element={<AddCoupon />} />
-          <Route path="/reviews" element={<ReviewList />} />
-          <Route path="/add-review" element={<AddReview />} />
-          <Route path="/recommendations" element={<Recommendation />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/metrics" element={<Metrics />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/risk-check" element={<RiskCheck />} />
-        </Routes>
-      </Container>
+      <Layout title="E‑Commerce Admin" nav={nav}>
+        <Container maxWidth="lg">
+          <Routes>
+            <Route path="/" element={<ProductList />} />
+            <Route path="/add-product" element={<AddProduct />} />
+            <Route path="/orders" element={<OrderList />} />
+            <Route path="/add-order" element={<AddOrder />} />
+            <Route path="/users" element={<UserList />} />
+            <Route path="/add-user" element={<AddUser />} />
+            <Route path="/shipments" element={<ShipmentList />} />
+            <Route path="/add-shipment" element={<AddShipment />} />
+            <Route path="/payments" element={<PaymentList />} />
+            <Route path="/add-payment" element={<AddPayment />} />
+            <Route path="/coupons" element={<CouponList />} />
+            <Route path="/add-coupon" element={<AddCoupon />} />
+            <Route path="/reviews" element={<ReviewList />} />
+            <Route path="/add-review" element={<AddReview />} />
+            <Route path="/recommendations" element={<Recommendation />} />
+            <Route path="/inventory" element={<Inventory />} />
+            <Route path="/metrics" element={<Metrics />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/risk-check" element={<RiskCheck />} />
+          </Routes>
+        </Container>
+      </Layout>
     </BrowserRouter>
   )
 }
