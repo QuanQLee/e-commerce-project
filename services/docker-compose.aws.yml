@@ -1,0 +1,21 @@
+version: "3.9"
+
+# AWS-specific overrides. Use together with services/docker-compose.yml
+# Example: docker compose -f docker-compose.yml -f docker-compose.aws.yml up -d --build
+
+services:
+  # Frontend should call the public domain (ALB with TLS). You can
+  # override via env: PUBLIC_BASE_URL and VITE_API_KEY
+  frontend:
+    build:
+      args:
+        VITE_API_BASE_URL: ${PUBLIC_BASE_URL:-https://your-domain.example}
+        VITE_API_KEY: ${VITE_API_KEY:-mytestkey123}
+
+  # Expose Kong proxy on 8000 for ALB. Keep admin on 8001 but bind to localhost
+  # so it isn't reachable from the Internet.
+  gateway:
+    ports:
+      - "8000:8000"
+      - "127.0.0.1:8001:8001"
+

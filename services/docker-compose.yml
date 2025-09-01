@@ -399,6 +399,33 @@ services:
       - gateway
     ports:
       - "3000:80"
+    volumes:
+      # Ensure a valid nginx.conf even when using a prebuilt image
+      - ../frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  merchant.web:
+    build:
+      context: ../apps/merchant
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    image: ${REGISTRY}merchant.web:dev
+    container_name: merchant-web
+    depends_on:
+      - gateway
+    ports:
+      - "3002:80"
+
+  storefront.web:
+    build:
+      context: ../apps/storefront
+      dockerfile: Dockerfile
+    image: ${REGISTRY}storefront.web:dev
+    container_name: storefront-web
+    depends_on:
+      - gateway
+    ports:
+      - "4000:3000"
 
   prometheus:
     image: prom/prometheus:v2.52.0
