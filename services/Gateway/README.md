@@ -18,15 +18,32 @@ Each microservice is available under the `/api/v1/` prefix, for example:
 Global plugins enable JWT authentication, ACL based authorisation, rate limiting and Prometheus metrics. New services are added by updating `kong.yml` and reloading Kong (handled by the CI pipeline).
 
 You can run the full stack from the `services` directory, or start a small test
-setup from this folder. Provide a TLS certificate and key in `certs/` which will
-be mounted into the container. HTTPS is exposed on port **8443**:
-```bash
-docker compose up --build
-```
+setup from this folder.
 
-Ensure environment variables such as `DB_PASSWORD` are set (see `.env.example`). The gateway will serve HTTPS traffic on `https://localhost:8443`.
-If you do not have certificates yet, you can generate a self-signed pair using:
+## Local development (HTTP only)
+For local development we default to HTTP on port **8000** to avoid managing
+TLS certificates:
+```bash
+cd ../ && docker compose up -d gateway
+```
+Open `http://localhost:8000` from your browser or API client.
+
+## Enabling HTTPS locally (optional)
+If you want HTTPS on **8443**, provide a certificate and key in `certs/` and
+configure the compose file to mount them and expose 8443. You can generate a
+self‑signed certificate with:
 ```bash
 openssl req -x509 -nodes -newkey rsa:2048 -keyout certs/gateway.key \
   -out certs/gateway.crt -subj '/CN=localhost'
 ```
+Then add these to the `gateway` service in `services/docker-compose.yml`:
+```yaml
+    ports:
+      - "8443:8443"
+    environment:
+      KONG_SSL_CERT: /certs/gateway.crt
+      KONG_SSL_CERT_KEY: /certs/gateway.key
+    volumes:
+      - ./Gateway/certs:/certs:ro
+```
+Restart the gateway afterwards.
