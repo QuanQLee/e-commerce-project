@@ -1,5 +1,5 @@
 import { Container, Card, CardContent, Typography } from '@mui/material'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Unstable_Grid2'
 
 export default function Products() {
   const mock = Array.from({ length: 8 }, (_, i) => ({ id: i + 1, name: `Product ${i + 1}`, price: 99 }))
