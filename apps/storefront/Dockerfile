@@ -3,6 +3,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 COPY . .
+# Ensure public directory exists so the final COPY doesn't fail
+RUN mkdir -p public
 RUN npm run build
 
 FROM node:20-alpine
