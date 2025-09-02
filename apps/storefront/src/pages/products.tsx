@@ -8,7 +8,7 @@ export default function Products() {
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>Products</Typography>
       <Grid container spacing={2}>
         {mock.map(p => (
-          <Grid key={p.id} item xs={12} sm={6} md={3}>
+          <Grid key={p.id} size={{ xs: 12, sm: 6, md: 3 }}>
             <Card><CardContent>
               <Typography>{p.name}</Typography>
               <Typography color="text.secondary">${p.price}</Typography>

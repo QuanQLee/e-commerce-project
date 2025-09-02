@@ -50,9 +50,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          gh api -H "Accept: application/vnd.github+json" \
-            "/${SCOPE}/${OWNER}/packages?package_type=container&per_page=100" \
-            | jq -r '.[].name' > packages.txt
+          # Query packages; if the request fails or returns non-array, treat as none
+          if ! gh api -H "Accept: application/vnd.github+json" \
+              "/${SCOPE}/${OWNER}/packages?package_type=container&per_page=100" \
+              --jq 'map(.name) | .[]' > packages.txt 2>/dev/null; then
+            echo "No packages found or insufficient permissions; skipping deletions." 
+            : > packages.txt
+          fi
           echo "Found packages:" && cat packages.txt || true
 
       - name: Delete old versions for each package
