@@ -1,11 +1,11 @@
 import { Card, CardContent, Typography } from '@mui/material'
-import Grid from '@mui/material/Unstable_Grid2'
+import Grid from '@mui/material/Grid'
 
 export default function Dashboard() {
   return (
     <Grid container spacing={2}>
       {["Sales", "Orders", "Products", "Coupons"].map((title) => (
-        <Grid key={title} xs={12} sm={6} md={3}>
+        <Grid key={title} item xs={12} sm={6} md={3}>
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">{title}</Typography>

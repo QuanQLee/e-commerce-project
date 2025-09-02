@@ -29,6 +29,8 @@ jobs:
         env:
           INPUT_KEEP: ${{ github.event.inputs.keep }}
           INPUT_OWNER: ${{ github.event.inputs.owner }}
+          # Needed by the curl call below; not set by default in the shell.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           KEEP=${INPUT_KEEP:-4}

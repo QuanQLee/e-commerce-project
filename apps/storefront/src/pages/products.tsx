@@ -1,5 +1,5 @@
 import { Container, Card, CardContent, Typography } from '@mui/material'
-import Grid from '@mui/material/Unstable_Grid2'
+import Grid from '@mui/material/Grid'
 
 export default function Products() {
   const mock = Array.from({ length: 8 }, (_, i) => ({ id: i + 1, name: `Product ${i + 1}`, price: 99 }))
@@ -8,7 +8,7 @@ export default function Products() {
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>Products</Typography>
       <Grid container spacing={2}>
         {mock.map(p => (
-          <Grid key={p.id} xs={12} sm={6} md={3}>
+          <Grid key={p.id} item xs={12} sm={6} md={3}>
             <Card><CardContent>
               <Typography>{p.name}</Typography>
               <Typography color="text.secondary">${p.price}</Typography>
