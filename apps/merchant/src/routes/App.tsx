@@ -1,9 +1,28 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import { AppBar, Toolbar, Typography, Container, Button, Stack, Box } from '@mui/material'
 import Dashboard from '../views/Dashboard'
 import Products from '../views/Products'
 import Orders from '../views/Orders'
 import Coupons from '../views/Coupons'
+import Login from '../views/Login'
+import type { ReactNode } from 'react'
+
+function isAuthed() {
+  const token = localStorage.getItem('access_token')
+  const exp = Number(localStorage.getItem('expires_at') || 0)
+  if (!token) return false
+  if (exp && Date.now() > exp) return false
+  return true
+}
+
+function Protected({ children }: { children: ReactNode }) {
+  const authed = isAuthed()
+  const location = useLocation()
+  if (!authed) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+  }
+  return <>{children}</>
+}
 
 export default function App() {
   return (
@@ -38,10 +57,12 @@ export default function App() {
       </Box>
       <Container maxWidth="lg" sx={{ pt: 12 }}>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/coupons" element={<Coupons />} />
+          <Route path="/login" element={isAuthed() ? <Navigate to="/" replace /> : <Login />} />
+
+          <Route path="/" element={<Protected><Dashboard /></Protected>} />
+          <Route path="/products" element={<Protected><Products /></Protected>} />
+          <Route path="/orders" element={<Protected><Orders /></Protected>} />
+          <Route path="/coupons" element={<Protected><Coupons /></Protected>} />
         </Routes>
       </Container>
     </BrowserRouter>

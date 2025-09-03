@@ -8,6 +8,7 @@ import (
         "net"
         "os"
         "strings"
+        "time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
@@ -105,24 +106,42 @@ func (s *server) UpdatePaymentStatus(ctx context.Context, in *pb.UpdatePaymentSt
 
 /********** 初始化数据库 **********/
 func initDB() *gorm.DB {
-	dsn := os.Getenv("ConnectionStrings__PaymentDb")
-	var db *gorm.DB
-	var err error
-	if dsn != "" {
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-		if err != nil {
-			log.Fatalf("postgres connect: %v", err)
-		}
-	} else {
-		db, err = gorm.Open(sqlite.Open("payment.db"), &gorm.Config{})
-		if err != nil {
-			log.Fatalf("sqlite connect: %v", err)
-		}
-	}
-	if err := db.AutoMigrate(&Payment{}); err != nil {
-		log.Fatalf("migrate: %v", err)
-	}
-	return db
+    // Prefer POSTGRES_DSN, fall back to ConnectionStrings__PaymentDb
+    dsn := os.Getenv("POSTGRES_DSN")
+    if dsn == "" {
+        dsn = os.Getenv("ConnectionStrings__PaymentDb")
+    }
+
+    var db *gorm.DB
+    var err error
+    if dsn != "" {
+        // Retry Postgres connection and migration — helps when DB is not ready yet.
+        for i := 0; i < 20; i++ { // ~20 * 1s = 20s max
+            db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+            if err == nil {
+                if mErr := db.AutoMigrate(&Payment{}); mErr == nil {
+                    return db
+                } else {
+                    // Migration failed, wait and retry
+                    log.Printf("migrate failed (try %d/20): %v", i+1, mErr)
+                }
+            } else {
+                log.Printf("postgres connect failed (try %d/20): %v", i+1, err)
+            }
+            time.Sleep(1 * time.Second)
+        }
+        // After retries, if still failing, fall back to SQLite to keep the service up
+        log.Printf("postgres not available, falling back to sqlite")
+    }
+
+    db, err = gorm.Open(sqlite.Open("payment.db"), &gorm.Config{})
+    if err != nil {
+        log.Fatalf("sqlite connect: %v", err)
+    }
+    if err := db.AutoMigrate(&Payment{}); err != nil {
+        log.Fatalf("migrate: %v", err)
+    }
+    return db
 }
 
 func dbHealthy(db *gorm.DB) bool {

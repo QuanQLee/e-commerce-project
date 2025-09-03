@@ -46,6 +46,18 @@ jobs:
           npm ci --legacy-peer-deps
           npm test --silent
 
+      - name: Build storefront (Next.js)
+        working-directory: apps/storefront
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build --silent
+
+      - name: Build merchant (Vite)
+        working-directory: apps/merchant
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build --silent
+
       - name: Run Python tests
         run: |
           for service in Admin Analytics Inventory; do
