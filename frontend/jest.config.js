@@ -1,15 +1,14 @@
 export default {
-  preset: 'ts-jest/presets/default-esm',
+  preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  globals: {
-    'ts-jest': {
-      tsconfig: './tsconfig.jest.json',
-      useESM: false
-    }
+  transform: {
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      { tsconfig: './tsconfig.jest.json', useESM: false }
+    ]
   },
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  transform: {}
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts']
 };
