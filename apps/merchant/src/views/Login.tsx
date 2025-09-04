@@ -18,6 +18,7 @@ import {
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import api from '../api'
+import { setToken } from '../auth'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -59,13 +60,9 @@ export default function Login() {
       if (!accessToken) throw new Error('登录失败：未返回令牌')
 
       const expiresAt = Date.now() + expiresIn * 1000
-      localStorage.setItem('access_token', accessToken)
-      localStorage.setItem('token_type', tokenType)
-      localStorage.setItem('expires_at', String(expiresAt))
-      if (!remember) {
-        // For non-remember, store a session flag to clear on unload
-        sessionStorage.setItem('session_login', '1')
-      }
+      // Persist to session if not remembered; otherwise local
+      setToken(accessToken, expiresAt, remember ? 'local' : 'session')
+      try { localStorage.setItem('token_type', tokenType) } catch {}
       const redirectTo = location.state?.from || '/'
       navigate(redirectTo, { replace: true })
     } catch (err: any) {
@@ -148,4 +145,3 @@ export default function Login() {
     </Box>
   )
 }
-

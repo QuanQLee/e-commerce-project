@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getToken, clearToken } from './auth'
 
 // Base URL points to the Kong gateway. Defaults to localhost for dev.
 const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
@@ -14,9 +15,9 @@ const api = axios.create({
   },
 })
 
-// Attach JWT from localStorage if present
+// Attach JWT if present (in-memory/session/local)
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token')
+  const token = getToken()
   if (token) {
     config.headers = config.headers || {}
     config.headers.Authorization = `Bearer ${token}`
@@ -31,9 +32,7 @@ api.interceptors.response.use(
     const status = error?.response?.status
     if (status === 401) {
       try {
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('expires_at')
-        localStorage.removeItem('token_type')
+        clearToken()
       } catch {}
       if (typeof window !== 'undefined') {
         window.location.href = '/login'
