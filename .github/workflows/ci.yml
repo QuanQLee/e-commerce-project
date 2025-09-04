@@ -43,22 +43,26 @@ jobs:
             apps/merchant/package-lock.json
             apps/storefront/package-lock.json
 
+      - name: Ensure latest npm
+        run: npm i -g npm@latest
+
       - name: Run frontend tests
         working-directory: frontend
         run: |
-          npm ci --legacy-peer-deps
+          npm install --no-audit --no-fund --legacy-peer-deps
           npm test --silent
 
       - name: Build storefront (Next.js)
         working-directory: apps/storefront
         run: |
-          npm ci --legacy-peer-deps
+          rm -rf .next node_modules || true
+          npm install --no-audit --no-fund --legacy-peer-deps
           npm run build --silent
 
       - name: Build merchant (Vite)
         working-directory: apps/merchant
         run: |
-          npm ci --legacy-peer-deps
+          npm install --no-audit --no-fund --legacy-peer-deps
           npm run build --silent
 
       - name: Run Python tests
