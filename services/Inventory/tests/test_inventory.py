@@ -1,8 +1,12 @@
 import os
+import sys
+import pathlib
 TEST_DB = os.path.join(os.path.dirname(__file__), "test.db")
 if os.path.exists(TEST_DB):
     os.remove(TEST_DB)
 os.environ.setdefault("POSTGRES_DSN", f"sqlite:///{TEST_DB}")
+# Ensure this service's app package is first on sys.path to avoid conflicts with similarly named packages
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from fastapi.testclient import TestClient
 from app.main import app, init_db
 
