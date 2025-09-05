@@ -1,7 +1,8 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+# Use reproducible install
+RUN npm ci --legacy-peer-deps
 
 # Build-time configuration for Vite (must start with VITE_)
 ARG VITE_API_BASE_URL
@@ -18,6 +19,7 @@ ENV VITE_AUTH_CLIENT_SECRET=${VITE_AUTH_CLIENT_SECRET}
 ENV VITE_AUTH_SCOPE=${VITE_AUTH_SCOPE}
 
 COPY . .
+ENV NODE_ENV=production
 RUN npm run build
 
 FROM nginx:1.27-alpine
