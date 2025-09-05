@@ -1,5 +1,7 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
+# Ensure musl compatibility for Next.js SWC/Sharp when needed
+RUN apk add --no-cache libc6-compat
 COPY package*.json ./
 # Use a clean, reproducible install for CI/CD builds
 RUN npm ci --legacy-peer-deps
