@@ -10,14 +10,6 @@ const Products = lazy(() => import('../views/Products'))
 const Orders = lazy(() => import('../views/Orders'))
 const Coupons = lazy(() => import('../views/Coupons'))
 
-function isAuthed() {
-  const token = localStorage.getItem('access_token')
-  const exp = Number(localStorage.getItem('expires_at') || 0)
-  if (!token) return false
-  if (exp && Date.now() > exp) return false
-  return true
-}
-
 function Protected({ children }: { children: ReactNode }) {
   const authed = isAuthed()
   const location = useLocation()
