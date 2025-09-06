@@ -26,14 +26,6 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseNpgsql(cs, o => o.MigrationsHistoryTable("__EFMigrationsHistory", "auth"));
 });
 
-// Enable cookie authentication for interactive login (used by IdentityServer UI)
-builder.Services
-    .AddAuthentication(IdentityServerConstants.DefaultCookieAuthenticationScheme)
-    .AddCookie(IdentityServerConstants.DefaultCookieAuthenticationScheme, o =>
-    {
-        o.LoginPath = "/account/login";
-    });
-
 builder.Services.AddIdentityServer()
     .AddInMemoryIdentityResources(new IdentityResource[]
     {
@@ -154,4 +146,5 @@ public class AuthDbContext : DbContext
 }
 
 public partial class Program {}
+
 

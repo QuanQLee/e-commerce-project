@@ -1,6 +1,7 @@
-name: CI
+﻿name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, master]
     tags:
@@ -134,4 +135,5 @@ jobs:
         env:
           REGISTRY: ${{ env.REGISTRY }}
           TAG: ${{ env.TAG }}
+
 
