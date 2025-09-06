@@ -405,8 +405,8 @@ services:
 
   merchant.web:
     build:
-      context: ../apps/merchant
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/merchant/Dockerfile
       args:
         VITE_API_BASE_URL: http://localhost:8000
         VITE_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
@@ -422,8 +422,8 @@ services:
 
   storefront.web:
     build:
-      context: ../apps/storefront
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/storefront/Dockerfile
     image: ${REGISTRY}storefront.web:${TAG:-dev}
     container_name: storefront-web
     depends_on:
