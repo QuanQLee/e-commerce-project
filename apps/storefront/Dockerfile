@@ -17,6 +17,12 @@ RUN npm ci --legacy-peer-deps
 # Copy source
 COPY apps/storefront/ .
 
+# Build-time public envs for client-side code
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_API_KEY
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+ENV NEXT_PUBLIC_API_KEY=${NEXT_PUBLIC_API_KEY}
+
 # Ensure public directory exists so the final COPY doesn't fail
 RUN mkdir -p public
 ENV NEXT_TELEMETRY_DISABLED=1

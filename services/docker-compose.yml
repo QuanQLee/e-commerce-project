@@ -390,9 +390,10 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
       args:
-        # Use the host URL so browser requests resolve correctly
-        VITE_API_BASE_URL: http://localhost:8000
+        # Point frontend to BFF for cookie-based session
+        VITE_API_BASE_URL: http://bff.api:8000
         VITE_API_KEY: mytestkey123
+        VITE_SSO_ENABLED: "1"
     image: ${REGISTRY}frontend.app:${TAG:-dev}
     container_name: frontend
     depends_on:
@@ -408,11 +409,12 @@ services:
       context: ..
       dockerfile: apps/merchant/Dockerfile
       args:
-        VITE_API_BASE_URL: http://localhost:8000
+        VITE_API_BASE_URL: http://bff.api:8000
         VITE_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
         VITE_AUTH_CLIENT_ID: ${AUTH_CLIENT_ID:-1}
         VITE_AUTH_CLIENT_SECRET: ${AUTH_CLIENT_SECRET:-secret1}
         VITE_AUTH_SCOPE: ${AUTH_SCOPE:-api1}
+        VITE_SSO_ENABLED: "1"
     image: ${REGISTRY}merchant.web:${TAG:-dev}
     container_name: merchant-web
     depends_on:
@@ -424,6 +426,9 @@ services:
     build:
       context: ..
       dockerfile: apps/storefront/Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://bff.api:8000
+        NEXT_PUBLIC_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
     image: ${REGISTRY}storefront.web:${TAG:-dev}
     container_name: storefront-web
     depends_on:

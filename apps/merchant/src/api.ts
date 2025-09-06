@@ -1,12 +1,12 @@
-import axios from 'axios'
+﻿import axios from 'axios'
 import { getToken, clearToken } from './auth'
 
 // Base URL points to the Kong gateway. Defaults to localhost for dev.
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const baseURL = (import.meta.env as any).VITE_API_BASE_URL || 'http://localhost:9080'
 // Pass through API key for Kong ACL/JWT flows (frontend consumer). Provide a sane default for dev.
 const apiKey = (import.meta.env as any).VITE_API_KEY || 'mytestkey123'
 
-const api = axios.create({
+const api = axios.create({ withCredentials: true, 
   baseURL,
   timeout: 10_000,
   headers: {
@@ -43,3 +43,4 @@ api.interceptors.response.use(
 )
 
 export default api
+

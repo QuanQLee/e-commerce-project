@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom'
 import {
   Box,
@@ -18,7 +18,6 @@ import {
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import api from '../api'
-import { setToken } from '../auth'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -30,44 +29,22 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Configurable via env; fall back to sample values from Auth Minimum.md
-  const { clientId, clientSecret, scope } = useMemo(() => ({
-    clientId: (import.meta.env as any).VITE_AUTH_CLIENT_ID || '1',
-    clientSecret: (import.meta.env as any).VITE_AUTH_CLIENT_SECRET || 'secret1',
-    scope: (import.meta.env as any).VITE_AUTH_SCOPE || 'api1',
-  }), [])
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
     try {
       const form = new URLSearchParams()
-      form.set('client_id', clientId)
-      form.set('client_secret', clientSecret)
-      form.set('grant_type', 'password')
       form.set('username', username)
       form.set('password', password)
-      form.set('scope', scope)
-
-      const res = await api.post('/api/v1/auth/connect/token', form, {
+      await api.post('/auth/login', form, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
-      const accessToken = res.data?.access_token
-      const expiresIn = Number(res.data?.expires_in || 3600)
-      const tokenType = res.data?.token_type || 'Bearer'
-
-      if (!accessToken) throw new Error('登录失败：未返回令牌')
-
-      const expiresAt = Date.now() + expiresIn * 1000
-      // Persist to session if not remembered; otherwise local
-      setToken(accessToken, expiresAt, remember ? 'local' : 'session')
-      try { localStorage.setItem('token_type', tokenType) } catch {}
       const redirectTo = location.state?.from || '/'
       navigate(redirectTo, { replace: true })
     } catch (err: any) {
-      const msg = err?.response?.data?.error_description || err?.response?.data?.message || err?.message || '登录失败'
-      setError(msg)
+      const msg = err?.response?.data || err?.message || '登录失败'
+      setError(typeof msg === 'string' ? msg : '登录失败')
     } finally {
       setLoading(false)
     }
@@ -131,6 +108,13 @@ export default function Login() {
                     <Button type="submit" variant="contained" size="large" disabled={loading} sx={{ py: 1.2 }}>
                       {loading ? '正在登录…' : '登录'}
                     </Button>
+                    {(import.meta.env as any).VITE_SSO_ENABLED === '1' && (
+                      <Button variant="text" onClick={() => {
+                        const base = (import.meta.env as any).VITE_API_BASE_URL || 'http://localhost:9080'
+                        const redirect = encodeURIComponent(window.location.origin + ((location as any).state?.from || '/'))
+                        window.location.href = `${base}/auth/oidc/login?redirect=${redirect}`
+                      }}>使用 SSO 登录</Button>
+                    )}
 
                     <Typography variant="caption" color="text.secondary">
                       登录即表示你同意我们的服务协议与隐私政策。

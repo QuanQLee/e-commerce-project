@@ -167,6 +167,13 @@ services:
         paths:
           - /api/v1/auth
         strip_path: true
+    # Allow token endpoints to be accessed without gateway auth
+    # (otherwise login cannot obtain a JWT).
+    plugins:
+      - name: jwt
+        enabled: false
+      - name: acl
+        enabled: false
 
   - name: security
     url: http://security.api:8082
