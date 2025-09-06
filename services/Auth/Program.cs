@@ -104,7 +104,7 @@ app.MapGet("/account/login", (HttpContext ctx) =>
     var returnUrl = ctx.Request.Query["returnUrl"].ToString();
     if (string.IsNullOrEmpty(returnUrl)) returnUrl = "/";
     var html = $@"<!doctype html><html><head><meta charset='utf-8'><title>Login</title>
-<style>body{font-family:sans-serif;padding:40px;}form{max-width:360px}label{display:block;margin:8px 0 4px}</style>
+<style>body{{font-family:sans-serif;padding:40px;}}form{{max-width:360px}}label{{display:block;margin:8px 0 4px}}</style>
 </head><body>
 <h2>Auth Login</h2>
 <form method='post' action='/account/login'>
