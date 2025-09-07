@@ -1,4 +1,4 @@
-﻿_format_version: '3.0'
+_format_version: '3.0'
 _transform: true
 consumers:
   - username: frontend
@@ -18,7 +18,9 @@ consumers:
   
 services:
   - name: catalog
-    url: http://catalog.api:80
+    protocol: http
+    host: catalog.api
+    port: 80
     routes:
       - name: catalog
         paths:
@@ -26,7 +28,9 @@ services:
         strip_path: true
 
   - name: order
-    url: http://order.api:80
+    protocol: http
+    host: order.api
+    port: 80
     routes:
       - name: order
         paths:
@@ -34,7 +38,9 @@ services:
         strip_path: true
 
   - name: user
-    url: http://user.api:80
+    protocol: http
+    host: user.api
+    port: 80
     routes:
       - name: user
         paths:
@@ -42,7 +48,9 @@ services:
         strip_path: true
 
   - name: shipping
-    url: http://shipping.api:80
+    protocol: http
+    host: shipping.api
+    port: 80
     routes:
       - name: shipping
         paths:
@@ -50,7 +58,9 @@ services:
         strip_path: true
 
   - name: payment
-    url: http://payment.api:8080
+    protocol: http
+    host: payment.api
+    port: 8080
     routes:
       - name: payment
         paths:
@@ -58,7 +68,9 @@ services:
         strip_path: true
 
   - name: analytics
-    url: http://analytics.api:8000
+    protocol: http
+    host: analytics.api
+    port: 8000
     routes:
       - name: analytics
         paths:
@@ -66,7 +78,9 @@ services:
         strip_path: true
 
   - name: inventory
-    url: http://inventory.api:8000
+    protocol: http
+    host: inventory.api
+    port: 8000
     routes:
       - name: inventory
         paths:
@@ -74,7 +88,9 @@ services:
         strip_path: true
 
   - name: promotion
-    url: http://promotion.api:8000
+    protocol: http
+    host: promotion.api
+    port: 8000
     routes:
       - name: promotion
         paths:
@@ -82,7 +98,9 @@ services:
         strip_path: true
 
   - name: review
-    url: http://review.api:8000
+    protocol: http
+    host: review.api
+    port: 8000
     routes:
       - name: review
         paths:
@@ -90,7 +108,9 @@ services:
         strip_path: true
 
   - name: recommendation
-    url: http://recommendation.api:8000
+    protocol: http
+    host: recommendation.api
+    port: 8000
     routes:
       - name: recommendation
         paths:
@@ -98,7 +118,9 @@ services:
         strip_path: true
 
   - name: wishlist
-    url: http://wishlist.api:8000
+    protocol: http
+    host: wishlist.api
+    port: 8000
     routes:
       - name: wishlist
         paths:
@@ -106,7 +128,9 @@ services:
         strip_path: true
 
   - name: experiment
-    url: http://experiment.api:8000
+    protocol: http
+    host: experiment.api
+    port: 8000
     routes:
       - name: experiment
         paths:
@@ -114,14 +138,18 @@ services:
         strip_path: true
 
   - name: cms
-    url: http://cms.api:8000
+    protocol: http
+    host: cms.api
+    port: 8000
     routes:
       - name: cms
         paths:
           - /api/v1/cms
         strip_path: true
   - name: rma
-    url: http://rma.api:8000
+    protocol: http
+    host: rma.api
+    port: 8000
     routes:
       - name: rma
         paths:
@@ -129,7 +157,9 @@ services:
         strip_path: true
 
   - name: tax
-    url: http://tax.api:8000
+    protocol: http
+    host: tax.api
+    port: 8000
     routes:
       - name: tax
         paths:
@@ -137,7 +167,9 @@ services:
         strip_path: true
 
   - name: currency
-    url: http://currency.api:8000
+    protocol: http
+    host: currency.api
+    port: 8000
     routes:
       - name: currency
         paths:
@@ -145,7 +177,9 @@ services:
         strip_path: true
 
   - name: address
-    url: http://address.api:8000
+    protocol: http
+    host: address.api
+    port: 8000
     routes:
       - name: address
         paths:
@@ -153,7 +187,9 @@ services:
         strip_path: true
 
   - name: shippingrate
-    url: http://shippingrate.api:8000
+    protocol: http
+    host: shippingrate.api
+    port: 8000
     routes:
       - name: shippingrate
         paths:
@@ -161,7 +197,9 @@ services:
         strip_path: true
 
   - name: auth
-    url: http://auth.api:80
+    protocol: http
+    host: auth.api
+    port: 80
     routes:
       - name: auth
         paths:
@@ -176,14 +214,18 @@ services:
         enabled: false
 
   - name: security
-    url: http://security.api:8082
+    protocol: http
+    host: security.api
+    port: 8082
     routes:
       - name: security
         paths:
           - /api/v1/security
         strip_path: true
   - name: admin
-    url: http://admin.api:8000
+    protocol: http
+    host: admin.api
+    port: 8000
     routes:
       - name: admin
         paths:
