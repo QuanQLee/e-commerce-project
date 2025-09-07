@@ -1,3 +1,4 @@
+---
 _format_version: '3.0'
 _transform: true
 consumers:
@@ -15,7 +16,7 @@ consumers:
         algorithm: HS256
     acls:
       - group: admin-group
-  
+
 services:
   - name: catalog
     protocol: http
@@ -212,6 +213,10 @@ services:
         enabled: false
       - name: acl
         enabled: false
+        config:
+          allow:
+            - frontend-group
+            - admin-group
 
   - name: security
     protocol: http
@@ -256,9 +261,3 @@ plugins:
       minute: 60
       policy: local
   - name: prometheus
-
-
-
-
-
-
