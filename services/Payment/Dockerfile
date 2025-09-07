@@ -1,11 +1,16 @@
 ##################### 1. Build stage #####################
-FROM golang:1.23.4-alpine AS builder
-ENV GOPROXY=https://goproxy.cn,direct
+FROM golang:1.23-alpine AS builder
+
+# Ensure module and build caches live in writable locations
+ENV GOPROXY=https://goproxy.cn,direct \
+    GOPATH=/go \
+    GOMODCACHE=/go/pkg/mod \
+    GOCACHE=/go/build-cache
 WORKDIR /src
 
 # Copy go.mod/go.sum first to leverage cache
 COPY go.mod go.sum ./
-RUN go mod download
+RUN mkdir -p "$GOMODCACHE" "$GOCACHE" && go mod download
 
 # Copy source code and build
 COPY . .
