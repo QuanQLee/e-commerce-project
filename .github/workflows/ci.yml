@@ -115,7 +115,7 @@ jobs:
             exit 1
           fi
       - name: Sync Kong config
-        run: deck gateway sync --state services/Gateway/kong.yml --kong-addr http://127.0.0.1:8001
+        run: deck gateway sync services/Gateway/kong.yml --kong-addr http://127.0.0.1:8001
       - name: Stop Kong Gateway
         run: docker rm -f kong-test
       - name: Set lowercase registry
