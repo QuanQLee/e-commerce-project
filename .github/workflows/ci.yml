@@ -87,21 +87,35 @@ jobs:
       - name: Start Kong Gateway
         shell: bash
         run: |
+          set -euo pipefail
           docker run -d --name kong-test \
-            -p 8001:8001 \
+            -p 8000:8000 -p 8443:8443 -p 8001:8001 \
             -e KONG_DATABASE=off \
             -e KONG_DECLARATIVE_CONFIG=/kong/kong.yml \
             -e KONG_ADMIN_LISTEN=0.0.0.0:8001 \
+            -e KONG_LOG_LEVEL=info \
             -v ${{ github.workspace }}/services/Gateway/kong.yml:/kong/kong.yml \
             kong:3
-          for i in {1..10}; do
-            if curl -s http://localhost:8001/status > /dev/null; then
+
+          echo "Waiting for Kong admin API to be ready..."
+          ready=false
+          for i in {1..24}; do
+            if curl -fsS http://127.0.0.1:8001/status > /dev/null; then
+              echo "Kong is ready."
+              ready=true
               break
             fi
             sleep 5
           done
+
+          if [ "$ready" != true ]; then
+            echo "Kong did not become ready within timeout. Showing logs:"
+            docker logs --tail 200 kong-test || true
+            docker ps -a || true
+            exit 1
+          fi
       - name: Sync Kong config
-        run: deck sync --state services/Gateway/kong.yml --kong-addr http://127.0.0.1:8001
+        run: deck gateway sync --state services/Gateway/kong.yml --kong-addr http://127.0.0.1:8001
       - name: Stop Kong Gateway
         run: docker rm -f kong-test
       - name: Set lowercase registry
