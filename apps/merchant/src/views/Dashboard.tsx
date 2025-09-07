@@ -1,4 +1,5 @@
-import { Card, CardContent, Typography, Grid } from '@mui/material'
+import { Card, CardContent, Typography } from '@mui/material'
+import Grid from '@mui/material/GridLegacy'
 
 export default function Dashboard() {
   return (
