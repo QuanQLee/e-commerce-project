@@ -50,13 +50,14 @@ builder.Services.AddDbContext<OrderDbContext>(options =>
     options.UseNpgsql(cs);
 });
 
-builder.Services.AddOpenTelemetry().WithTracing(b =>
+// For OpenTelemetry 1.0.0-rc9.9, use AddOpenTelemetryTracing instead of AddOpenTelemetry().WithTracing
+builder.Services.AddOpenTelemetryTracing(b =>
 {
-    b.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("order"))
-     .AddAspNetCoreInstrumentation()
-     .AddHttpClientInstrumentation()
-     .AddEntityFrameworkCoreInstrumentation()
-     .AddConsoleExporter();
+    b.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("order"));
+    b.AddAspNetCoreInstrumentation();
+    b.AddHttpClientInstrumentation();
+    b.AddEntityFrameworkCoreInstrumentation();
+    b.AddConsoleExporter();
 });
 
 // Rebus is skipped during this build
