@@ -23,8 +23,9 @@
     <PackageReference Include="Quartz" Version="3.9.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="7.0.0" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.8.1" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.8.1" />
+    <!-- Align all OpenTelemetry packages to the same rc line to avoid MissingMethodException -->
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9.9" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.0.0-rc9.9" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.9" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.9" />
     <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-rc9.9" />
