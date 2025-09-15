@@ -70,6 +70,8 @@ jobs:
         run: |
           for service in Admin Analytics Inventory; do
             cd services/$service
+            # Ensure lock file is synced with pyproject (handles dependency tweaks in PRs)
+            poetry lock -n
             poetry install -n
             poetry run pytest -q
             cd ../../
