@@ -18,6 +18,7 @@ import {
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import api from '../api'
+import { useI18n } from '../state/i18n'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -28,6 +29,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useI18n()
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

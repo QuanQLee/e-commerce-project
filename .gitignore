@@ -105,3 +105,9 @@ docker-compose.override.yml
 services/Gateway/certs/*
 !services/Gateway/certs/.gitkeep
 .coverage
+
+# Next.js build output
+**/.next/
+
+**/tsconfig.tsbuildinfo
+services/github/.env

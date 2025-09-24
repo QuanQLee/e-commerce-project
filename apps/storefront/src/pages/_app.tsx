@@ -1,16 +1,21 @@
-import type { AppProps } from 'next/app'
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
+﻿import type { AppProps } from 'next/app'
+import { CssBaseline, ThemeProvider } from '@mui/material'
 import ErrorBoundary from '../components/ErrorBoundary'
-
-const theme = createTheme({ palette: { mode: 'light' } })
+import theme from '../theme'
+import { CartProvider } from '../state/cart'
+import { I18nProvider } from '../state/i18n'
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ErrorBoundary>
+    <I18nProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Component {...pageProps} />
+        <CartProvider>
+          <ErrorBoundary>
+            <Component {...pageProps} />
+          </ErrorBoundary>
+        </CartProvider>
       </ThemeProvider>
-    </ErrorBoundary>
+    </I18nProvider>
   )
 }

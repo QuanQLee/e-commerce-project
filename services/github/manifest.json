@@ -1,0 +1,46 @@
+{
+  "name": "github-approval",
+  "label": "GitHub Approval Flow",
+  "description": "Manual approval push pipeline with CI feedback",
+  "tools": [
+    {
+      "name": "gitStatus",
+      "description": "Show current git branch and status"
+    },
+    {
+      "name": "preparePush",
+      "description": "Commit staged changes and await approval",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "branch": { "type": "string" },
+          "message": { "type": "string" }
+        },
+        "required": ["branch", "message"]
+      }
+    },
+    {
+      "name": "pushWithApproval",
+      "description": "Push the prepared commit to origin after approval",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "branch": { "type": "string" }
+        },
+        "required": ["branch"]
+      }
+    },
+    {
+      "name": "getCiStatus",
+      "description": "Fetch recent GitHub Actions workflow runs for a branch",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "ref": { "type": "string" }
+        },
+        "required": ["ref"]
+      }
+    }
+  ],
+  "env": ["GITHUB_TOKEN", "GITHUB_OWNER", "GITHUB_REPO", "REPO_PATH", "PORT"]
+}

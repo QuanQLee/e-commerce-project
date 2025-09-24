@@ -4,7 +4,8 @@
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9080'
 const apiKey = process.env.NEXT_PUBLIC_API_KEY || ''
 
-const api = axios.create({ withCredentials: true, 
+const api = axios.create({
+  withCredentials: true,
   baseURL,
   headers: {
     'Content-Type': 'application/json',
@@ -21,12 +22,13 @@ if (typeof window !== 'undefined') {
         config.headers = config.headers || {}
         config.headers.Authorization = `Bearer ${token}`
       }
-    } catch {}
+    } catch (error) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.debug('[api] failed to read access token', error)
+      }
+    }
     return config
   })
 }
 
 export default api
-
-
-
