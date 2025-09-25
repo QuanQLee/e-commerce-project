@@ -25,6 +25,7 @@ interface Product {
   imageUrl?: string
   category?: string
   stock?: number
+  currency?: string
 }
 
 const FALLBACK_IMAGE =

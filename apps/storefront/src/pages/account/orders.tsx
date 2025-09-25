@@ -11,8 +11,6 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import api from '../../lib/api'
 import { useI18n } from '../../state/i18n'
 
@@ -110,8 +108,7 @@ export default function OrdersHistory() {
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Typography fontWeight={700}>{amountFormatter.format(order.totalPrice)}</Typography>
                     <IconButton onClick={() => toggle(order.id)} aria-label={t('account.orders.toggle')} size="small">
-                      {expanded === order.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                    </IconButton>
+                      {expanded === order.id ? '-' : '+'}                    </IconButton>
                   </Stack>
                 </Stack>
 
@@ -140,3 +137,4 @@ export default function OrdersHistory() {
     </Container>
   )
 }
+

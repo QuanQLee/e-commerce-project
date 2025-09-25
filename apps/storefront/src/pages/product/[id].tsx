@@ -1,4 +1,5 @@
-﻿import { useRouter } from 'next/router'
+import Grid from '@mui/material/GridLegacy'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
@@ -9,7 +10,6 @@ import {
   Button,
   Chip,
   Container,
-  Grid,
   Skeleton,
   Stack,
   Typography
@@ -113,10 +113,10 @@ export default function ProductDetail() {
 
         {loading && (
           <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <Skeleton variant="rectangular" height={380} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <Stack spacing={2}>
                 <Skeleton variant="text" width="60%" height={48} />
                 <Skeleton variant="text" width="40%" height={36} />
@@ -132,7 +132,7 @@ export default function ProductDetail() {
 
         {!loading && !error && product && (
           <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <Box
                 sx={{
                   position: 'relative',
@@ -162,7 +162,7 @@ export default function ProductDetail() {
               )}
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid xs={12} md={6}>
               <Stack spacing={3}>
                 <Stack spacing={1}>
                   <Typography variant="h4" fontWeight={800}>
