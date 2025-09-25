@@ -29,7 +29,93 @@ requiredVars.forEach(key => {
 });
 
 const repoPath = process.env.REPO_PATH || process.cwd();
-const approvals = new Map();
+const approvals = new Map(); // branch -> commit sha
+const monitors = new Map(); // branch -> { timer, interval }
+const lastSeenRunId = new Map(); // branch -> workflow run id
+const eventQueue = []; // collected CI events
+const MAX_EVENTS = 50;
+
+function enqueueEvent(event) {
+  eventQueue.push(event);
+  if (eventQueue.length > MAX_EVENTS) {
+    eventQueue.shift();
+  }
+}
+
+function exportRun(run, branch) {
+  return {
+    id: run.id,
+    name: run.name,
+    status: run.status,
+    conclusion: run.conclusion,
+    branch,
+    head_sha: run.head_sha,
+    html_url: run.html_url,
+    created_at: run.created_at,
+    updated_at: run.updated_at
+  };
+}
+
+async function pollBranch(branch) {
+  const runs = await listWorkflowRuns(branch);
+  if (!runs.length) {
+    return null;
+  }
+  const latest = runs[0];
+  const previousId = lastSeenRunId.get(branch);
+  if (previousId === latest.id) {
+    return null;
+  }
+  lastSeenRunId.set(branch, latest.id);
+  const event = {
+    type: 'workflow-update',
+    severity: latest.conclusion === 'failure' || latest.conclusion === 'cancelled' ? 'error' : 'info',
+    detected_at: new Date().toISOString(),
+    run: exportRun(latest, branch)
+  };
+  enqueueEvent(event);
+  return event;
+}
+
+function ensureMonitor(branch, intervalSeconds = 60) {
+  const intervalMs = Math.max(5, intervalSeconds) * 1000;
+  if (monitors.has(branch)) {
+    clearInterval(monitors.get(branch).timer);
+  }
+  const timer = setInterval(() => {
+    pollBranch(branch).catch(err => {
+      console.error(`[monitor:${branch}]`, err.message);
+    });
+  }, intervalMs);
+  monitors.set(branch, { timer, intervalSeconds });
+  // prime last seen so we do not fire on historical runs unless something new appears
+  pollBranch(branch).catch(err => {
+    console.error(`[monitor:${branch}]`, err.message);
+  });
+}
+
+function stopMonitor(branch) {
+  const entry = monitors.get(branch);
+  if (entry) {
+    clearInterval(entry.timer);
+    monitors.delete(branch);
+  }
+}
+
+function clearAllMonitors() {
+  monitors.forEach(({ timer }) => clearInterval(timer));
+  monitors.clear();
+}
+
+process.on('SIGINT', () => {
+  clearAllMonitors();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  clearAllMonitors();
+  process.exit(0);
+});
 
 function runGit(args) {
   const result = spawnSync('git', args, { cwd: repoPath, encoding: 'utf8' });
@@ -100,14 +186,12 @@ async function pushWithApprovalTool(input) {
   }
   const push = runGit(['push', 'origin', input.branch]);
   approvals.delete(input.branch);
-  const ci = await fetchCiStatus(input.branch, commitSha);
+  const ci = await pollBranch(input.branch);
   return {
     branch: input.branch,
     commit: commitSha,
     pushOutput: [push.stdout, push.stderr].filter(Boolean).join('\n'),
-    ciStatus: ci.status,
-    workflow: ci.workflow,
-    url: ci.url
+    ciStatus: ci ? ci.run.conclusion || ci.run.status : 'unknown'
   };
 }
 
@@ -116,21 +200,36 @@ async function getCiStatusTool(input) {
     throw new Error('getCiStatus requires ref.');
   }
   const runs = await listWorkflowRuns(input.ref);
-  return runs;
+  if (runs.length) {
+    lastSeenRunId.set(input.ref, runs[0].id);
+  }
+  return runs.map(run => exportRun(run, input.ref));
 }
 
-async function fetchCiStatus(branch, commitSha) {
-  const runs = await listWorkflowRuns(branch);
-  if (!runs.length) {
-    return { status: 'unknown', workflow: null, url: null };
+async function startCiMonitorTool(input) {
+  if (!input || typeof input.branch !== 'string') {
+    throw new Error('startCiMonitor requires branch.');
   }
-  const match = runs.find(run => run.head_sha === commitSha);
-  const target = match || runs[0];
+  const interval = typeof input.intervalSeconds === 'number' ? input.intervalSeconds : 60;
+  ensureMonitor(input.branch, interval);
   return {
-    status: target.conclusion || target.status,
-    workflow: target.name,
-    url: target.html_url
+    branch: input.branch,
+    intervalSeconds: interval,
+    monitors: Array.from(monitors.keys())
   };
+}
+
+async function stopCiMonitorTool(input) {
+  if (!input || typeof input.branch !== 'string') {
+    throw new Error('stopCiMonitor requires branch.');
+  }
+  stopMonitor(input.branch);
+  return { monitors: Array.from(monitors.keys()) };
+}
+
+async function getCiEventsTool() {
+  const events = eventQueue.splice(0, eventQueue.length);
+  return events;
 }
 
 async function listWorkflowRuns(branch) {
@@ -204,6 +303,33 @@ const manifest = {
         },
         required: ['ref']
       }
+    },
+    {
+      name: 'startCiMonitor',
+      description: 'Start background polling for CI results on a branch',
+      input_schema: {
+        type: 'object',
+        properties: {
+          branch: { type: 'string' },
+          intervalSeconds: { type: 'number' }
+        },
+        required: ['branch']
+      }
+    },
+    {
+      name: 'stopCiMonitor',
+      description: 'Stop background polling for a branch',
+      input_schema: {
+        type: 'object',
+        properties: {
+          branch: { type: 'string' }
+        },
+        required: ['branch']
+      }
+    },
+    {
+      name: 'getCiEvents',
+      description: 'Retrieve queued CI events discovered by monitors'
     }
   ],
   env: ['GITHUB_TOKEN', 'GITHUB_OWNER', 'GITHUB_REPO', 'REPO_PATH', 'PORT']
@@ -222,7 +348,10 @@ const tools = {
   gitStatus: gitStatusTool,
   preparePush: preparePushTool,
   pushWithApproval: pushWithApprovalTool,
-  getCiStatus: getCiStatusTool
+  getCiStatus: getCiStatusTool,
+  startCiMonitor: startCiMonitorTool,
+  stopCiMonitor: stopCiMonitorTool,
+  getCiEvents: getCiEventsTool
 };
 
 const port = Number(process.env.PORT || 3001);

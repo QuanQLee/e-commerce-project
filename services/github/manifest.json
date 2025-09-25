@@ -40,6 +40,33 @@
         },
         "required": ["ref"]
       }
+    },
+    {
+      "name": "startCiMonitor",
+      "description": "Start background polling for CI failures on a branch",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "branch": { "type": "string" },
+          "intervalSeconds": { "type": "number" }
+        },
+        "required": ["branch"]
+      }
+    },
+    {
+      "name": "stopCiMonitor",
+      "description": "Stop background polling for a branch",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "branch": { "type": "string" }
+        },
+        "required": ["branch"]
+      }
+    },
+    {
+      "name": "getCiEvents",
+      "description": "Retrieve queued CI events discovered by monitors"
     }
   ],
   "env": ["GITHUB_TOKEN", "GITHUB_OWNER", "GITHUB_REPO", "REPO_PATH", "PORT"]
