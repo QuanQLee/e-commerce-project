@@ -1,18 +1,17 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Container } from '@mui/material'
+﻿import { BrowserRouter, Routes, Route, Outlet, useNavigate, Navigate } from 'react-router-dom'
+import { Button, Container } from '@mui/material'
 import Layout, { type NavItem } from './components/Layout'
 import DashboardIcon from '@mui/icons-material/Dashboard'
+import InventoryIcon from '@mui/icons-material/Inventory'
 import AddBoxIcon from '@mui/icons-material/AddBox'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import PeopleIcon from '@mui/icons-material/People'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import PaymentsIcon from '@mui/icons-material/Payments'
-import InventoryIcon from '@mui/icons-material/Inventory'
 import PercentIcon from '@mui/icons-material/Percent'
 import ReviewsIcon from '@mui/icons-material/Reviews'
 import AutoGraphIcon from '@mui/icons-material/AutoGraph'
 import SecurityIcon from '@mui/icons-material/Security'
-import LoginIcon from '@mui/icons-material/Login'
 import ProductList from './pages/ProductList'
 import AddProduct from './pages/AddProduct'
 import OrderList from './pages/OrderList'
@@ -32,10 +31,46 @@ import CouponList from './pages/CouponList'
 import AddReview from './pages/AddReview'
 import ReviewList from './pages/ReviewList'
 import Recommendation from './pages/Recommendation'
+import Dashboard from './pages/Dashboard'
+import ProtectedRoute from './components/ProtectedRoute'
+import api from './api/api'
+import { clearSession } from './auth'
+
+function AdminLayout({ nav }: { nav: NavItem[] }) {
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout')
+    } catch (error) {
+      console.warn('[admin] logout failed', error)
+    } finally {
+      clearSession()
+      navigate('/login', { replace: true })
+    }
+  }
+
+  return (
+    <Layout
+      title="E‑Commerce Admin"
+      nav={nav}
+      actions={
+        <Button variant="outlined" size="small" onClick={handleLogout}>
+          Logout
+        </Button>
+      }
+    >
+      <Container maxWidth="lg">
+        <Outlet />
+      </Container>
+    </Layout>
+  )
+}
 
 export default function App() {
   const nav: NavItem[] = [
-    { label: 'Products', path: '/', icon: <DashboardIcon /> },
+    { label: 'Dashboard', path: '/', icon: <DashboardIcon /> },
+    { label: 'Products', path: '/products', icon: <InventoryIcon /> },
     { label: 'Add Product', path: '/add-product', icon: <AddBoxIcon /> },
     { label: 'Orders', path: '/orders', icon: <ShoppingCartIcon /> },
     { label: 'Add Order', path: '/add-order', icon: <AddBoxIcon /> },
@@ -53,14 +88,16 @@ export default function App() {
     { label: 'Inventory', path: '/inventory', icon: <InventoryIcon /> },
     { label: 'Metrics', path: '/metrics', icon: <AutoGraphIcon /> },
     { label: 'Risk Check', path: '/risk-check', icon: <SecurityIcon /> },
-    { label: 'Login', path: '/login', icon: <LoginIcon /> },
   ]
+
   return (
     <BrowserRouter>
-      <Layout title="E‑Commerce Admin" nav={nav}>
-        <Container maxWidth="lg">
-          <Routes>
-            <Route path="/" element={<ProductList />} />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AdminLayout nav={nav} />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/products" element={<ProductList />} />
             <Route path="/add-product" element={<AddProduct />} />
             <Route path="/orders" element={<OrderList />} />
             <Route path="/add-order" element={<AddOrder />} />
@@ -77,11 +114,11 @@ export default function App() {
             <Route path="/recommendations" element={<Recommendation />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/metrics" element={<Metrics />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/risk-check" element={<RiskCheck />} />
-          </Routes>
-        </Container>
-      </Layout>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Route>
+      </Routes>
     </BrowserRouter>
   )
 }

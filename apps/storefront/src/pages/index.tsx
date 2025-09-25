@@ -235,7 +235,7 @@ export default function Home() {
                 <Button
                   key={filter.key}
                   component={Link}
-                  href={`/products?segment=${filter.key}`}
+                  href={`/category/${filter.key}`}
                   variant="outlined"
                 >
                   {filter.label}
@@ -276,7 +276,7 @@ export default function Home() {
                     <Typography color="text.secondary">{collection.description}</Typography>
                     <Button
                       component={Link}
-                      href={`/products?collection=${collection.key}`}
+                      href={`/category/${collection.key}`}
                       size="small"
                     >
                       {t('nav.browseProducts')}

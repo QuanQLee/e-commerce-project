@@ -91,12 +91,115 @@ const translations: Dictionary = {
       actionHome: 'Back to home'
     },
     cart: {
-      empty: 'Cart functionality coming soon.',
-      header: 'Cart'
+      empty: 'Your cart is currently empty.',
+      header: 'Cart',
+      remove: 'Remove',
+      clear: 'Clear cart',
+      proceedToCheckout: 'Proceed to checkout',
+      summaryTotal: 'Order total',
+      table: {
+        product: 'Product',
+        price: 'Price',
+        quantity: 'Quantity',
+        total: 'Subtotal',
+        actions: 'Actions'
+      }
+    },
+    checkout: {
+      title: 'Checkout',
+      success: 'Order placed successfully! Redirecting to your order history...',
+      steps: {
+        details: 'Details',
+        shipping: 'Shipping',
+        payment: 'Payment',
+        review: 'Review'
+      },
+      form: {
+        name: 'Full name',
+        email: 'Email',
+        phone: 'Phone number',
+        address1: 'Address line 1',
+        address2: 'Address line 2 (optional)',
+        city: 'City',
+        postal: 'Postal code',
+        country: 'Country/Region',
+        shipping: 'Select a shipping option',
+        notes: 'Order notes (optional)',
+        payment: 'Choose a payment method',
+        cardNumber: 'Card number',
+        cardExpiry: 'Expiry (MM/YY)',
+        cardCvc: 'Security code'
+      },
+      shipping: {
+        standard: 'Standard (3-5 business days)',
+        express: 'Express (1-2 business days, $12)'
+      },
+      payment: {
+        card: 'Credit / Debit Card',
+        cod: 'Cash on delivery'
+      },
+      review: {
+        items: 'Items',
+        shipping: 'Shipping method',
+        payment: 'Payment method'
+      },
+      summary: {
+        items: 'Items subtotal',
+        shipping: 'Shipping',
+        free: 'Free',
+        total: 'Total due'
+      },
+      actions: {
+        back: 'Back',
+        next: 'Next step',
+        placeOrder: 'Place order',
+        submitting: 'Submitting...'
+      },
+      errors: {
+        nameRequired: 'Name is required',
+        emailRequired: 'Email is required',
+        addressRequired: 'Address is required',
+        cityRequired: 'City and country are required',
+        postalRequired: 'Postal code is required',
+        cardNumber: 'Enter a valid card number',
+        cardCvc: 'Enter a valid CVC',
+        cardExpiry: 'Use the MM/YY format for expiry',
+        emptyCart: 'Your cart is empty. Add items before checking out.',
+        submitFailed: 'Failed to submit order. Please try again.'
+      }
     },
     account: {
       header: 'Account',
-      message: 'Please login from the Admin or Merchant portal to manage your account.'
+      message: 'Manage your purchases, preferences and saved items.',
+      overview: {
+        cartItems: 'Items in cart',
+        orders: 'Orders',
+        ordersHint: 'Track recent purchases and delivery status.',
+        viewCart: 'Open cart',
+        viewOrders: 'View orders'
+      },
+      preferences: {
+        title: 'Preferences',
+        language: 'Current language: {code}',
+        support: 'Need help? Contact support any time.'
+      },
+      orders: {
+        title: 'Order history',
+        loading: 'Loading orders...',
+        empty: 'No orders yet. Start shopping to place your first order.',
+        loadFailed: 'Failed to load orders.',
+        orderId: 'Order {id}',
+        unknownDate: 'Date unavailable',
+        toggle: 'Toggle order details',
+        itemsHeading: 'Items in this order',
+        status: {
+          created: 'Created',
+          paid: 'Paid',
+          fulfilled: 'Fulfilled',
+          cancelled: 'Cancelled',
+          unknown: 'Unknown status: {fallback}'
+        }
+      }
     },
     i18n: {
       label: 'Language'

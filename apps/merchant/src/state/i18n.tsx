@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
+﻿import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
 
 export type Language = 'en' | 'zh-CN' | 'es-ES'
 
@@ -37,6 +37,7 @@ const translations: Dictionary = {
     common: {
       loading: 'Loading...',
       retry: 'Retry',
+      cancel: 'Cancel',
       logout: 'Logout',
       searchPlaceholder: 'Search...',
       errorGeneric: 'Something went wrong.'
@@ -71,7 +72,7 @@ const translations: Dictionary = {
         products: 'Products',
         coupons: 'Coupons'
       },
-      placeholder: '—'
+      placeholder: 'Data coming soon'
     },
     products: {
       title: 'Products',
@@ -82,14 +83,57 @@ const translations: Dictionary = {
       errorGeneric: 'Failed to load products.',
       reload: 'Reload',
       add: 'Add product',
-      stockLabel: 'Stock: {value}'
+      stockLabel: 'Stock: {value}',
+      createSuccess: 'Product created',
+      createFailure: 'Failed to create product',
+      formName: 'Name',
+      formDescription: 'Description (optional)',
+      formPrice: 'Price',
+      formCategory: 'Category (optional)',
+      formStock: 'Initial stock',
+      nameRequired: 'Name is required',
+      priceInvalid: 'Enter a valid non-negative price',
+      stockInvalid: 'Enter a valid non-negative stock quantity'
     },
     orders: {
-      empty: 'No orders yet.'
+      title: 'Orders',
+      empty: 'No orders yet.',
+      filter: 'Status filter',
+      filterAll: 'All statuses',
+      reload: 'Reload',
+      loadFailed: 'Failed to load orders.',
+      updateFailed: 'Failed to update order status.',
+      viewDetails: 'View details',
+      detailTitle: 'Order {id}',
+      noSelection: 'No order selected.',
+      itemsHeading: 'Line items',
+      quantityLabel: 'Qty: {value}',
+      close: 'Close',
+      updateLabel: 'Update status',
+      table: {
+        id: 'Order ID',
+        created: 'Created at',
+        total: 'Total',
+        status: 'Status',
+        actions: 'Actions'
+      },
+      status: {
+        created: 'Created',
+        paid: 'Paid',
+        fulfilled: 'Fulfilled',
+        cancelled: 'Cancelled'
+      }
     },
     coupons: {
       empty: 'No coupons yet.',
-      discount: '{value}% off'
+      discount: '{value}% off',
+      create: 'Create coupon',
+      codeLabel: 'Coupon code',
+      discountLabel: 'Discount (%)',
+      createSuccess: 'Coupon created',
+      createFailure: 'Failed to create coupon',
+      codeRequired: 'Code is required',
+      discountInvalid: 'Enter a discount between 0 and 100'
     },
     errorBoundary: {
       title: 'Something went wrong',
@@ -102,6 +146,7 @@ const translations: Dictionary = {
     common: {
       loading: '加载中...',
       retry: '重试',
+      cancel: '取消',
       logout: '退出登录',
       searchPlaceholder: '搜索...',
       errorGeneric: '发生了一些错误。'
@@ -136,7 +181,7 @@ const translations: Dictionary = {
         products: '商品数',
         coupons: '优惠券'
       },
-      placeholder: '—'
+      placeholder: '数据稍后更新'
     },
     products: {
       title: '商品管理',
@@ -147,14 +192,57 @@ const translations: Dictionary = {
       errorGeneric: '加载商品失败。',
       reload: '重新加载',
       add: '新增商品',
-      stockLabel: '库存：{value}'
+      stockLabel: '库存：{value}',
+      createSuccess: '创建商品成功',
+      createFailure: '创建商品失败',
+      formName: '商品名称',
+      formDescription: '商品描述（可选）',
+      formPrice: '价格',
+      formCategory: '品类（可选）',
+      formStock: '初始库存',
+      nameRequired: '商品名称不能为空',
+      priceInvalid: '请输入有效的非负价格',
+      stockInvalid: '请输入有效的非负库存数量'
     },
     orders: {
-      empty: '暂时没有订单。'
+      title: '订单管理',
+      empty: '暂时没有订单。',
+      filter: '按状态筛选',
+      filterAll: '全部状态',
+      reload: '重新加载',
+      loadFailed: '加载订单失败。',
+      updateFailed: '更新订单状态失败。',
+      viewDetails: '查看详情',
+      detailTitle: '订单 {id}',
+      noSelection: '未选择订单。',
+      itemsHeading: '订单行项目',
+      quantityLabel: '数量：{value}',
+      close: '关闭',
+      updateLabel: '更新状态',
+      table: {
+        id: '订单号',
+        created: '创建时间',
+        total: '订单金额',
+        status: '状态',
+        actions: '操作'
+      },
+      status: {
+        created: '已创建',
+        paid: '已支付',
+        fulfilled: '已履约',
+        cancelled: '已取消'
+      }
     },
     coupons: {
       empty: '暂无优惠券。',
-      discount: '立减 {value}%'
+      discount: '立减 {value}%',
+      create: '新建优惠券',
+      codeLabel: '优惠码',
+      discountLabel: '折扣（%）',
+      createSuccess: '创建优惠券成功',
+      createFailure: '创建优惠券失败',
+      codeRequired: '优惠码不能为空',
+      discountInvalid: '请输入 0-100 之间的折扣'
     },
     errorBoundary: {
       title: '页面发生错误',
@@ -167,6 +255,7 @@ const translations: Dictionary = {
     common: {
       loading: 'Cargando...',
       retry: 'Reintentar',
+      cancel: 'Cancelar',
       logout: 'Cerrar sesión',
       searchPlaceholder: 'Buscar...',
       errorGeneric: 'Ha ocurrido un error.'
@@ -201,7 +290,7 @@ const translations: Dictionary = {
         products: 'Productos',
         coupons: 'Cupones'
       },
-      placeholder: '—'
+      placeholder: 'Datos disponibles en breve'
     },
     products: {
       title: 'Productos',
@@ -212,14 +301,57 @@ const translations: Dictionary = {
       errorGeneric: 'No se pudieron cargar los productos.',
       reload: 'Recargar',
       add: 'Añadir producto',
-      stockLabel: 'Inventario: {value}'
+      stockLabel: 'Inventario: {value}',
+      createSuccess: 'Producto creado',
+      createFailure: 'No se pudo crear el producto',
+      formName: 'Nombre del producto',
+      formDescription: 'Descripción (opcional)',
+      formPrice: 'Precio',
+      formCategory: 'Categoría (opcional)',
+      formStock: 'Inventario inicial',
+      nameRequired: 'El nombre es obligatorio',
+      priceInvalid: 'Introduce un precio válido y no negativo',
+      stockInvalid: 'Introduce una cantidad de inventario válida y no negativa'
     },
     orders: {
-      empty: 'Aún no hay pedidos.'
+      title: 'Pedidos',
+      empty: 'Aún no hay pedidos.',
+      filter: 'Filtrar por estado',
+      filterAll: 'Todos los estados',
+      reload: 'Recargar',
+      loadFailed: 'No se pudieron cargar los pedidos.',
+      updateFailed: 'No se pudo actualizar el estado del pedido.',
+      viewDetails: 'Ver detalles',
+      detailTitle: 'Pedido {id}',
+      noSelection: 'Ningún pedido seleccionado.',
+      itemsHeading: 'Artículos',
+      quantityLabel: 'Cant.: {value}',
+      close: 'Cerrar',
+      updateLabel: 'Actualizar estado',
+      table: {
+        id: 'ID del pedido',
+        created: 'Creado',
+        total: 'Total',
+        status: 'Estado',
+        actions: 'Acciones'
+      },
+      status: {
+        created: 'Creado',
+        paid: 'Pagado',
+        fulfilled: 'Enviado',
+        cancelled: 'Cancelado'
+      }
     },
     coupons: {
       empty: 'No hay cupones.',
-      discount: '{value}% de descuento'
+      discount: '{value}% de descuento',
+      create: 'Crear cupón',
+      codeLabel: 'Código del cupón',
+      discountLabel: 'Descuento (%)',
+      createSuccess: 'Cupón creado',
+      createFailure: 'No se pudo crear el cupón',
+      codeRequired: 'El código es obligatorio',
+      discountInvalid: 'Introduce un descuento entre 0 y 100'
     },
     errorBoundary: {
       title: 'Ha ocurrido un problema',

@@ -1,22 +1,36 @@
-import type { PropsWithChildren } from 'react'
+﻿import type { PropsWithChildren, ReactNode } from 'react'
+import { useState } from 'react'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
-import { AppBar, Toolbar, Typography, Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, IconButton, CssBaseline, useMediaQuery } from '@mui/material'
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  CssBaseline,
+  useMediaQuery
+} from '@mui/material'
 import type { Theme } from '@mui/material/styles'
 import MenuIcon from '@mui/icons-material/Menu'
-import { useState } from 'react'
 
 export interface NavItem {
   label: string
   path: string
-  icon?: React.ReactNode
+  icon?: ReactNode
 }
 
 interface LayoutProps {
   title?: string
   nav: NavItem[]
+  actions?: ReactNode
 }
 
-export default function Layout({ title = 'Dashboard', nav, children }: PropsWithChildren<LayoutProps>) {
+export default function Layout({ title = 'Dashboard', nav, actions, children }: PropsWithChildren<LayoutProps>) {
   const location = useLocation()
   const [open, setOpen] = useState(false)
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
@@ -53,7 +67,12 @@ export default function Layout({ title = 'Dashboard', nav, children }: PropsWith
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6" sx={{ fontWeight: 700 }}> {title} </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, flexGrow: 1 }}>
+            {title}
+          </Typography>
+          {actions && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>{actions}</Box>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -62,7 +81,10 @@ export default function Layout({ title = 'Dashboard', nav, children }: PropsWith
           {drawer}
         </Drawer>
       ) : (
-        <Drawer variant="permanent" sx={{ width: drawerWidth, [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' } }}>
+        <Drawer
+          variant="permanent"
+          sx={{ width: drawerWidth, ['& .MuiDrawer-paper']: { width: drawerWidth, boxSizing: 'border-box' } }}
+        >
           {drawer}
         </Drawer>
       )}
@@ -74,3 +96,4 @@ export default function Layout({ title = 'Dashboard', nav, children }: PropsWith
     </Box>
   )
 }
+

@@ -1,4 +1,4 @@
-﻿import { createContext, ReactNode, useContext, useMemo, useState } from 'react'
+﻿import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
 
 type CartItemInput = {
   id: string
@@ -20,9 +20,56 @@ type CartContextValue = {
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined)
+const STORAGE_KEY = 'storefront_cart'
+
+function loadInitialCart(): CartItem[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .map((item) => ({
+        id: String(item.id ?? ''),
+        name: String(item.name ?? ''),
+        price: Number(item.price ?? 0),
+        imageUrl: item.imageUrl ? String(item.imageUrl) : undefined,
+        currency: String(item.currency ?? ''),
+        quantity: Number.isInteger(item.quantity) && item.quantity > 0 ? item.quantity : 1,
+      }))
+      .filter((item) => item.id && item.name)
+  } catch (error) {
+    console.warn('[cart] failed to read stored cart', error)
+    return []
+  }
+}
+
+function persistCart(items: CartItem[]) {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+  } catch (error) {
+    console.warn('[cart] failed to persist cart', error)
+  }
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([])
+  const [items, setItems] = useState<CartItem[]>(() => loadInitialCart())
+
+  useEffect(() => {
+    persistCart(items)
+  }, [items])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== STORAGE_KEY) return
+      setItems(loadInitialCart())
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
 
   const addItem = (item: CartItemInput) => {
     setItems((prev) => {
@@ -40,7 +87,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => prev.filter((item) => item.id !== id))
   }
 
-  const clear = () => setItems([])
+  const clear = () => {
+    setItems([])
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.removeItem(STORAGE_KEY)
+      } catch {}
+    }
+  }
 
   const currency = items[0]?.currency ?? null
 
