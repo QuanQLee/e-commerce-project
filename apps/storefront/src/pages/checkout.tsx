@@ -188,7 +188,9 @@ export default function Checkout() {
         if (typeof window !== 'undefined') {
           window.localStorage.removeItem(STORAGE_KEY)
         }
-      } catch {}
+      } catch (storageError) {
+        console.warn('[checkout] failed to clear draft', storageError)
+      }
       const orderId = response?.data?.id
       setTimeout(() => {
         if (orderId) {

@@ -92,7 +92,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       try {
         window.localStorage.removeItem(STORAGE_KEY)
-      } catch {}
+      } catch (storageError) {
+        console.warn('[cart] failed to clear cart from storage', storageError)
+      }
     }
   }
 

@@ -70,10 +70,17 @@ export default function ProductDetail() {
           setError(t('products.errorGeneric'))
         }
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         console.error(err)
         if (!active) return
-        setError(err?.response?.data?.message || err?.message || t('products.errorGeneric'))
+        let message: string | undefined
+        if (typeof err === 'object' && err !== null) {
+          const info = err as { response?: { data?: { message?: string } }; message?: string }
+          message = info.response?.data?.message ?? info.message
+        } else if (typeof err === 'string') {
+          message = err
+        }
+        setError(message || t('products.errorGeneric'))
       })
       .finally(() => {
         if (!active) return
