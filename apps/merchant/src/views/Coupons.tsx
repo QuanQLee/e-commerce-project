@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Card, CardContent, Snackbar, Stack, TextField, Typography } from '@mui/material'
 import api from '../api'
 import { useI18n } from '../state/i18n'
@@ -116,12 +116,15 @@ export default function Coupons() {
         onClose={() => setToast(null)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        {toast && (
-          <Alert severity={toast.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-            {toast.message}
-          </Alert>
-        )}
+        <Alert
+          severity={toast?.severity ?? 'success'}
+          onClose={() => setToast(null)}
+          sx={{ width: '100%' }}
+        >
+          {toast?.message ?? ''}
+        </Alert>
       </Snackbar>
     </Stack>
   )
 }
+

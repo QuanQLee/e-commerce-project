@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Box,
@@ -293,11 +293,13 @@ export default function Products() {
         onClose={() => setToast(null)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        {toast && (
-          <Alert severity={toast.severity} onClose={() => setToast(null)} sx={{ width: '100%' }}>
-            {toast.message}
-          </Alert>
-        )}
+        <Alert
+          severity={toast?.severity ?? 'success'}
+          onClose={() => setToast(null)}
+          sx={{ width: '100%' }}
+        >
+          {toast?.message ?? ''}
+        </Alert>
       </Snackbar>
     </Stack>
   )
