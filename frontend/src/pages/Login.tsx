@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import api from '../api/api'
 import { useSnackbar } from '../providers/SnackbarProvider'
 import { clearSession, setSessionAuthenticated } from '../auth'
+import { safeRemoveItem } from '../utils/storage'
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -57,10 +58,8 @@ export default function Login() {
       console.warn('[auth] logout failed', err)
     } finally {
       clearSession()
-      try {
-        window.localStorage.removeItem('access_token')
-        window.localStorage.removeItem('access_token_expires_at')
-      } catch {}
+      safeRemoveItem('local', 'access_token', 'logout cleanup')
+      safeRemoveItem('local', 'access_token_expires_at', 'logout cleanup')
       success('Logged out')
     }
   }

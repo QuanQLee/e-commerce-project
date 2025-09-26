@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from 'react'
-import { Box, Card, CardContent, Container, Divider, LinearProgress, Stack, Typography } from '@mui/material'
+import { Card, CardContent, Container, Divider, LinearProgress, Stack, Typography } from '@mui/material'
 import api from '../api/api'
 import PageHeader from '../components/PageHeader'
 import Loading from '../components/Loading'
@@ -33,13 +33,14 @@ function normaliseMetrics(payload: Record<string, MetricValue> | null | undefine
     if (typeof raw === 'number') {
       value = raw
     } else if (Array.isArray(raw)) {
-      const last = raw.at(-1)
+      const lastIndex = raw.length - 1
+      const last = lastIndex >= 0 ? raw[lastIndex] : undefined
       if (typeof last === 'number') {
         value = last
       } else if (last && typeof last === 'object') {
         value = typeof last.value === 'number' ? last.value : 0
       }
-      const prev = raw.at(-2)
+      const prev = lastIndex > 0 ? raw[lastIndex - 1] : undefined
       const prevValue = typeof prev === 'number' ? prev : typeof prev === 'object' && prev ? prev.value : undefined
       if (typeof prevValue === 'number' && typeof value === 'number') {
         delta = value - prevValue
@@ -176,3 +177,5 @@ export default function Dashboard() {
     </Container>
   )
 }
+
+

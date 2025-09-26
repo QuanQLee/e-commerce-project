@@ -1,4 +1,5 @@
 ﻿import axios from 'axios'
+import { safeRemoveItem } from '../utils/storage'
 
 let onApiError: ((message: string) => void) | null = null
 export function setApiErrorHandler(fn: (message: string) => void) {
@@ -30,11 +31,13 @@ api.interceptors.response.use(
   (error) => {
     const status = error?.response?.status
     const msg = error?.response?.data?.message || error?.message || 'Request failed'
-    if (status === 401 && typeof window !== 'undefined') {      try { localStorage.removeItem('access_token') } catch {}
-      try { localStorage.removeItem('admin_session') } catch {}
-      try { localStorage.removeItem('admin_session_persist') } catch {}
-      try { sessionStorage.removeItem('admin_session') } catch {}
-      if (onApiError) onApiError('闇€瑕佺櫥褰曪紝璇峰厛鐧诲綍')
+    if (status === 401 && typeof window !== 'undefined') {
+      safeRemoveItem('local', 'access_token', 'api 401 cleanup')
+      safeRemoveItem('local', 'access_token_expires_at', 'api 401 cleanup')
+      safeRemoveItem('local', 'admin_session', 'api 401 cleanup')
+      safeRemoveItem('local', 'admin_session_persist', 'api 401 cleanup')
+      safeRemoveItem('session', 'admin_session', 'api 401 cleanup')
+      if (onApiError) onApiError('需要登录，请先登录')
       window.location.href = '/login'
       return Promise.reject(error)
     }
@@ -44,5 +47,3 @@ api.interceptors.response.use(
 )
 
 export default api
-
-

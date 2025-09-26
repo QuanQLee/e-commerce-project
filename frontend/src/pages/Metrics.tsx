@@ -1,4 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from 'react'
+import type { SelectChangeEvent } from '@mui/material/Select'
 import {
   Alert,
   Box,
@@ -10,7 +11,6 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
   Stack,
   Table,
   TableBody,
@@ -46,7 +46,7 @@ function detectCategory(key: string): MetricRow['category'] {
 
 function formatMetric(key: string, value: number) {
   const lower = key.toLowerCase()
-  if (Number.isNaN(value)) return '—'
+  if (Number.isNaN(value)) return 'N/A'
   if (lower.includes('revenue') || lower.includes('gmv') || lower.includes('sales') || lower.includes('amount')) {
     return new Intl.NumberFormat(undefined, {
       style: 'currency',
@@ -236,3 +236,7 @@ export default function Metrics() {
     </Container>
   )
 }
+
+
+
+
