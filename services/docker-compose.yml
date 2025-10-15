@@ -1,4 +1,4 @@
-﻿version: "3.9"
+version: "3.9"
 services:
   pg:
     image: postgres:16-alpine
@@ -26,8 +26,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
-      - "5000:80"
-      - "5001:443"
+      - "5000:8080"
 
   order.api:
     build:
@@ -42,7 +41,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__OrderDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
-      - "5002:80"
+      - "5002:8080"
 
   user.api:
     build:
@@ -155,7 +154,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
     ports:
-      - "7000:80"
+      - "7000:8080"
 
   notification.api:
     build:
@@ -337,8 +336,8 @@ services:
       - inventory.api
     restart: unless-stopped
     environment:
-      CATALOG_URL: http://catalog.api:80
-      ORDER_URL: http://order.api:80
+      CATALOG_URL: http://catalog.api:8080
+      ORDER_URL: http://order.api:8080
       USER_URL: http://user.api:80
       INVENTORY_URL: http://inventory.api:8000
     ports:
@@ -382,6 +381,12 @@ services:
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
       # Only expose HTTP proxy in local dev to avoid TLS cert requirements
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_CORS_ORIGIN_PRIMARY: "${KONG_CORS_ORIGIN_PRIMARY:-https://storefront.local}"
+      KONG_CORS_ORIGIN_SECONDARY: "${KONG_CORS_ORIGIN_SECONDARY:-https://merchant.local}"
+      KONG_RATE_LIMIT_MINUTE: ${KONG_RATE_LIMIT_MINUTE:-60}
+      KONG_REQUEST_BODY_LIMIT_MB: ${KONG_REQUEST_BODY_LIMIT_MB:-2}
+      KONG_FRONTEND_JWT_SECRET: ${KONG_FRONTEND_JWT_SECRET:-changeme-frontend}
+      KONG_ADMIN_JWT_SECRET: ${KONG_ADMIN_JWT_SECRET:-changeme-admin}
     volumes:
       - ./Gateway/kong.yml:/kong/kong.yml
 

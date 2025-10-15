@@ -11,11 +11,21 @@ COPY package.json package-lock.json ./
 RUN npm install -g npm@latest \
  && npm ci --legacy-peer-deps
 
+# ---------- Build-time environment ----------
+ARG VITE_API_BASE_URL
+ARG VITE_API_KEY
+ARG VITE_RUNTIME_ENV_STRICT=false
+ARG VITE_SSO_ENABLED=0
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ENV VITE_API_KEY=${VITE_API_KEY}
+ENV VITE_RUNTIME_ENV_STRICT=${VITE_RUNTIME_ENV_STRICT}
+ENV VITE_SSO_ENABLED=${VITE_SSO_ENABLED}
+
 # ---------- Copy source code ----------
 COPY . .
+ENV NODE_ENV=production
 
 # ---------- Build frontend ----------
-# With Vite this places output in /app/dist
 RUN npm run build
 
 # ---------- Production image ----------

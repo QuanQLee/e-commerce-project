@@ -1,82 +1,136 @@
-﻿using FluentValidation;
-using FluentValidation.AspNetCore;
-using Microsoft.EntityFrameworkCore;
-using Order.Api.Infrastructure;
-using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Order.Configuration;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-// Rebus and in-memory transport could not be restored in this environment
-// using Rebus.Config;
-// using Rebus.ServiceProvider;
-// using Rebus.InMemory;
-using Quartz;
-using Serilog;
-using Prometheus;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Order.Api.Infrastructure;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((ctx, cfg) => cfg
-    .ReadFrom.Configuration(ctx.Configuration)
-    .Enrich.FromLogContext()
-    .WriteTo.Console());
+builder.Logging.ClearProviders();
+builder.Logging.AddJsonConsole(options =>
+{
+    options.IncludeScopes = true;
+    options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
+});
 
-builder.WebHost.UseUrls("http://0.0.0.0:80");
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
+                             HttpLoggingFields.ResponsePropertiesAndHeaders;
+    logging.RequestBodyLogLimit = 0;
+    logging.ResponseBodyLogLimit = 0;
+});
+
+builder.Services.AddOptions<OrderOptions>()
+    .Bind(builder.Configuration.GetSection(OrderOptions.SectionName))
+    .ValidateDataAnnotations()
+    .Validate(options => options.AllowedCorsOrigins.Length > 0, "Order:AllowedCorsOrigins must not be empty.")
+    .ValidateOnStart();
+
+var orderOptions = builder.Configuration.GetSection(OrderOptions.SectionName).Get<OrderOptions>() ?? new OrderOptions();
+
+if (!builder.Environment.IsDevelopment() && orderOptions.UsesDefaultOrigins())
+{
+    throw new InvalidOperationException("Order:AllowedCorsOrigins must be overridden for non-development environments.");
+}
+
+var connectionString = builder.Configuration.GetConnectionString("OrderDb");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("ConnectionStrings:OrderDb must be configured.");
+}
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(o =>
+builder.Services.AddSwaggerGen(options =>
 {
-    o.EnableAnnotations();
-    o.SwaggerDoc("v1", new() { Title = "Order API", Version = "v1" });
+    options.EnableAnnotations();
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Order API", Version = "v1" });
 });
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.AddDbContext<OrderDbContext>(options =>
-{
-    var cs = builder.Configuration.GetConnectionString("OrderDb");
-    options.UseNpgsql(cs);
-});
+builder.Services.AddDbContext<OrderDbContext>(options => options.UseNpgsql(connectionString));
 
-// For OpenTelemetry 1.0.0-rc9.9, use AddOpenTelemetryTracing instead of AddOpenTelemetry().WithTracing
-builder.Services.AddOpenTelemetryTracing(b =>
+builder.Services.AddCors(options =>
 {
-    b.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("order"));
-    b.AddAspNetCoreInstrumentation();
-    b.AddHttpClientInstrumentation();
-    b.AddEntityFrameworkCoreInstrumentation();
-    b.AddConsoleExporter();
+    options.AddPolicy("default", policy =>
+    {
+        policy.WithOrigins(orderOptions.AllowedCorsOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
 });
-
-// Rebus is skipped during this build
-// builder.Services.AddRebus(configure =>
-//     configure
-//         .Transport(t => t.UseInMemoryTransport(new InMemNetwork(), "order")));
 
 builder.Services.AddQuartz(q => { });
 builder.Services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
-builder.Services.AddHealthChecks();
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(connectionString, name: "database", tags: new[] { "ready" });
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource
+        .AddService("order-service", serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString())
+        .AddAttributes(new[]
+        {
+            new KeyValuePair<string, object>("deployment.environment", builder.Environment.EnvironmentName)
+        }))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter())
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddOtlpExporter());
 
 var app = builder.Build();
 
-app.UseSerilogRequestLogging();
-app.UseSwagger();
-app.UseSwaggerUI();
+if (builder.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpLogging();
+app.UseRouting();
+app.UseCors("default");
+app.UseAuthorization();
+
 app.MapControllers();
 app.MapHealthChecks("/healthz");
-app.UseHttpMetrics();
+app.MapHealthChecks("/readyz", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 app.Run();
-

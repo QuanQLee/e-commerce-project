@@ -1,17 +1,17 @@
-﻿_format_version: '3.0'
+_format_version: '3.0'
 _transform: true
 consumers:
   - username: frontend
     jwt_secrets:
       - key: frontend
-        secret: myfrontendsecret
+        secret: '{{ default "changeme-frontend" (env "KONG_FRONTEND_JWT_SECRET") }}'
         algorithm: HS256
     acls:
       - group: frontend-group
   - username: admin
     jwt_secrets:
       - key: admin
-        secret: myadminsecret
+        secret: '{{ default "changeme-admin" (env "KONG_ADMIN_JWT_SECRET") }}'
         algorithm: HS256
     acls:
       - group: admin-group
@@ -170,58 +170,55 @@ services:
     # Allow token endpoints to be accessed without gateway auth
     # (otherwise login cannot obtain a JWT).
     plugins:
-      - name: jwt
-        enabled: false
-      - name: acl
-        enabled: false
-        # Kong 验证插件 schema 时要求二选一非空：config.allow 或 config.deny
-        # 这里随便给一个允许分组以通过校验；插件本身已禁用。
-        config:
-          allow:
-            - frontend-group
-
-  - name: security
-    url: http://security.api:8082
-    routes:
-      - name: security
-        paths:
-          - /api/v1/security
-        strip_path: true
-  - name: admin
-    url: http://admin.api:8000
-    routes:
-      - name: admin
-        paths:
-          - /api/v1/admin
-        strip_path: true
-    plugins:
-      - name: acl
-        config:
-          allow:
-            - admin-group
-
-plugins:
   - name: cors
     config:
-      origins: ["*"]
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-      headers: ["*"]
-      exposed_headers: ["*"]
+      origins:
+        - '{{ default "https://storefront.local" (env "KONG_CORS_ORIGIN_PRIMARY") }}'
+        - '{{ default "https://merchant.local" (env "KONG_CORS_ORIGIN_SECONDARY") }}'
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Authorization
+        - Content-Type
+        - X-Requested-With
+        - Accept
+        - Accept-Language
+      exposed_headers:
+        - X-Request-Id
       credentials: true
+      max_age: 3600
   - name: jwt
+    config:
+      key_claim_name: iss
+      claims_to_verify:
+        - exp
+      run_on_preflight: false
+      secret_is_base64: false
   - name: acl
     config:
       allow:
         - frontend-group
         - admin-group
+      hide_groups_header: true
   - name: rate-limiting
     config:
-      minute: 60
+      minute: {{ default "60" (env "KONG_RATE_LIMIT_MINUTE") }}
       policy: local
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: {{ default "2" (env "KONG_REQUEST_BODY_LIMIT_MB") }}
+      size_unit: megabytes
+  - name: response-transformer
+    config:
+      remove:
+        headers:
+          - Server
+          - Via
+          - X-Kong-Upstream-Latency
+          - X-Kong-Proxy-Latency
   - name: prometheus
-
-
-
-
-
-

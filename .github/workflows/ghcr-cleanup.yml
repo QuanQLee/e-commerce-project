@@ -8,7 +8,7 @@ on:
       keep:
         description: "How many most-recent versions to keep"
         required: false
-        default: "4"
+        default: "3"
       owner:
         description: "Account (user/org) that owns the packages"
         required: false
@@ -30,10 +30,10 @@ jobs:
           INPUT_KEEP: ${{ github.event.inputs.keep }}
           INPUT_OWNER: ${{ github.event.inputs.owner }}
           # Needed by the curl call below; not set by default in the shell.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GHCR_PAT }}
         run: |
           set -euo pipefail
-          KEEP=${INPUT_KEEP:-4}
+          KEEP=${INPUT_KEEP:-3}
           OWNER=${INPUT_OWNER:-${{ github.repository_owner }}}
           echo "KEEP=$KEEP" >> $GITHUB_ENV
           echo "OWNER=$OWNER" >> $GITHUB_ENV
@@ -47,7 +47,7 @@ jobs:
 
       - name: List container packages under owner
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GHCR_PAT }}
         run: |
           set -euo pipefail
           # Query packages; if the request fails or returns non-array, treat as none
@@ -61,7 +61,7 @@ jobs:
 
       - name: Delete old versions for each package
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GHCR_PAT }}
         run: |
           set -euo pipefail
           KEEP=${KEEP}
@@ -93,6 +93,4 @@ jobs:
         run: echo "Cleanup finished."
 
     # Notes:
-    # - GITHUB_TOKEN usually suffices for packages published by this repo. If you
-    #   see 403 errors, create a PAT with 'delete:packages' and 'read:packages'
-    #   scopes, store it as GHCR_TOKEN, and replace GH_TOKEN usages above with it.
+    # - Set the GHCR_PAT secret with 'delete:packages' and 'read:packages' scopes.

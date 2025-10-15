@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom'
 import {
   Box,
@@ -19,10 +19,16 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import api from '../api'
 import { useI18n } from '../state/i18n'
+import { runtimeEnv } from '../config/env'
+
+type LocationState = {
+  from?: string
+}
 
 export default function Login() {
   const navigate = useNavigate()
-  const location = useLocation() as any
+  const location = useLocation()
+  const redirectState = (location.state as LocationState | null) || undefined
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
@@ -40,13 +46,13 @@ export default function Login() {
       form.set('username', username)
       form.set('password', password)
       await api.post('/auth/login', form, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       })
-      const redirectTo = location.state?.from || '/'
+      const redirectTo = redirectState?.from || '/'
       navigate(redirectTo, { replace: true })
     } catch (err: any) {
-      const msg = err?.response?.data || err?.message || '登录失败'
-      setError(typeof msg === 'string' ? msg : '登录失败')
+      const message = err?.response?.data?.message || err?.message || t('login.error')
+      setError(typeof message === 'string' ? message : t('login.error'))
     } finally {
       setLoading(false)
     }
@@ -58,21 +64,35 @@ export default function Login() {
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="stretch">
           <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Box>
-              <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>Merchant Portal</Typography>
+              <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
+                {t('login.heroTitle')}
+              </Typography>
               <Typography color="text.secondary" sx={{ maxWidth: 460 }}>
-                登录管理后台，创建商品、查看订单、发放优惠券并监控业务表现。
+                {t('login.heroSubtitle')}
               </Typography>
             </Box>
           </Box>
 
           <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-            <Card elevation={0} sx={{ flex: 1, borderRadius: 3, border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 12px 40px rgba(0,0,0,0.08)', backdropFilter: 'saturate(180%) blur(8px)', bgcolor: 'rgba(255,255,255,0.75)' }}>
+            <Card
+              elevation={0}
+              sx={{
+                flex: 1,
+                borderRadius: 3,
+                border: '1px solid rgba(0,0,0,0.08)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.08)',
+                backdropFilter: 'saturate(180%) blur(8px)',
+                bgcolor: 'rgba(255,255,255,0.75)',
+              }}
+            >
               <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>欢迎回来</Typography>
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
+                  {t('login.welcome')}
+                </Typography>
                 <Box component="form" onSubmit={onSubmit} noValidate>
                   <Stack spacing={2}>
                     <TextField
-                      label="用户名或邮箱"
+                      label={t('login.usernameLabel')}
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       required
@@ -80,7 +100,7 @@ export default function Login() {
                       fullWidth
                     />
                     <TextField
-                      label="密码"
+                      label={t('login.passwordLabel')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       type={showPassword ? 'text' : 'password'}
@@ -89,37 +109,62 @@ export default function Login() {
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(v => !v)} edge="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword((v) => !v)}
+                              edge="end"
+                            >
                               {showPassword ? <VisibilityOff /> : <Visibility />}
                             </IconButton>
                           </InputAdornment>
-                        )
+                        ),
                       }}
                     />
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <FormControlLabel control={<Checkbox checked={remember} onChange={(e) => setRemember(e.target.checked)} />} label="记住我" />
-                      <Link component={RouterLink} to="#" underline="hover">忘记密码？</Link>
+                      <FormControlLabel
+                        control={<Checkbox checked={remember} onChange={(e) => setRemember(e.target.checked)} />}
+                        label={t('login.rememberMe')}
+                      />
+                      <Link component={RouterLink} to="#" underline="hover">
+                        {t('login.forgotPassword')}
+                      </Link>
                     </Stack>
 
                     {error && (
-                      <Box sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'rgba(255,0,0,0.06)', border: '1px solid rgba(255,0,0,0.15)' }}>
-                        <Typography color="error" variant="body2">{error}</Typography>
+                      <Box
+                        sx={{
+                          p: 1.5,
+                          borderRadius: 1.5,
+                          bgcolor: 'rgba(255,0,0,0.06)',
+                          border: '1px solid rgba(255,0,0,0.15)',
+                        }}
+                      >
+                        <Typography color="error" variant="body2">
+                          {error}
+                        </Typography>
                       </Box>
                     )}
 
                     <Button type="submit" variant="contained" size="large" disabled={loading} sx={{ py: 1.2 }}>
-                      {loading ? '正在登录…' : '登录'}
+                      {loading ? t('login.submitting') : t('login.submit')}
                     </Button>
-                    {(import.meta.env as any).VITE_SSO_ENABLED === '1' && (
-                      <Button variant="text" onClick={() => {
-                        const base = (import.meta.env as any).VITE_API_BASE_URL || 'http://localhost:9080'
-                        const redirect = encodeURIComponent(window.location.origin + ((location as any).state?.from || '/'))
-                        window.location.href = `${base}/auth/oidc/login?redirect=${redirect}`
-                      }}>使用 SSO 登录</Button>
+
+                    {runtimeEnv.ssoEnabled && (
+                      <Button
+                        variant="text"
+                        onClick={() => {
+                          const redirect = encodeURIComponent(
+                            window.location.origin + (redirectState?.from || '/')
+                          )
+                          window.location.href = `${runtimeEnv.apiBaseUrl}/auth/oidc/login?redirect=${redirect}`
+                        }}
+                      >
+                        {t('login.sso')}
+                      </Button>
                     )}
 
                     <Typography variant="caption" color="text.secondary">
-                      登录即表示你同意我们的服务协议与隐私政策。
+                      {t('login.disclaimer')}
                     </Typography>
                   </Stack>
                 </Box>

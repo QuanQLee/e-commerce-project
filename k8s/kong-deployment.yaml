@@ -1,3 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-env
+  labels:
+    app: kong
+data:
+  KONG_CORS_ORIGIN_PRIMARY: https://storefront.example.com
+  KONG_CORS_ORIGIN_SECONDARY: https://merchant.example.com
+  KONG_RATE_LIMIT_MINUTE: "60"
+  KONG_REQUEST_BODY_LIMIT_MB: "2"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kong-secrets
+  labels:
+    app: kong
+type: Opaque
+stringData:
+  KONG_FRONTEND_JWT_SECRET: change-me-frontend-secret
+  KONG_ADMIN_JWT_SECRET: change-me-admin-secret
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,20 +35,50 @@ spec:
       labels:
         app: kong
     spec:
+      securityContext:
+        fsGroup: 1337
+        runAsGroup: 1337
+        runAsUser: 1337
       containers:
         - name: kong
           image: kong:3.6
+          imagePullPolicy: IfNotPresent
           env:
             - name: KONG_DATABASE
               value: off
             - name: KONG_DECLARATIVE_CONFIG
               value: /etc/kong/kong.yml
+          envFrom:
+            - configMapRef:
+                name: kong-env
+            - secretRef:
+                name: kong-secrets
           volumeMounts:
             - name: config
               mountPath: /etc/kong
           ports:
             - containerPort: 8000
             - containerPort: 8443
+            - containerPort: 8001
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
       volumes:
         - name: config
           configMap:

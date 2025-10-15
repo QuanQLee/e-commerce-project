@@ -1,37 +1,111 @@
-﻿using Duende.IdentityServer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using Auth.Configuration;
+using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Test;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Allow the listening port to be overridden via the PORT environment variable
-// so the container can adapt to different hosting environments. Default is 80.
-var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+builder.Logging.ClearProviders();
+builder.Logging.AddJsonConsole(options =>
+{
+    options.IncludeScopes = true;
+    options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
+});
+
+builder.Services.AddOptions<AuthOptions>()
+    .Bind(builder.Configuration.GetSection(AuthOptions.SectionName))
+    .ValidateDataAnnotations()
+    .Validate(options => options.ApiScopes.Length > 0, "Auth:ApiScopes must contain at least one entry.")
+    .Validate(options => options.AllowedCorsOrigins.Length > 0, "Auth:AllowedCorsOrigins must contain at least one entry.")
+    .ValidateOnStart();
+
+var authOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
+
+if (!builder.Environment.IsDevelopment() && authOptions.UsesDefaultSecrets())
+{
+    throw new InvalidOperationException("Auth client secrets must be overridden before running in production.");
+}
+
+var connectionString = builder.Configuration.GetConnectionString("AuthDb");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("ConnectionStrings:AuthDb is not configured.");
+}
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddDbContext<AuthDbContext>(options =>
 {
-    var cs = builder.Configuration.GetConnectionString("AuthDb");
-    options.UseNpgsql(cs, o => o.MigrationsHistoryTable("__EFMigrationsHistory", "auth"));
+    options.UseNpgsql(connectionString, o => o.MigrationsHistoryTable("__EFMigrationsHistory", "auth"));
 });
 
-builder.Services.AddIdentityServer()
+builder.Services.AddHealthChecks()
+    .AddNpgSql(connectionString, name: "database", tags: new[] { "ready" });
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("default", policy =>
+    {
+        policy.WithOrigins(authOptions.AllowedCorsOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
+                             HttpLoggingFields.ResponsePropertiesAndHeaders;
+    logging.RequestBodyLogLimit = 0;
+    logging.ResponseBodyLogLimit = 0;
+});
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource
+        .AddService("auth-service", serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString())
+        .AddAttributes(new[]
+        {
+            new KeyValuePair<string, object>("deployment.environment", builder.Environment.EnvironmentName)
+        }))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter())
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+
+        .AddOtlpExporter());
+
+var offlineScopes = authOptions.ApiScopes.Concat(new[] { "offline_access" }).ToList();
+var identityServerBuilder = builder.Services.AddIdentityServer()
     .AddInMemoryIdentityResources(new IdentityResource[]
     {
         new IdentityResources.OpenId(),
         new IdentityResources.Profile()
     })
+    .AddInMemoryApiScopes(authOptions.ApiScopes.Select(scope => new ApiScope(scope, scope)))
     .AddInMemoryClients(new[]
     {
         new Client
@@ -40,73 +114,108 @@ builder.Services.AddIdentityServer()
             AllowedGrantTypes = GrantTypes.Code,
             RequirePkce = true,
             RequireClientSecret = false,
-            RedirectUris = { "http://localhost:9080/auth/callback" },
-            AllowedScopes = { "openid", "profile", "api1", "offline_access" },
+            RedirectUris = { authOptions.BffRedirectUri },
+            AllowedCorsOrigins = authOptions.AllowedCorsOrigins,
             AllowOfflineAccess = true,
+            AllowedScopes = authOptions.ApiScopes
+                .Concat(new[] { "openid", "profile", "offline_access" })
+                .Distinct()
+                .ToList()
         },
         new Client
         {
             ClientId = "sample",
             AllowedGrantTypes = GrantTypes.ClientCredentials,
-            ClientSecrets = { new Secret("secret".Sha256()) },
-            AllowedScopes = { "api1" },
-            AllowedCorsOrigins = { "http://localhost:3000" }
+            ClientSecrets = { new Secret(authOptions.SampleClientSecret.Sha256()) },
+            AllowedScopes = authOptions.ApiScopes.ToList()
         },
         new Client
         {
             ClientId = "1",
             AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-            ClientSecrets = { new Secret("secret1".Sha256()) },
-            AllowedScopes = { "api1", "offline_access" },
+            ClientSecrets = { new Secret(authOptions.AdminClientSecret.Sha256()) },
+            AllowedScopes = offlineScopes,
             AllowOfflineAccess = true,
-            AllowedCorsOrigins = { "http://localhost:3000" }
+            AllowedCorsOrigins = authOptions.AllowedCorsOrigins
         },
         new Client
         {
             ClientId = "2",
             AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-            ClientSecrets = { new Secret("secret2".Sha256()) },
-            AllowedScopes = { "api1", "offline_access" },
+            ClientSecrets = { new Secret(authOptions.SecondaryAdminClientSecret.Sha256()) },
+            AllowedScopes = offlineScopes,
             AllowOfflineAccess = true,
-            AllowedCorsOrigins = { "http://localhost:3000" }
+            AllowedCorsOrigins = authOptions.AllowedCorsOrigins
         }
     })
-    .AddInMemoryApiScopes(new[] { new ApiScope("api1", "API") })
     .AddTestUsers(new List<TestUser>
     {
         new TestUser
         {
             SubjectId = "1001",
             Username = "user1",
-            Password = "pass1"
+            Password = authOptions.DefaultTestUserPassword
         }
-    })
-    .AddDeveloperSigningCredential();
+    });
+
+if (!string.IsNullOrWhiteSpace(authOptions.SigningCertificatePath))
+{
+    X509Certificate2 certificate;
+    if (string.IsNullOrWhiteSpace(authOptions.SigningCertificatePassword))
+    {
+        certificate = X509Certificate2.CreateFromPemFile(authOptions.SigningCertificatePath);
+    }
+    else
+    {
+        certificate = new X509Certificate2(authOptions.SigningCertificatePath, authOptions.SigningCertificatePassword);
+    }
+    identityServerBuilder.AddSigningCredential(certificate);
+}
+else if (builder.Environment.IsDevelopment())
+{
+    identityServerBuilder.AddDeveloperSigningCredential();
+}
+else
+{
+    throw new InvalidOperationException("Auth:SigningCertificatePath must be configured for non-development environments.");
+}
 
 var app = builder.Build();
 
+app.UseHttpLogging();
+app.UseCors("default");
 app.UseAuthentication();
 app.UseIdentityServer();
 
-app.MapGet("/", () => "Auth Service running");
+app.MapGet("/", () => Results.Json(new { status = "ok", service = "auth" }));
 
-// Minimal login pages for demo purposes
+app.MapHealthChecks("/healthz");
+app.MapHealthChecks("/readyz", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+
 app.MapGet("/account/login", (HttpContext ctx) =>
 {
     var returnUrl = ctx.Request.Query["returnUrl"].ToString();
-    if (string.IsNullOrEmpty(returnUrl)) returnUrl = "/";
+    if (string.IsNullOrEmpty(returnUrl))
+    {
+        returnUrl = "/";
+    }
+
     var html = $@"<!doctype html><html><head><meta charset='utf-8'><title>Login</title>
 <style>body{{font-family:sans-serif;padding:40px;}}form{{max-width:360px}}label{{display:block;margin:8px 0 4px}}</style>
 </head><body>
 <h2>Auth Login</h2>
 <form method='post' action='/account/login'>
   <input type='hidden' name='returnUrl' value='{System.Net.WebUtility.HtmlEncode(returnUrl)}'/>
-  <label>Username</label><input name='username' value='user1'/>
-  <label>Password</label><input type='password' name='password' value='pass1'/>
+  <label>Username</label><input name='username' autocomplete='username'/>
+  <label>Password</label><input type='password' name='password' autocomplete='current-password'/>
   <div style='margin-top:12px'><button type='submit'>Login</button></div>
-  <p style='color:#666'>Demo user: user1 / pass1</p>
+  <p style='color:#666'>Demo user: user1 / {authOptions.DefaultTestUserPassword}</p>
 </form>
 </body></html>";
+
     return Results.Content(html, "text/html");
 });
 
@@ -116,18 +225,23 @@ app.MapPost("/account/login", async (HttpContext ctx) =>
     var username = form["username"].ToString();
     var password = form["password"].ToString();
     var returnUrl = form["returnUrl"].ToString();
-    if (string.IsNullOrEmpty(returnUrl)) returnUrl = "/";
+    if (string.IsNullOrEmpty(returnUrl))
+    {
+        returnUrl = "/";
+    }
 
     var store = ctx.RequestServices.GetRequiredService<TestUserStore>();
     if (!store.ValidateCredentials(username, password))
     {
         return Results.Unauthorized();
     }
+
     var user = store.FindByUsername(username);
     var isUser = new Duende.IdentityServer.IdentityServerUser(user.SubjectId)
     {
         DisplayName = user.Username
     };
+
     await ctx.SignInAsync(IdentityServerConstants.DefaultCookieAuthenticationScheme, isUser.CreatePrincipal());
     return Results.Redirect(returnUrl);
 });
@@ -142,9 +256,11 @@ app.Run();
 
 public class AuthDbContext : DbContext
 {
-    public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
+    public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
+    {
+    }
 }
 
-public partial class Program {}
-
-
+public partial class Program
+{
+}

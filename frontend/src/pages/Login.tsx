@@ -1,10 +1,11 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Container, TextField, Button, Typography, Stack } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom'
 import api from '../api/api'
 import { useSnackbar } from '../providers/SnackbarProvider'
 import { clearSession, setSessionAuthenticated } from '../auth'
 import { safeRemoveItem } from '../utils/storage'
+import { runtimeEnv } from '../config/env'
 
 export default function Login() {
   const [username, setUsername] = useState('')
@@ -12,7 +13,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const { success, error } = useSnackbar()
   const navigate = useNavigate()
-  const location = useLocation() as { state?: { from?: string } }
+  const location = useLocation()
+  const state = location.state as { from?: string } | undefined
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -41,7 +43,7 @@ export default function Login() {
 
       setSessionAuthenticated('local')
       success('Logged in')
-      const redirectTo = location.state?.from || '/'
+      const redirectTo = state?.from || '/'
       navigate(redirectTo, { replace: true })
     } catch (err) {
       console.error(err)
@@ -92,13 +94,12 @@ export default function Login() {
           <Button variant="outlined" type="button" onClick={handleLogout}>
             Logout
           </Button>
-          {import.meta.env.VITE_SSO_ENABLED === '1' && (
+          {runtimeEnv.ssoEnabled && (
             <Button
               variant="text"
               onClick={() => {
-                const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9080'
-                const redirect = encodeURIComponent(window.location.origin + '/')
-                window.location.href = `${base}/auth/oidc/login?redirect=${redirect}`
+                const redirect = encodeURIComponent(window.location.origin + (state?.from || '/'))
+                window.location.href = `${runtimeEnv.apiBaseUrl}/auth/oidc/login?redirect=${redirect}`
               }}
             >
               Login with SSO

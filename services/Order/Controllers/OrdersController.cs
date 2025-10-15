@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Order.Api.Domain;
 using Order.Api.Infrastructure;
@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Prometheus;
+using System.Diagnostics.Metrics;
 
 namespace Order.Api.Controllers;
 
@@ -14,10 +14,11 @@ namespace Order.Api.Controllers;
 [Route("orders")]
 public class OrdersController(OrderDbContext db) : ControllerBase
 {
-    private static readonly Counter OrdersCreated = Metrics.CreateCounter(
-        "orders_created_total", "Total orders created");
-    private static readonly Counter StatusChanged = Metrics.CreateCounter(
-        "orders_status_changed_total", "Order status transitions");
+    private static readonly Meter Meter = new("order-service.metrics");
+    private static readonly Counter<long> OrdersCreated = Meter.CreateCounter<long>(
+        "orders_created_total", description: "Total orders created");
+    private static readonly Counter<long> StatusChanged = Meter.CreateCounter<long>(
+        "orders_status_changed_total", description: "Order status transitions");
     [HttpGet]
     public async Task<ActionResult<IEnumerable<OrderEntity>>> GetAll()
         => await db.Orders.Include(o => o.Items).AsNoTracking().ToListAsync();
@@ -45,7 +46,7 @@ public class OrdersController(OrderDbContext db) : ControllerBase
         }
         db.Orders.Add(order);
         await db.SaveChangesAsync();
-        OrdersCreated.Inc();
+        OrdersCreated.Add(1);
         return CreatedAtAction(nameof(Get), new { id = order.Id }, order.Id);
     }
 
@@ -58,8 +59,10 @@ public class OrdersController(OrderDbContext db) : ControllerBase
         if (order == null) return NotFound();
         order.UpdateStatus(dto.Status);
         await db.SaveChangesAsync();
-        StatusChanged.Inc();
+        StatusChanged.Add(1);
         return Ok();
     }
 }
+
+
 

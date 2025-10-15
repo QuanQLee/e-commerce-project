@@ -1,17 +1,27 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY Order.csproj ./
-RUN dotnet restore "Order.csproj" \
-    --source https://api.nuget.org/v3/index.json \
-    --disable-parallel
+COPY [\"Order.csproj\", \"./\"]
 
-COPY . ./
-RUN dotnet publish "Order.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet restore \"Order.csproj\" --disable-parallel --source https://api.nuget.org/v3/index.json
+
+COPY . .
+RUN dotnet publish \"Order.csproj\" \
+    -c Release \
+    -o /app/publish \
+    /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-EXPOSE 80
-ENTRYPOINT ["dotnet", "Order.dll"]
 
+ENV ASPNETCORE_URLS=http://+:8080 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+    PORT=8080
+
+EXPOSE 8080
+
+USER app
+
+ENTRYPOINT [\"dotnet\", \"Order.dll\"]

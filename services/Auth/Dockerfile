@@ -13,5 +13,12 @@ RUN dotnet publish "Auth.csproj" -c Release -o /app/publish /p:UseAppHost=false
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-EXPOSE 80
+ENV ASPNETCORE_URLS=http://+:8080 \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    PORT=8080
+
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "Auth.dll"]
+
+
