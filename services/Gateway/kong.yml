@@ -1,233 +1,212 @@
 _format_version: '3.0'
 _transform: true
 consumers:
-  - username: frontend
-    jwt_secrets:
-      - key: frontend
-        secret: '{{ default "changeme-frontend" (env "KONG_FRONTEND_JWT_SECRET") }}'
-        algorithm: HS256
-    acls:
-      - group: frontend-group
-  - username: admin
-    jwt_secrets:
-      - key: admin
-        secret: '{{ default "changeme-admin" (env "KONG_ADMIN_JWT_SECRET") }}'
-        algorithm: HS256
-    acls:
-      - group: admin-group
-  
+- username: frontend
+  jwt_secrets:
+  - key: frontend
+    secret: '{{ default "changeme-frontend" (env "KONG_FRONTEND_JWT_SECRET") }}'
+    algorithm: HS256
+  acls:
+  - group: frontend-group
+- username: admin
+  jwt_secrets:
+  - key: admin
+    secret: '{{ default "changeme-admin" (env "KONG_ADMIN_JWT_SECRET") }}'
+    algorithm: HS256
+  acls:
+  - group: admin-group
 services:
+- name: catalog
+  url: http://catalog.api:80
+  routes:
   - name: catalog
-    url: http://catalog.api:80
-    routes:
-      - name: catalog
-        paths:
-          - /api/v1/catalog
-        strip_path: true
-
+    paths:
+    - /api/v1/catalog
+    strip_path: true
+- name: order
+  url: http://order.api:80
+  routes:
   - name: order
-    url: http://order.api:80
-    routes:
-      - name: order
-        paths:
-          - /api/v1/order
-        strip_path: true
-
+    paths:
+    - /api/v1/order
+    strip_path: true
+- name: user
+  url: http://user.api:80
+  routes:
   - name: user
-    url: http://user.api:80
-    routes:
-      - name: user
-        paths:
-          - /api/v1/user
-        strip_path: true
-
+    paths:
+    - /api/v1/user
+    strip_path: true
+- name: shipping
+  url: http://shipping.api:80
+  routes:
   - name: shipping
-    url: http://shipping.api:80
-    routes:
-      - name: shipping
-        paths:
-          - /api/v1/shipping
-        strip_path: true
-
+    paths:
+    - /api/v1/shipping
+    strip_path: true
+- name: payment
+  url: http://payment.api:8080
+  routes:
   - name: payment
-    url: http://payment.api:8080
-    routes:
-      - name: payment
-        paths:
-          - /api/v1/payment
-        strip_path: true
-
+    paths:
+    - /api/v1/payment
+    strip_path: true
+- name: analytics
+  url: http://analytics.api:8000
+  routes:
   - name: analytics
-    url: http://analytics.api:8000
-    routes:
-      - name: analytics
-        paths:
-          - /api/v1/analytics
-        strip_path: true
-
+    paths:
+    - /api/v1/analytics
+    strip_path: true
+- name: inventory
+  url: http://inventory.api:8000
+  routes:
   - name: inventory
-    url: http://inventory.api:8000
-    routes:
-      - name: inventory
-        paths:
-          - /api/v1/inventory
-        strip_path: true
-
+    paths:
+    - /api/v1/inventory
+    strip_path: true
+- name: promotion
+  url: http://promotion.api:8000
+  routes:
   - name: promotion
-    url: http://promotion.api:8000
-    routes:
-      - name: promotion
-        paths:
-          - /api/v1/promotion
-        strip_path: true
-
+    paths:
+    - /api/v1/promotion
+    strip_path: true
+- name: review
+  url: http://review.api:8000
+  routes:
   - name: review
-    url: http://review.api:8000
-    routes:
-      - name: review
-        paths:
-          - /api/v1/review
-        strip_path: true
-
+    paths:
+    - /api/v1/review
+    strip_path: true
+- name: recommendation
+  url: http://recommendation.api:8000
+  routes:
   - name: recommendation
-    url: http://recommendation.api:8000
-    routes:
-      - name: recommendation
-        paths:
-          - /api/v1/recommendation
-        strip_path: true
-
+    paths:
+    - /api/v1/recommendation
+    strip_path: true
+- name: wishlist
+  url: http://wishlist.api:8000
+  routes:
   - name: wishlist
-    url: http://wishlist.api:8000
-    routes:
-      - name: wishlist
-        paths:
-          - /api/v1/wishlist
-        strip_path: true
-
+    paths:
+    - /api/v1/wishlist
+    strip_path: true
+- name: experiment
+  url: http://experiment.api:8000
+  routes:
   - name: experiment
-    url: http://experiment.api:8000
-    routes:
-      - name: experiment
-        paths:
-          - /api/v1/experiment
-        strip_path: true
-
+    paths:
+    - /api/v1/experiment
+    strip_path: true
+- name: cms
+  url: http://cms.api:8000
+  routes:
   - name: cms
-    url: http://cms.api:8000
-    routes:
-      - name: cms
-        paths:
-          - /api/v1/cms
-        strip_path: true
+    paths:
+    - /api/v1/cms
+    strip_path: true
+- name: rma
+  url: http://rma.api:8000
+  routes:
   - name: rma
-    url: http://rma.api:8000
-    routes:
-      - name: rma
-        paths:
-          - /api/v1/rma
-        strip_path: true
-
+    paths:
+    - /api/v1/rma
+    strip_path: true
+- name: tax
+  url: http://tax.api:8000
+  routes:
   - name: tax
-    url: http://tax.api:8000
-    routes:
-      - name: tax
-        paths:
-          - /api/v1/tax
-        strip_path: true
-
+    paths:
+    - /api/v1/tax
+    strip_path: true
+- name: currency
+  url: http://currency.api:8000
+  routes:
   - name: currency
-    url: http://currency.api:8000
-    routes:
-      - name: currency
-        paths:
-          - /api/v1/currency
-        strip_path: true
-
+    paths:
+    - /api/v1/currency
+    strip_path: true
+- name: address
+  url: http://address.api:8000
+  routes:
   - name: address
-    url: http://address.api:8000
-    routes:
-      - name: address
-        paths:
-          - /api/v1/address
-        strip_path: true
-
+    paths:
+    - /api/v1/address
+    strip_path: true
+- name: shippingrate
+  url: http://shippingrate.api:8000
+  routes:
   - name: shippingrate
-    url: http://shippingrate.api:8000
-    routes:
-      - name: shippingrate
-        paths:
-          - /api/v1/shippingrate
-        strip_path: true
-
+    paths:
+    - /api/v1/shippingrate
+    strip_path: true
+- name: auth
+  url: http://auth.api:80
+  routes:
   - name: auth
-    url: http://auth.api:80
-    routes:
-      - name: auth
-        paths:
-          - /api/v1/auth
-        strip_path: true
-    # Allow token endpoints to be accessed without gateway auth
-    # (otherwise login cannot obtain a JWT).
-    plugins:
-      - name: jwt
-        enabled: false
-      - name: acl
-        enabled: false
-        config:
-          allow:
-            - frontend-group
-
-plugins:
-  - name: cors
-    config:
-      origins:
-        - '{{ default "https://storefront.local" (env "KONG_CORS_ORIGIN_PRIMARY") }}'
-        - '{{ default "https://merchant.local" (env "KONG_CORS_ORIGIN_SECONDARY") }}'
-      methods:
-        - GET
-        - POST
-        - PUT
-        - PATCH
-        - DELETE
-        - OPTIONS
-      headers:
-        - Authorization
-        - Content-Type
-        - X-Requested-With
-        - Accept
-        - Accept-Language
-      exposed_headers:
-        - X-Request-Id
-      credentials: true
-      max_age: 3600
+    paths:
+    - /api/v1/auth
+    strip_path: true
+  plugins:
   - name: jwt
-    config:
-      key_claim_name: iss
-      claims_to_verify:
-        - exp
-      run_on_preflight: false
-      secret_is_base64: false
+    enabled: false
   - name: acl
+    enabled: false
     config:
       allow:
-        - frontend-group
-        - admin-group
-      hide_groups_header: true
-  - name: rate-limiting
-    config:
-      minute: {{ default "60" (env "KONG_RATE_LIMIT_MINUTE") }}
-      policy: local
-  - name: request-size-limiting
-    config:
-      allowed_payload_size: {{ default "2" (env "KONG_REQUEST_BODY_LIMIT_MB") }}
-      size_unit: megabytes
-  - name: response-transformer
-    config:
-      remove:
-        headers:
-          - Server
-          - Via
-          - X-Kong-Upstream-Latency
-          - X-Kong-Proxy-Latency
-  - name: prometheus
+      - frontend-group
+plugins:
+- name: cors
+  config:
+    origins:
+    - '{{ default "https://storefront.local" (env "KONG_CORS_ORIGIN_PRIMARY") }}'
+    - '{{ default "https://merchant.local" (env "KONG_CORS_ORIGIN_SECONDARY") }}'
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+    headers:
+    - Authorization
+    - Content-Type
+    - X-Requested-With
+    - Accept
+    - Accept-Language
+    exposed_headers:
+    - X-Request-Id
+    credentials: true
+    max_age: 3600
+- name: jwt
+  config:
+    key_claim_name: iss
+    claims_to_verify:
+    - exp
+    run_on_preflight: false
+    secret_is_base64: false
+- name: acl
+  config:
+    allow:
+    - frontend-group
+    - admin-group
+    hide_groups_header: true
+- name: rate-limiting
+  config:
+    minute: 60
+    policy: local
+- name: request-size-limiting
+  config:
+    allowed_payload_size: 2
+    size_unit: megabytes
+- name: response-transformer
+  config:
+    remove:
+      headers:
+      - Server
+      - Via
+      - X-Kong-Upstream-Latency
+      - X-Kong-Proxy-Latency
+- name: prometheus
