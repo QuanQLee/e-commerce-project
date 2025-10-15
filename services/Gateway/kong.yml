@@ -170,6 +170,15 @@ services:
     # Allow token endpoints to be accessed without gateway auth
     # (otherwise login cannot obtain a JWT).
     plugins:
+      - name: jwt
+        enabled: false
+      - name: acl
+        enabled: false
+        config:
+          allow:
+            - frontend-group
+
+plugins:
   - name: cors
     config:
       origins:
