@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["Catalog.csproj", "./"]
+COPY Catalog.csproj ./
 
 RUN dotnet restore "Catalog.csproj" --disable-parallel --source https://api.nuget.org/v3/index.json
 
