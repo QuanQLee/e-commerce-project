@@ -98,14 +98,28 @@ builder.Services.AddOpenTelemetry()
 
         .AddOtlpExporter());
 
-var offlineScopes = authOptions.ApiScopes.Concat(new[] { "offline_access" }).ToList();
+var normalizedScopes = authOptions.ApiScopes
+    .Where(scope => !string.IsNullOrWhiteSpace(scope))
+    .Select(scope => scope.Trim())
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+
+if (normalizedScopes.Length == 0)
+{
+    throw new InvalidOperationException("Auth:ApiScopes must contain at least one non-empty value.");
+}
+
+var offlineScopes = normalizedScopes
+    .Concat(new[] { "offline_access" })
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToList();
 var identityServerBuilder = builder.Services.AddIdentityServer()
     .AddInMemoryIdentityResources(new IdentityResource[]
     {
         new IdentityResources.OpenId(),
         new IdentityResources.Profile()
     })
-    .AddInMemoryApiScopes(authOptions.ApiScopes.Select(scope => new ApiScope(scope, scope)))
+    .AddInMemoryApiScopes(normalizedScopes.Select(scope => new ApiScope(scope, scope)))
     .AddInMemoryClients(new[]
     {
         new Client
