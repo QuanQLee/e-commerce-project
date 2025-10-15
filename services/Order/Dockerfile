@@ -1,12 +1,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY [\"Order.csproj\", \"./\"]
+COPY ["Order.csproj", "./"]
 
-RUN dotnet restore \"Order.csproj\" --disable-parallel --source https://api.nuget.org/v3/index.json
+RUN dotnet restore "Order.csproj" --disable-parallel --source https://api.nuget.org/v3/index.json
 
 COPY . .
-RUN dotnet publish \"Order.csproj\" \
+RUN dotnet publish "Order.csproj" \
     -c Release \
     -o /app/publish \
     /p:UseAppHost=false
@@ -24,4 +24,4 @@ EXPOSE 8080
 
 USER app
 
-ENTRYPOINT [\"dotnet\", \"Order.dll\"]
+ENTRYPOINT ["dotnet", "Order.dll"]

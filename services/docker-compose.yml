@@ -1,468 +1,468 @@
 version: "3.9"
 services:
-  pg:
-    image: postgres:16-alpine
-    container_name: catalog-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USER:-catalog_admin}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME:-catalog}
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+pg:
+image: postgres:16-alpine
+container_name: catalog-postgres
+restart: unless-stopped
+environment:
+POSTGRES_USER: ${DB_USER:-catalog_admin}
+POSTGRES_PASSWORD: ${DB_PASSWORD}
+POSTGRES_DB: ${DB_NAME:-catalog}
+ports:
+- "5432:5432"
+volumes:
+- pgdata:/var/lib/postgresql/data
 
-  catalog.api:
-    build:
-      context: ./Catalog
-      dockerfile: Dockerfile
-    image: ${REGISTRY}catalog.api:${TAG:-dev}
-    container_name: catalog-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
-    ports:
-      - "5000:8080"
+catalog.api:
+build:
+context: ./Catalog
+dockerfile: Dockerfile
+image: ${REGISTRY}catalog.api:${TAG:-dev}
+container_name: catalog-api
+depends_on:
+- pg
+restart: unless-stopped
+environment:
+ASPNETCORE_ENVIRONMENT: Development
+ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+ports:
+- "5000:8080"
 
-  order.api:
-    build:
-      context: ./Order
-      dockerfile: Dockerfile
-    image: ${REGISTRY}order.api:${TAG:-dev}
-    container_name: order-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__OrderDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
-    ports:
-      - "5002:8080"
+order.api:
+build:
+context: ./Order
+dockerfile: Dockerfile
+image: ${REGISTRY}order.api:${TAG:-dev}
+container_name: order-api
+depends_on:
+- pg
+restart: unless-stopped
+environment:
+ASPNETCORE_ENVIRONMENT: Development
+ConnectionStrings__OrderDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+ports:
+- "5002:8080"
 
-  user.api:
-    build:
-      context: ./User
-      dockerfile: Dockerfile
-    image: ${REGISTRY}user.api:${TAG:-dev}
-    container_name: user-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__UserDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
-    ports:
-      - "5003:80"
+user.api:
+build:
+context: ./User
+dockerfile: Dockerfile
+image: ${REGISTRY}user.api:${TAG:-dev}
+container_name: user-api
+depends_on:
+- pg
+restart: unless-stopped
+environment:
+ASPNETCORE_ENVIRONMENT: Development
+ConnectionStrings__UserDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+ports:
+- "5003:80"
 
-  shipping.api:
-    build:
-      context: ./Shipping
-      dockerfile: Dockerfile
-    image: ${REGISTRY}shipping.api:${TAG:-dev}
-    container_name: shipping-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__ShippingDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
-    ports:
-      - "5004:80"
+shipping.api:
+build:
+context: ./Shipping
+dockerfile: Dockerfile
+image: ${REGISTRY}shipping.api:${TAG:-dev}
+container_name: shipping-api
+depends_on:
+- pg
+restart: unless-stopped
+environment:
+ASPNETCORE_ENVIRONMENT: Development
+ConnectionStrings__ShippingDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+ports:
+- "5004:80"
 
-  payment.api:
-    build:
-      context: ./Payment
-      dockerfile: Dockerfile
-    image: ${REGISTRY}payment.api:${TAG:-dev}
-    container_name: payment-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    environment:
-      # Use Postgres in tests instead of falling back to SQLite
-      ConnectionStrings__PaymentDb: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
-      # Backward compatible alias if needed by tooling
-      POSTGRES_DSN: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
-    ports:
-      - "7001:7001"
-      - "7002:8080"
+payment.api:
+build:
+context: ./Payment
+dockerfile: Dockerfile
+image: ${REGISTRY}payment.api:${TAG:-dev}
+container_name: payment-api
+depends_on:
+- pg
+restart: unless-stopped
+environment:
+# Use Postgres in tests instead of falling back to SQLite
+ConnectionStrings__PaymentDb: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
+# Backward compatible alias if needed by tooling
+POSTGRES_DSN: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
+ports:
+- "7001:7001"
+- "7002:8080"
 
-  cart.redis:
-    image: redis:7-alpine
-    container_name: cart-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
+cart.redis:
+image: redis:7-alpine
+container_name: cart-redis
+restart: unless-stopped
+ports:
+- "6379:6379"
 
-  cart.api:
-    build:
-      context: ./Cart
-      dockerfile: Dockerfile
-    image: ${REGISTRY}cart.api:${TAG:-dev}
-    container_name: cart-api
-    depends_on:
-      - cart.redis
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Redis: "cart.redis:6379"
-    ports:
-      - "5010:80"
+cart.api:
+build:
+context: ./Cart
+dockerfile: Dockerfile
+image: ${REGISTRY}cart.api:${TAG:-dev}
+container_name: cart-api
+depends_on:
+- cart.redis
+restart: unless-stopped
+environment:
+ASPNETCORE_ENVIRONMENT: Development
+ConnectionStrings__Redis: "cart.redis:6379"
+ports:
+- "5010:80"
 
-  inventory.api:
-    build:
-      context: ./Inventory
-      dockerfile: Dockerfile
-    image: ${REGISTRY}inventory.api:${TAG:-dev}
-    container_name: inventory-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    environment:
-      POSTGRES_DSN: "postgresql://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
-    ports:
-      - "8210:8000"
+inventory.api:
+build:
+context: ./Inventory
+dockerfile: Dockerfile
+image: ${REGISTRY}inventory.api:${TAG:-dev}
+container_name: inventory-api
+depends_on:
+- pg
+restart: unless-stopped
+environment:
+POSTGRES_DSN: "postgresql://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
+ports:
+- "8210:8000"
 
-  analytics.api:
-    build:
-      context: ./Analytics
-      dockerfile: Dockerfile
-    image: ${REGISTRY}analytics.api:${TAG:-dev}
-    container_name: analytics-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    environment:
-      ConnectionStrings__AnalyticsDb: "postgresql://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}"
-    ports:
-      - "8100:8000"
+analytics.api:
+build:
+context: ./Analytics
+dockerfile: Dockerfile
+image: ${REGISTRY}analytics.api:${TAG:-dev}
+container_name: analytics-api
+depends_on:
+- pg
+restart: unless-stopped
+environment:
+ConnectionStrings__AnalyticsDb: "postgresql://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}"
+ports:
+- "8100:8000"
 
-  auth.api:
-    build:
-      context: ./Auth
-      dockerfile: Dockerfile
-    image: ${REGISTRY}auth.api:${TAG:-dev}
-    container_name: auth-api
-    depends_on:
-      - pg
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
-    ports:
-      - "7000:8080"
+auth.api:
+build:
+context: ./Auth
+dockerfile: Dockerfile
+image: ${REGISTRY}auth.api:${TAG:-dev}
+container_name: auth-api
+depends_on:
+- pg
+restart: unless-stopped
+environment:
+ASPNETCORE_ENVIRONMENT: Development
+ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+ports:
+- "7000:8080"
 
-  notification.api:
-    build:
-      context: ./Notification
-      dockerfile: Dockerfile
-    image: ${REGISTRY}notification.api:${TAG:-dev}
-    container_name: notification-api
-    restart: unless-stopped
-    environment:
-      SMTP_HOST: smtp
-      SMTP_PORT: 1025
-      SMTP_FROM: no-reply@example.com
-    ports:
-      - "8200:8000"
+notification.api:
+build:
+context: ./Notification
+dockerfile: Dockerfile
+image: ${REGISTRY}notification.api:${TAG:-dev}
+container_name: notification-api
+restart: unless-stopped
+environment:
+SMTP_HOST: smtp
+SMTP_PORT: 1025
+SMTP_FROM: no-reply@example.com
+ports:
+- "8200:8000"
 
-  promotion.api:
-    build:
-      context: ./Promotion
-      dockerfile: Dockerfile
-    image: ${REGISTRY}promotion.api:${TAG:-dev}
-    container_name: promotion-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "8400:8000"
+promotion.api:
+build:
+context: ./Promotion
+dockerfile: Dockerfile
+image: ${REGISTRY}promotion.api:${TAG:-dev}
+container_name: promotion-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "8400:8000"
 
-  review.api:
-    build:
-      context: ./Review
-      dockerfile: Dockerfile
-    image: ${REGISTRY}review.api:${TAG:-dev}
-    container_name: review-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "8500:8000"
-
-
-  wishlist.api:
-    build:
-      context: ./Wishlist
-      dockerfile: Dockerfile
-    image: ${REGISTRY}wishlist.api:${TAG:-dev}
-    container_name: wishlist-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "8700:8000"
-
-  experiment.api:
-    build:
-      context: ./Experiment
-      dockerfile: Dockerfile
-    image: ${REGISTRY}experiment.api:${TAG:-dev}
-    container_name: experiment-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "8800:8000"
-
-  cms.api:
-    build:
-      context: ./Cms
-      dockerfile: Dockerfile
-    image: ${REGISTRY}cms.api:${TAG:-dev}
-    container_name: cms-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "8900:8000"
-
-  rma.api:
-    build:
-      context: ./Rma
-      dockerfile: Dockerfile
-    image: ${REGISTRY}rma.api:${TAG:-dev}
-    container_name: rma-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9000:8000"
-
-  tax.api:
-    build:
-      context: ./Tax
-      dockerfile: Dockerfile
-    image: ${REGISTRY}tax.api:${TAG:-dev}
-    container_name: tax-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9010:8000"
-
-  currency.api:
-    build:
-      context: ./Currency
-      dockerfile: Dockerfile
-    image: ${REGISTRY}currency.api:${TAG:-dev}
-    container_name: currency-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9020:8000"
-
-  address.api:
-    build:
-      context: ./Address
-      dockerfile: Dockerfile
-    image: ${REGISTRY}address.api:${TAG:-dev}
-    container_name: address-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9030:8000"
+review.api:
+build:
+context: ./Review
+dockerfile: Dockerfile
+image: ${REGISTRY}review.api:${TAG:-dev}
+container_name: review-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "8500:8000"
 
 
+wishlist.api:
+build:
+context: ./Wishlist
+dockerfile: Dockerfile
+image: ${REGISTRY}wishlist.api:${TAG:-dev}
+container_name: wishlist-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "8700:8000"
 
+experiment.api:
+build:
+context: ./Experiment
+dockerfile: Dockerfile
+image: ${REGISTRY}experiment.api:${TAG:-dev}
+container_name: experiment-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "8800:8000"
 
-  consent.api:
-    build:
-      context: ./Consent
-      dockerfile: Dockerfile
-    image: ${REGISTRY}consent.api:${TAG:-dev}
-    container_name: consent-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9070:8000"
+cms.api:
+build:
+context: ./Cms
+dockerfile: Dockerfile
+image: ${REGISTRY}cms.api:${TAG:-dev}
+container_name: cms-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "8900:8000"
 
-  bff.api:
-    build:
-      context: ./Bff
-      dockerfile: Dockerfile
-    image: ${REGISTRY}bff.api:${TAG:-dev}
-    container_name: bff-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9080:8000"
+rma.api:
+build:
+context: ./Rma
+dockerfile: Dockerfile
+image: ${REGISTRY}rma.api:${TAG:-dev}
+container_name: rma-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "9000:8000"
 
+tax.api:
+build:
+context: ./Tax
+dockerfile: Dockerfile
+image: ${REGISTRY}tax.api:${TAG:-dev}
+container_name: tax-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "9010:8000"
 
-  tenant.api:
-    build:
-      context: ./Tenant
-      dockerfile: Dockerfile
-    image: ${REGISTRY}tenant.api:${TAG:-dev}
-    container_name: tenant-api
-    restart: unless-stopped
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "9100:8000"
+currency.api:
+build:
+context: ./Currency
+dockerfile: Dockerfile
+image: ${REGISTRY}currency.api:${TAG:-dev}
+container_name: currency-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "9020:8000"
+
+address.api:
+build:
+context: ./Address
+dockerfile: Dockerfile
+image: ${REGISTRY}address.api:${TAG:-dev}
+container_name: address-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "9030:8000"
 
 
 
 
+consent.api:
+build:
+context: ./Consent
+dockerfile: Dockerfile
+image: ${REGISTRY}consent.api:${TAG:-dev}
+container_name: consent-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "9070:8000"
 
-  admin.api:
-    build:
-      context: ./Admin
-      dockerfile: Dockerfile
-    image: ${REGISTRY}admin.api:${TAG:-dev}
-    container_name: admin-api
-    depends_on:
-      - catalog.api
-      - order.api
-      - user.api
-      - inventory.api
-    restart: unless-stopped
-    environment:
-      CATALOG_URL: http://catalog.api:8080
-      ORDER_URL: http://order.api:8080
-      USER_URL: http://user.api:80
-      INVENTORY_URL: http://inventory.api:8000
-    ports:
-      - "8300:8000"
+bff.api:
+build:
+context: ./Bff
+dockerfile: Dockerfile
+image: ${REGISTRY}bff.api:${TAG:-dev}
+container_name: bff-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "9080:8000"
 
-  gateway:
-    build:
-      context: ./Gateway
-      dockerfile: Dockerfile
-    image: ${REGISTRY}kong.gateway:${TAG:-dev}
-    container_name: gateway
-    depends_on:
-      - catalog.api
-      - order.api
-      - user.api
-      - shipping.api
-      - payment.api
-      - cart.api
-      - inventory.api
-      - analytics.api
-      - auth.api
-      - notification.api
-      - promotion.api
-      - review.api
-      - wishlist.api
-      - experiment.api
-      - cms.api
-      - rma.api
-      - tax.api
-      - currency.api
-      - address.api
-      - consent.api
-      - bff.api
-      - tenant.api
-    ports:
-      - "8000:8000"
-      - "8001:8001"
-    environment:
-      KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
-      # Only expose HTTP proxy in local dev to avoid TLS cert requirements
-      KONG_PROXY_LISTEN: "0.0.0.0:8000"
-      KONG_CORS_ORIGIN_PRIMARY: "${KONG_CORS_ORIGIN_PRIMARY:-https://storefront.local}"
-      KONG_CORS_ORIGIN_SECONDARY: "${KONG_CORS_ORIGIN_SECONDARY:-https://merchant.local}"
-      KONG_RATE_LIMIT_MINUTE: ${KONG_RATE_LIMIT_MINUTE:-60}
-      KONG_REQUEST_BODY_LIMIT_MB: ${KONG_REQUEST_BODY_LIMIT_MB:-2}
-      KONG_FRONTEND_JWT_SECRET: ${KONG_FRONTEND_JWT_SECRET:-changeme-frontend}
-      KONG_ADMIN_JWT_SECRET: ${KONG_ADMIN_JWT_SECRET:-changeme-admin}
-    volumes:
-      - ./Gateway/kong.yml:/kong/kong.yml
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-      args:
-        # Point frontend to BFF for cookie-based session
-        VITE_API_BASE_URL: http://bff.api:8000
-        VITE_API_KEY: mytestkey123
-        VITE_SSO_ENABLED: "1"
-    image: ${REGISTRY}frontend.app:${TAG:-dev}
-    container_name: frontend
-    depends_on:
-      - gateway
-    ports:
-      - "3000:80"
-    volumes:
-      # Ensure a valid nginx.conf even when using a prebuilt image
-      - ../frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+tenant.api:
+build:
+context: ./Tenant
+dockerfile: Dockerfile
+image: ${REGISTRY}tenant.api:${TAG:-dev}
+container_name: tenant-api
+restart: unless-stopped
+environment:
+- PYTHONUNBUFFERED=1
+ports:
+- "9100:8000"
 
-  merchant.web:
-    build:
-      context: ..
-      dockerfile: apps/merchant/Dockerfile
-      args:
-        VITE_API_BASE_URL: http://bff.api:8000
-        VITE_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
-        VITE_AUTH_CLIENT_ID: ${AUTH_CLIENT_ID:-1}
-        VITE_AUTH_CLIENT_SECRET: ${AUTH_CLIENT_SECRET:-secret1}
-        VITE_AUTH_SCOPE: ${AUTH_SCOPE:-api1}
-        VITE_SSO_ENABLED: "1"
-    image: ${REGISTRY}merchant.web:${TAG:-dev}
-    container_name: merchant-web
-    depends_on:
-      - gateway
-    ports:
-      - "3002:80"
 
-  storefront.web:
-    build:
-      context: ..
-      dockerfile: apps/storefront/Dockerfile
-      args:
-        NEXT_PUBLIC_API_BASE_URL: http://bff.api:8000
-        NEXT_PUBLIC_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
-    image: ${REGISTRY}storefront.web:${TAG:-dev}
-    container_name: storefront-web
-    depends_on:
-      - gateway
-    ports:
-      - "4000:3000"
 
-  prometheus:
-    image: prom/prometheus:v2.52.0
-    container_name: prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    depends_on:
-      - gateway
-    ports:
-      - "9090:9090"
 
-  grafana:
-    image: grafana/grafana-oss:10.4.2
-    container_name: grafana
-    depends_on:
-      - prometheus
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    ports:
-      - "3001:3000"
+
+admin.api:
+build:
+context: ./Admin
+dockerfile: Dockerfile
+image: ${REGISTRY}admin.api:${TAG:-dev}
+container_name: admin-api
+depends_on:
+- catalog.api
+- order.api
+- user.api
+- inventory.api
+restart: unless-stopped
+environment:
+CATALOG_URL: http://catalog.api:8080
+ORDER_URL: http://order.api:8080
+USER_URL: http://user.api:80
+INVENTORY_URL: http://inventory.api:8000
+ports:
+- "8300:8000"
+
+gateway:
+build:
+context: ./Gateway
+dockerfile: Dockerfile
+image: ${REGISTRY}kong.gateway:${TAG:-dev}
+container_name: gateway
+depends_on:
+- catalog.api
+- order.api
+- user.api
+- shipping.api
+- payment.api
+- cart.api
+- inventory.api
+- analytics.api
+- auth.api
+- notification.api
+- promotion.api
+- review.api
+- wishlist.api
+- experiment.api
+- cms.api
+- rma.api
+- tax.api
+- currency.api
+- address.api
+- consent.api
+- bff.api
+- tenant.api
+ports:
+- "8000:8000"
+- "8001:8001"
+environment:
+KONG_DATABASE: "off"
+KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+# Only expose HTTP proxy in local dev to avoid TLS cert requirements
+KONG_PROXY_LISTEN: "0.0.0.0:8000"
+KONG_CORS_ORIGIN_PRIMARY: "${KONG_CORS_ORIGIN_PRIMARY:-https://storefront.local}"
+KONG_CORS_ORIGIN_SECONDARY: "${KONG_CORS_ORIGIN_SECONDARY:-https://merchant.local}"
+KONG_RATE_LIMIT_MINUTE: ${KONG_RATE_LIMIT_MINUTE:-60}
+KONG_REQUEST_BODY_LIMIT_MB: ${KONG_REQUEST_BODY_LIMIT_MB:-2}
+KONG_FRONTEND_JWT_SECRET: ${KONG_FRONTEND_JWT_SECRET:-changeme-frontend}
+KONG_ADMIN_JWT_SECRET: ${KONG_ADMIN_JWT_SECRET:-changeme-admin}
+volumes:
+- ./Gateway/kong.yml:/kong/kong.yml
+
+frontend:
+build:
+context: ../frontend
+dockerfile: Dockerfile
+args:
+# Point frontend to BFF for cookie-based session
+VITE_API_BASE_URL: http://bff.api:8000
+VITE_API_KEY: mytestkey123
+VITE_SSO_ENABLED: "1"
+image: ${REGISTRY}frontend.app:${TAG:-dev}
+container_name: frontend
+depends_on:
+- gateway
+ports:
+- "3000:80"
+volumes:
+# Ensure a valid nginx.conf even when using a prebuilt image
+- ../frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+
+merchant.web:
+build:
+context: ..
+dockerfile: apps/merchant/Dockerfile
+args:
+VITE_API_BASE_URL: http://bff.api:8000
+VITE_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
+VITE_AUTH_CLIENT_ID: ${AUTH_CLIENT_ID:-1}
+VITE_AUTH_CLIENT_SECRET: ${AUTH_CLIENT_SECRET:-secret1}
+VITE_AUTH_SCOPE: ${AUTH_SCOPE:-api1}
+VITE_SSO_ENABLED: "1"
+image: ${REGISTRY}merchant.web:${TAG:-dev}
+container_name: merchant-web
+depends_on:
+- gateway
+ports:
+- "3002:80"
+
+storefront.web:
+build:
+context: ..
+dockerfile: apps/storefront/Dockerfile
+args:
+NEXT_PUBLIC_API_BASE_URL: http://bff.api:8000
+NEXT_PUBLIC_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
+image: ${REGISTRY}storefront.web:${TAG:-dev}
+container_name: storefront-web
+depends_on:
+- gateway
+ports:
+- "4000:3000"
+
+prometheus:
+image: prom/prometheus:v2.52.0
+container_name: prometheus
+volumes:
+- ./prometheus.yml:/etc/prometheus/prometheus.yml
+depends_on:
+- gateway
+ports:
+- "9090:9090"
+
+grafana:
+image: grafana/grafana-oss:10.4.2
+container_name: grafana
+depends_on:
+- prometheus
+environment:
+- GF_SECURITY_ADMIN_PASSWORD=admin
+ports:
+- "3001:3000"
 
 volumes:
-  pgdata:
+pgdata:
 
 
 
