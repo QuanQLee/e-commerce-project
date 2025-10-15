@@ -20,7 +20,7 @@ public class RootEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         var resp = await client.GetAsync("/");
         resp.EnsureSuccessStatusCode();
         var text = await resp.Content.ReadAsStringAsync();
-        Assert.Equal("Auth Service running", text);
+        Assert.Equal("{\"status\":\"ok\",\"service\":\"auth\"}", text);
     }
 }
 
