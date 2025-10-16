@@ -1,1 +1,0 @@
-{"root":["./src/api.ts","./src/auth.ts","./src/main.tsx","./src/theme.ts","./src/vite-env.d.ts","./src/components/errorboundary.tsx","./src/routes/app.tsx","./src/views/coupons.tsx","./src/views/dashboard.tsx","./src/views/login.tsx","./src/views/orders.tsx","./src/views/products.tsx"],"version":"5.8.3"}
