@@ -16,7 +16,7 @@ services:
     build:
       context: ./Catalog
       dockerfile: Dockerfile
-    image: ${REGISTRY}catalog.api:${TAG:-dev}
+    image: ${REGISTRY}:catalog.api-${TAG:-dev}
     container_name: catalog-api
     depends_on:
       - pg
@@ -30,7 +30,7 @@ services:
     build:
       context: ./Order
       dockerfile: Dockerfile
-    image: ${REGISTRY}order.api:${TAG:-dev}
+    image: ${REGISTRY}:order.api-${TAG:-dev}
     container_name: order-api
     depends_on:
       - pg
@@ -44,7 +44,7 @@ services:
     build:
       context: ./User
       dockerfile: Dockerfile
-    image: ${REGISTRY}user.api:${TAG:-dev}
+    image: ${REGISTRY}:user.api-${TAG:-dev}
     container_name: user-api
     depends_on:
       - pg
@@ -58,7 +58,7 @@ services:
     build:
       context: ./Shipping
       dockerfile: Dockerfile
-    image: ${REGISTRY}shipping.api:${TAG:-dev}
+    image: ${REGISTRY}:shipping.api-${TAG:-dev}
     container_name: shipping-api
     depends_on:
       - pg
@@ -72,7 +72,7 @@ services:
     build:
       context: ./Payment
       dockerfile: Dockerfile
-    image: ${REGISTRY}payment.api:${TAG:-dev}
+    image: ${REGISTRY}:payment.api-${TAG:-dev}
     container_name: payment-api
     depends_on:
       - pg
@@ -95,7 +95,7 @@ services:
     build:
       context: ./Cart
       dockerfile: Dockerfile
-    image: ${REGISTRY}cart.api:${TAG:-dev}
+    image: ${REGISTRY}:cart.api-${TAG:-dev}
     container_name: cart-api
     depends_on:
       - cart.redis
@@ -109,7 +109,7 @@ services:
     build:
       context: ./Inventory
       dockerfile: Dockerfile
-    image: ${REGISTRY}inventory.api:${TAG:-dev}
+    image: ${REGISTRY}:inventory.api-${TAG:-dev}
     container_name: inventory-api
     depends_on:
       - pg
@@ -122,7 +122,7 @@ services:
     build:
       context: ./Analytics
       dockerfile: Dockerfile
-    image: ${REGISTRY}analytics.api:${TAG:-dev}
+    image: ${REGISTRY}:analytics.api-${TAG:-dev}
     container_name: analytics-api
     depends_on:
       - pg
@@ -135,7 +135,7 @@ services:
     build:
       context: ./Auth
       dockerfile: Dockerfile
-    image: ${REGISTRY}auth.api:${TAG:-dev}
+    image: ${REGISTRY}:auth.api-${TAG:-dev}
     container_name: auth-api
     depends_on:
       - pg
@@ -149,7 +149,7 @@ services:
     build:
       context: ./Notification
       dockerfile: Dockerfile
-    image: ${REGISTRY}notification.api:${TAG:-dev}
+    image: ${REGISTRY}:notification.api-${TAG:-dev}
     container_name: notification-api
     restart: unless-stopped
     environment:
@@ -162,7 +162,7 @@ services:
     build:
       context: ./Promotion
       dockerfile: Dockerfile
-    image: ${REGISTRY}promotion.api:${TAG:-dev}
+    image: ${REGISTRY}:promotion.api-${TAG:-dev}
     container_name: promotion-api
     restart: unless-stopped
     environment:
@@ -173,7 +173,7 @@ services:
     build:
       context: ./Review
       dockerfile: Dockerfile
-    image: ${REGISTRY}review.api:${TAG:-dev}
+    image: ${REGISTRY}:review.api-${TAG:-dev}
     container_name: review-api
     restart: unless-stopped
     environment:
@@ -185,7 +185,7 @@ services:
     build:
       context: ./Wishlist
       dockerfile: Dockerfile
-    image: ${REGISTRY}wishlist.api:${TAG:-dev}
+    image: ${REGISTRY}:wishlist.api-${TAG:-dev}
     container_name: wishlist-api
     restart: unless-stopped
     environment:
@@ -196,7 +196,7 @@ services:
     build:
       context: ./Experiment
       dockerfile: Dockerfile
-    image: ${REGISTRY}experiment.api:${TAG:-dev}
+    image: ${REGISTRY}:experiment.api-${TAG:-dev}
     container_name: experiment-api
     restart: unless-stopped
     environment:
@@ -207,7 +207,7 @@ services:
     build:
       context: ./Cms
       dockerfile: Dockerfile
-    image: ${REGISTRY}cms.api:${TAG:-dev}
+    image: ${REGISTRY}:cms.api-${TAG:-dev}
     container_name: cms-api
     restart: unless-stopped
     environment:
@@ -218,7 +218,7 @@ services:
     build:
       context: ./Rma
       dockerfile: Dockerfile
-    image: ${REGISTRY}rma.api:${TAG:-dev}
+    image: ${REGISTRY}:rma.api-${TAG:-dev}
     container_name: rma-api
     restart: unless-stopped
     environment:
@@ -229,7 +229,7 @@ services:
     build:
       context: ./Tax
       dockerfile: Dockerfile
-    image: ${REGISTRY}tax.api:${TAG:-dev}
+    image: ${REGISTRY}:tax.api-${TAG:-dev}
     container_name: tax-api
     restart: unless-stopped
     environment:
@@ -240,7 +240,7 @@ services:
     build:
       context: ./Currency
       dockerfile: Dockerfile
-    image: ${REGISTRY}currency.api:${TAG:-dev}
+    image: ${REGISTRY}:currency.api-${TAG:-dev}
     container_name: currency-api
     restart: unless-stopped
     environment:
@@ -251,7 +251,7 @@ services:
     build:
       context: ./Address
       dockerfile: Dockerfile
-    image: ${REGISTRY}address.api:${TAG:-dev}
+    image: ${REGISTRY}:address.api-${TAG:-dev}
     container_name: address-api
     restart: unless-stopped
     environment:
@@ -265,7 +265,7 @@ services:
     build:
       context: ./Consent
       dockerfile: Dockerfile
-    image: ${REGISTRY}consent.api:${TAG:-dev}
+    image: ${REGISTRY}:consent.api-${TAG:-dev}
     container_name: consent-api
     restart: unless-stopped
     environment:
@@ -276,7 +276,7 @@ services:
     build:
       context: ./Bff
       dockerfile: Dockerfile
-    image: ${REGISTRY}bff.api:${TAG:-dev}
+    image: ${REGISTRY}:bff.api-${TAG:-dev}
     container_name: bff-api
     restart: unless-stopped
     environment:
@@ -288,7 +288,7 @@ services:
     build:
       context: ./Tenant
       dockerfile: Dockerfile
-    image: ${REGISTRY}tenant.api:${TAG:-dev}
+    image: ${REGISTRY}:tenant.api-${TAG:-dev}
     container_name: tenant-api
     restart: unless-stopped
     environment:
@@ -303,7 +303,7 @@ services:
     build:
       context: ./Admin
       dockerfile: Dockerfile
-    image: ${REGISTRY}admin.api:${TAG:-dev}
+    image: ${REGISTRY}:admin.api-${TAG:-dev}
     container_name: admin-api
     depends_on:
       - catalog.api
@@ -322,7 +322,7 @@ services:
     build:
       context: ./Gateway
       dockerfile: Dockerfile
-    image: ${REGISTRY}kong.gateway:${TAG:-dev}
+    image: ${REGISTRY}:kong.gateway-${TAG:-dev}
     container_name: gateway
     depends_on:
       - catalog.api
@@ -373,7 +373,7 @@ services:
         VITE_API_BASE_URL: http://bff.api:8000
         VITE_API_KEY: mytestkey123
         VITE_SSO_ENABLED: "1"
-    image: ${REGISTRY}frontend.app:${TAG:-dev}
+    image: ${REGISTRY}:frontend.app-${TAG:-dev}
     container_name: frontend
     depends_on:
       - gateway
@@ -393,7 +393,7 @@ services:
         VITE_AUTH_CLIENT_SECRET: ${AUTH_CLIENT_SECRET:-secret1}
         VITE_AUTH_SCOPE: ${AUTH_SCOPE:-api1}
         VITE_SSO_ENABLED: "1"
-    image: ${REGISTRY}merchant.web:${TAG:-dev}
+    image: ${REGISTRY}:merchant.web-${TAG:-dev}
     container_name: merchant-web
     depends_on:
       - gateway
@@ -406,7 +406,7 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: http://bff.api:8000
         NEXT_PUBLIC_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
-    image: ${REGISTRY}storefront.web:${TAG:-dev}
+    image: ${REGISTRY}:storefront.web-${TAG:-dev}
     container_name: storefront-web
     depends_on:
       - gateway
