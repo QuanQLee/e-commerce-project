@@ -128,7 +128,7 @@ jobs:
       - name: Stop Kong Gateway
         run: docker rm -f kong-test
       - name: Set lowercase registry
-        run: echo "REGISTRY=$(echo ghcr.io/${{ github.repository_owner }}/ | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        run: echo "REGISTRY=$(echo ghcr.io/${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Set image tag
         shell: bash
