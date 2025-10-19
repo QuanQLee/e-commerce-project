@@ -17,5 +17,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Auth.Tests/**/*.cs" />
+    <Content Remove="Auth.Tests/**" />
+    <None Remove="Auth.Tests/**" />
+    <EmbeddedResource Remove="Auth.Tests/**" />
   </ItemGroup>
 </Project>
