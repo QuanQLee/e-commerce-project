@@ -276,12 +276,7 @@ app.MapPost("/account/register", (RegisterRequest request, TestUserStore store) 
             return Results.Conflict(new { message = "Username already exists." });
         }
 
-        store.Users.Add(new TestUser
-        {
-            SubjectId = Guid.NewGuid().ToString(),
-            Username = username,
-            Password = password
-        });
+        store.CreateUser(username, password, username, $"{username}@example.com");
     }
 
     return Results.Ok(new { ok = true });
