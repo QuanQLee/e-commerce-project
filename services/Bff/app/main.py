@@ -4,8 +4,9 @@ import time
 from typing import Any, Dict, Optional
 
 import httpx
-from fastapi import Cookie, Depends, FastAPI, HTTPException, Response, Request
+from fastapi import Cookie, FastAPI, HTTPException, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, constr
 import os
 import base64
 import hashlib
@@ -39,6 +40,10 @@ AUTH_INTERNAL_BASE = os.getenv('AUTH_INTERNAL_BASE', 'http://auth.api')
 AUTH_PUBLIC_BASE = os.getenv('AUTH_PUBLIC_BASE', 'http://localhost:7000')
 BFF_CLIENT_ID = os.getenv('BFF_CLIENT_ID', '1')
 BFF_CLIENT_SECRET = os.getenv('BFF_CLIENT_SECRET', 'secret1')
+
+class RegisterPayload(BaseModel):
+    username: constr(strip_whitespace=True, min_length=3)
+    password: constr(min_length=6)
 
 def _now() -> int:
     return int(time.time())
@@ -88,6 +93,7 @@ async def auth_login(response: Response, username: str, password: str):
         "username": username,
         "password": password,
         "scope": "api1 offline_access",
+    }
     async with httpx.AsyncClient(timeout=10) as client:
         r = await client.post(f"{AUTH_INTERNAL_BASE}/connect/token", data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
     if r.status_code != 200:
@@ -408,6 +414,22 @@ async def auth_login(response: Response, username: str, password: str):
         max_age=min(expires_in, _SESSION_TTL),
         path="/",
     )
+    return {"ok": True}
+
+@app.post("/auth/register", status_code=201)
+async def auth_register(payload: RegisterPayload):
+    username = payload.username
+    password = payload.password
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(
+            f"{AUTH_INTERNAL_BASE}/account/register",
+            json={"username": username, "password": password},
+            headers={"Content-Type": "application/json"},
+        )
+    if r.status_code == 409:
+        raise HTTPException(status_code=409, detail="Username already exists")
+    if r.status_code >= 400:
+        raise HTTPException(status_code=r.status_code, detail=r.text)
     return {"ok": True}
 
 @app.post("/auth/logout")

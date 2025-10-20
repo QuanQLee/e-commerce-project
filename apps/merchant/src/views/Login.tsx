@@ -31,17 +31,33 @@ export default function Login() {
   const redirectState = (location.state as LocationState | null) || undefined
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [remember, setRemember] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [mode, setMode] = useState<'login' | 'register'>('login')
   const { t } = useI18n()
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccessMessage(null)
     setLoading(true)
     try {
+      if (mode === 'register') {
+        if (password !== confirmPassword) {
+          throw new Error(t('login.passwordMismatch'))
+        }
+        await api.post('/auth/register', { username, password })
+        setSuccessMessage(t('login.registerSuccess'))
+        setMode('login')
+        setPassword('')
+        setConfirmPassword('')
+        return
+      }
+
       const form = new URLSearchParams()
       form.set('username', username)
       form.set('password', password)
@@ -87,11 +103,11 @@ export default function Login() {
             >
               <CardContent sx={{ p: { xs: 3, md: 4 } }}>
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-                  {t('login.welcome')}
-                </Typography>
-                <Box component="form" onSubmit={onSubmit} noValidate>
-                  <Stack spacing={2}>
-                    <TextField
+                {t('login.welcome')}
+              </Typography>
+              <Box component="form" onSubmit={onSubmit} noValidate>
+                <Stack spacing={2}>
+                  <TextField
                       label={t('login.usernameLabel')}
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
@@ -120,6 +136,16 @@ export default function Login() {
                         ),
                       }}
                     />
+                    {mode === 'register' && (
+                      <TextField
+                        label={t('login.confirmPasswordLabel')}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        fullWidth
+                      />
+                    )}
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                       <FormControlLabel
                         control={<Checkbox checked={remember} onChange={(e) => setRemember(e.target.checked)} />}
@@ -146,7 +172,9 @@ export default function Login() {
                     )}
 
                     <Button type="submit" variant="contained" size="large" disabled={loading} sx={{ py: 1.2 }}>
-                      {loading ? t('login.submitting') : t('login.submit')}
+                      {loading
+                        ? t(mode === 'register' ? 'login.creating' : 'login.submitting')
+                        : t(mode === 'register' ? 'login.createAccount' : 'login.submit')}
                     </Button>
 
                     {runtimeEnv.ssoEnabled && (
@@ -162,9 +190,54 @@ export default function Login() {
                         {t('login.sso')}
                       </Button>
                     )}
+                    {successMessage && (
+                      <Box
+                        sx={{
+                          p: 1.5,
+                          borderRadius: 1.5,
+                          bgcolor: 'rgba(0,128,0,0.08)',
+                          border: '1px solid rgba(0,128,0,0.2)',
+                        }}
+                      >
+                        <Typography color="success.main" variant="body2">
+                          {successMessage}
+                        </Typography>
+                      </Box>
+                    )}
 
                     <Typography variant="caption" color="text.secondary">
                       {t('login.disclaimer')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {mode === 'login' ? (
+                        <>
+                          {t('login.noAccountPrompt')}{' '}
+                          <Link
+                            component="button"
+                            type="button"
+                            onClick={() => {
+                              setMode('register')
+                              setConfirmPassword('')
+                            }}
+                          >
+                            {t('login.switchToRegister')}
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          {t('login.haveAccountPrompt')}{' '}
+                          <Link
+                            component="button"
+                            type="button"
+                            onClick={() => {
+                              setMode('login')
+                              setConfirmPassword('')
+                            }}
+                          >
+                            {t('login.switchToLogin')}
+                          </Link>
+                        </>
+                      )}
                     </Typography>
                   </Stack>
                 </Box>

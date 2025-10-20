@@ -260,6 +260,33 @@ app.MapPost("/account/login", async (HttpContext ctx) =>
     return Results.Redirect(returnUrl);
 });
 
+app.MapPost("/account/register", (RegisterRequest request, TestUserStore store) =>
+{
+    var username = request.Username?.Trim();
+    var password = request.Password;
+    if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+    {
+        return Results.BadRequest(new { message = "Username and password are required." });
+    }
+
+    lock (store)
+    {
+        if (store.FindByUsername(username) != null)
+        {
+            return Results.Conflict(new { message = "Username already exists." });
+        }
+
+        store.Users.Add(new TestUser
+        {
+            SubjectId = Guid.NewGuid().ToString(),
+            Username = username,
+            Password = password
+        });
+    }
+
+    return Results.Ok(new { ok = true });
+});
+
 app.MapPost("/account/logout", async (HttpContext ctx) =>
 {
     await ctx.SignOutAsync(IdentityServerConstants.DefaultCookieAuthenticationScheme);
@@ -278,3 +305,5 @@ public class AuthDbContext : DbContext
 public partial class Program
 {
 }
+
+public record RegisterRequest(string Username, string Password);

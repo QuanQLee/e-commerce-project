@@ -57,10 +57,19 @@ const translations: Dictionary = {
       welcome: 'Welcome back',
       usernameLabel: 'Username or email',
       passwordLabel: 'Password',
+      confirmPasswordLabel: 'Confirm password',
       rememberMe: 'Remember me',
       forgotPassword: 'Forgot password?',
       submit: 'Sign in',
       submitting: 'Signing in...',
+      createAccount: 'Create account',
+      creating: 'Creating...',
+      passwordMismatch: 'Passwords do not match.',
+      registerSuccess: 'Account created. You can now sign in.',
+      noAccountPrompt: 'Need an account?',
+      haveAccountPrompt: 'Already have an account?',
+      switchToRegister: 'Create one',
+      switchToLogin: 'Back to sign in',
       sso: 'Sign in with SSO',
       disclaimer: 'By signing in you agree to our Terms of Service and Privacy Policy.',
       error: 'Sign in failed'
@@ -418,6 +427,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         const result = resolveTranslation(dict, key)
         if (typeof result === 'string') {
           return formatTranslation(result, vars)
+        }
+        const fallbackResult = resolveTranslation(translations.en, key)
+        if (typeof fallbackResult === 'string') {
+          return formatTranslation(fallbackResult, vars)
         }
         return key
       },

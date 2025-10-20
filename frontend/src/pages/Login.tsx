@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Container, TextField, Button, Typography, Stack } from '@mui/material'
+import { Container, TextField, Button, Typography, Stack, Link } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom'
 import api from '../api/api'
 import { useSnackbar } from '../providers/SnackbarProvider'
@@ -10,7 +10,9 @@ import { runtimeEnv } from '../config/env'
 export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [mode, setMode] = useState<'login' | 'register'>('login')
   const { success, error } = useSnackbar()
   const navigate = useNavigate()
   const location = useLocation()
@@ -20,34 +22,41 @@ export default function Login() {
     event.preventDefault()
     try {
       setLoading(true)
+      if (mode === 'register') {
+        if (password !== confirmPassword) {
+          throw new Error('Passwords do not match')
+        }
+        await api.post('/auth/register', { username, password })
+        success('Account created. You can now log in.')
+        setMode('login')
+        setPassword('')
+        setConfirmPassword('')
+        return
+      }
+
       const params = new URLSearchParams()
       params.append('username', username)
       params.append('password', password)
-      const response = await api.post('/auth/login', params, {
+      await api.post('/auth/login', params, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       })
 
-      const token = response?.data?.access_token
-      const expiresIn = response?.data?.expires_in
-      if (token) {
-        try {
-          window.localStorage.setItem('access_token', token)
-          if (typeof expiresIn === 'number') {
-            const expiresAt = Date.now() + expiresIn * 1000
-            window.localStorage.setItem('access_token_expires_at', String(expiresAt))
-          }
-        } catch (storageError) {
-          console.warn('[auth] failed to persist access token', storageError)
-        }
+      try {
+        setSessionAuthenticated('local')
+      } catch (storageError) {
+        console.warn('[auth] failed to persist access token', storageError)
       }
 
-      setSessionAuthenticated('local')
       success('Logged in')
       const redirectTo = state?.from || '/'
       navigate(redirectTo, { replace: true })
     } catch (err) {
       console.error(err)
-      error('Failed to login')
+      if (err instanceof Error && err.message) {
+        error(err.message)
+      } else {
+        error(mode === 'register' ? 'Failed to create account' : 'Failed to login')
+      }
     } finally {
       setLoading(false)
     }
@@ -69,7 +78,7 @@ export default function Login() {
   return (
     <Container maxWidth="sm">
       <Typography variant="h4" gutterBottom>
-        Login
+        {mode === 'register' ? 'Create account' : 'Login'}
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -87,13 +96,25 @@ export default function Login() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
+        {mode === 'register' && (
+          <TextField
+            label="Confirm password"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+          />
+        )}
         <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
           <Button variant="contained" type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? (mode === 'register' ? 'Creating...' : 'Logging in...') : mode === 'register' ? 'Create account' : 'Login'}
           </Button>
-          <Button variant="outlined" type="button" onClick={handleLogout}>
-            Logout
-          </Button>
+          {mode === 'login' && (
+            <Button variant="outlined" type="button" onClick={handleLogout}>
+              Logout
+            </Button>
+          )}
           {runtimeEnv.ssoEnabled && (
             <Button
               variant="text"
@@ -106,6 +127,37 @@ export default function Login() {
             </Button>
           )}
         </Stack>
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          {mode === 'register' ? (
+            <>
+              Already have an account?{' '}
+              <Link
+                component="button"
+                type="button"
+                onClick={() => {
+                  setMode('login')
+                  setConfirmPassword('')
+                }}
+              >
+                Back to login
+              </Link>
+            </>
+          ) : (
+            <>
+              Need an account?{' '}
+              <Link
+                component="button"
+                type="button"
+                onClick={() => {
+                  setMode('register')
+                  setConfirmPassword('')
+                }}
+              >
+                Create one
+              </Link>
+            </>
+          )}
+        </Typography>
       </form>
     </Container>
   )
