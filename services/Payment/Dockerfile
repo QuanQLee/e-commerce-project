@@ -1,5 +1,5 @@
 ##################### 1. Build stage #####################
-FROM golang:1.23.4-alpine AS builder
+FROM public.ecr.aws/docker/library/golang:1.23.4-alpine AS builder
 ENV GOPROXY=https://goproxy.cn,direct
 WORKDIR /src
 
@@ -12,7 +12,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /payment ./cmd/server
 
 ##################### 2. Runtime stage ###################
-FROM alpine:3.19
+FROM public.ecr.aws/docker/library/alpine:3.19
 WORKDIR /app
 
 # Copy the statically built binary from the builder stage
