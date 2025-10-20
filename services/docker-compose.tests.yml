@@ -1,4 +1,4 @@
-﻿version: "3.9"
+version: "3.9"
 services:
   auth.tests:
     image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -16,7 +16,7 @@ services:
     command: go test ./...
 
   analytics.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Analytics
     volumes:
       - ..:/workspace
@@ -24,7 +24,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   inventory.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Inventory
     volumes:
       - ..:/workspace
@@ -32,7 +32,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   promotion.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Promotion
     volumes:
       - ..:/workspace
@@ -40,7 +40,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   review.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Review
     volumes:
       - ..:/workspace
@@ -48,7 +48,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   recommendation.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Search/recommendation
     volumes:
       - ..:/workspace
@@ -56,7 +56,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   wishlist.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Wishlist
     volumes:
       - ..:/workspace
@@ -64,7 +64,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   experiment.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Experiment
     volumes:
       - ..:/workspace
@@ -72,7 +72,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   cms.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Cms
     volumes:
       - ..:/workspace
@@ -80,7 +80,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   rma.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Rma
     volumes:
       - ..:/workspace
@@ -88,7 +88,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   tax.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Tax
     volumes:
       - ..:/workspace
@@ -96,7 +96,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   currency.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Currency
     volumes:
       - ..:/workspace
@@ -104,7 +104,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   address.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Address
     volumes:
       - ..:/workspace
@@ -112,7 +112,7 @@ services:
       bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   shippingrate.tests:
-    image: python:3.12-slim
+    image: public.ecr.aws/docker/library/python:3.12-slim
     working_dir: /workspace/services/Shipping/rate
     volumes:
       - ..:/workspace
@@ -126,6 +126,7 @@ services:
       - ..:/workspace
     command: >-
       bash -c "npm install --force && npm test --silent"
+
 
 
 

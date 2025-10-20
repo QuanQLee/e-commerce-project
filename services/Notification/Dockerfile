@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS build
+FROM public.ecr.aws/docker/library/python:3.12-slim AS build
 WORKDIR /app
 COPY pyproject.toml poetry.lock* ./
 RUN pip install --no-cache-dir poetry && \
@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir poetry && \
 COPY app ./app
 RUN poetry build -f wheel
 
-FROM python:3.12-slim
+FROM public.ecr.aws/docker/library/python:3.12-slim
 WORKDIR /app
 COPY --from=build /app/dist/*.whl .
 RUN pip install --no-cache-dir *.whl && rm *.whl
