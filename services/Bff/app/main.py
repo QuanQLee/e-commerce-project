@@ -450,6 +450,7 @@ async def aggregate(session=Depends(require_session)) -> Any:
         "products": res_catalog.json() if res_catalog.status_code == 200 else [],
         "users": res_user.json() if res_user.status_code == 200 else [],
     }
+    }
 
 @app.get("/healthz")
 async def healthz():
