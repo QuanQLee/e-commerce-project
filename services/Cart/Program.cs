@@ -7,6 +7,11 @@ using Prometheus;
 using Serilog;
 using Microsoft.AspNetCore.Hosting;
 using System;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +38,27 @@ builder.Services.AddSingleton<ICartStore, RedisCartStore>();
 var inventoryUrl = builder.Configuration["INVENTORY_URL"] ?? "http://inventory.api:8000";
 builder.Services.AddHttpClient("inventory", client => client.BaseAddress = new Uri(inventoryUrl));
 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks().AddRedis(
+    builder.Configuration.GetConnectionString("Redis") ?? "cart.redis:6379",
+    name: "redis",
+    tags: new[] { "ready" });
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource
+        .AddService("cart-service", serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString())
+        .AddAttributes(new[]
+        {
+            new KeyValuePair<string, object>("deployment.environment", builder.Environment.EnvironmentName)
+        }))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter())
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddOtlpExporter());
 
 var app = builder.Build();
 
@@ -42,6 +67,10 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
 app.MapHealthChecks("/healthz");
+app.MapHealthChecks("/readyz", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 app.UseHttpMetrics();
 
 app.Run();

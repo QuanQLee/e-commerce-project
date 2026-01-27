@@ -90,7 +90,7 @@ Desktop.ini
 
 # Docker
 docker-compose.override.yml
-.env  # include environment file in repository
+.env
 .env.*.local
 
 # Media

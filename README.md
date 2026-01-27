@@ -28,7 +28,7 @@ This repository contains microservices that together form a small e-commerce pla
 - **Tax** – calculates duties and tax under `services/Tax`.
 - **Currency** – provides exchange rates under `services/Currency`.
 - **Address** – offers address validation under `services/Address`.
-- **Bff** – frontend aggregation and performance under `services/Bff`.
+- **Bff** – frontend aggregation and performance under `services/Bff`; session data is persisted in Redis for multi-instance resilience.
 - **Tenant** – manages multi-tenant shops under `services/Tenant`.
 
 ## Gateway
@@ -42,7 +42,7 @@ hey -z 30s http://localhost/api/v1/catalog/products
 
 ## Building and Running
 
-From the `services` directory you can spin up the entire stack. Copy `.env.example` **into that folder** as `.env` and adjust the values to set database credentials before launching. If you change the credentials later, remove the `pgdata` volume to reinitialise the database:
+From the `services` directory you can spin up the entire stack. Copy `.env.example` **into that folder** as `.env` and adjust the values to set database credentials before launching. Never commit real credentials—production secrets should live in a vault (AWS Secrets Manager, HashiCorp Vault, etc.) and be injected at runtime. If you change the credentials later, remove the `pgdata` volume to reinitialise the database:
 
 ```bash
 docker compose down -v
@@ -67,6 +67,17 @@ Set the `REGISTRY` environment variable to prefix images when you plan to push
 them to a registry. For example the CI pipeline uses
 `REGISTRY=ghcr.io/<owner>/` so images are pushed to GitHub Container Registry.
 
+### EC2 Deployment
+
+To deploy the full stack onto an EC2 instance (or any SSH-accessible host) use the helper script:
+
+```powershell
+pwsh ./scripts/deploy-ec2.ps1 -Host <dns-or-ip> -User ubuntu -KeyPath ~/.ssh/prod.pem `
+  -Registry 123456789012.dkr.ecr.us-west-1.amazonaws.com/e-commerce -Tag v1.2.3
+```
+
+See [docs/deployment-ec2.md](docs/deployment-ec2.md) for the complete workflow, release structure, and rollback guidance.
+
 ### Continuous Integration
 
 The single `ci.yml` workflow runs after a pull request is merged. It builds the
@@ -83,8 +94,12 @@ pull them locally.
 - [Kubernetes deployment guide](docs/kubernetes.md)
 - [Platform services overview](docs/platform-services.md)
 - [Security best practices](docs/security-best-practices.md)
+- [Database backup & recovery](docs/database-backup.md)
+- [Observability blueprint](docs/observability.md)
+- [Operations runbook](docs/operations-runbook.md)
 - [Docker image registry](docs/registry.md)
 - [Frontend architecture](docs/frontend-architecture.md)
+- [Production readiness roadmap](docs/production-roadmap.md)
 
 ## Frontend
 

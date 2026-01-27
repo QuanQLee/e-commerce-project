@@ -23,10 +23,22 @@ logger = structlog.get_logger("admin")
 trace.set_tracer_provider(TracerProvider(resource=Resource.create({"service.name": "admin"})))
 trace.get_tracer_provider().add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))
 
+def _csv_env(name: str, default: str) -> list[str]:
+    raw = os.getenv(name, default)
+    values = [item.strip() for item in raw.split(",") if item.strip()]
+    return values or [default]
+
+
+ALLOWED_ORIGINS = _csv_env(
+    "ADMIN_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:3002,http://localhost:4000",
+)
+AUDIT_LOG_ENABLED = os.getenv("ADMIN_AUDIT_LOG_ENABLED", "true").lower() in {"1", "true", "yes"}
+
 app = FastAPI(title="Admin API", version="v1")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,45 +77,107 @@ def verify_admin(request: Request):
     if "admin-group" not in groups.split(","):
         raise HTTPException(status_code=403, detail="forbidden")
 
+def _audit_actor(request: Request) -> str:
+    return (
+        request.headers.get("X-Consumer-Username")
+        or request.headers.get("X-Consumer-Id")
+        or request.headers.get("X-Forwarded-User")
+        or "unknown"
+    )
+
+def audit_log(request: Request, action: str, target: str, status: str = "attempt") -> None:
+    if not AUDIT_LOG_ENABLED:
+        return
+    logger.info(
+        "admin_audit",
+        action=action,
+        target=target,
+        status=status,
+        actor=_audit_actor(request),
+        request_id=request.headers.get("X-Request-Id", ""),
+        client_ip=request.client.host if request.client else "",
+        method=request.method,
+        path=request.url.path,
+    )
+
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok"}
 
 @app.get("/products")
-async def list_products(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
+async def list_products(
+    request: Request,
+    client: httpx.AsyncClient = Depends(get_client),
+    _: None = Depends(verify_admin),
+):
     REQUEST_COUNTER.labels("list_products").inc()
+    audit_log(request, "list_products", "catalog")
     resp = await client.get(f"{CATALOG_URL}/products")
-    return handle_response(resp)
+    data = handle_response(resp)
+    audit_log(request, "list_products", "catalog", status="success")
+    return data
 
 @app.put("/products/{pid}")
-async def update_product(pid: str, payload: dict, client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
+async def update_product(
+    pid: str,
+    payload: dict,
+    request: Request,
+    client: httpx.AsyncClient = Depends(get_client),
+    _: None = Depends(verify_admin),
+):
     REQUEST_COUNTER.labels("update_product").inc()
+    audit_log(request, "update_product", f"product:{pid}")
     resp = await client.put(f"{CATALOG_URL}/products/{pid}", json=payload)
-    return handle_response(resp)
+    data = handle_response(resp)
+    audit_log(request, "update_product", f"product:{pid}", status="success")
+    return data
 
 class AdjustQty(BaseModel):
     quantity: int
 
 @app.post("/products/{pid}/inventory")
-async def adjust_inventory(pid: str, body: AdjustQty, client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
+async def adjust_inventory(
+    pid: str,
+    body: AdjustQty,
+    request: Request,
+    client: httpx.AsyncClient = Depends(get_client),
+    _: None = Depends(verify_admin),
+):
     REQUEST_COUNTER.labels("adjust_inventory").inc()
+    audit_log(request, "adjust_inventory", f"product:{pid}")
     resp = await client.post(
         f"{INVENTORY_URL}/inventory/release",
         json={"product_id": pid, "quantity": body.quantity},
     )
-    return handle_response(resp)
+    data = handle_response(resp)
+    audit_log(request, "adjust_inventory", f"product:{pid}", status="success")
+    return data
 
 @app.get("/orders")
-async def list_orders(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
+async def list_orders(
+    request: Request,
+    client: httpx.AsyncClient = Depends(get_client),
+    _: None = Depends(verify_admin),
+):
     REQUEST_COUNTER.labels("orders").inc()
+    audit_log(request, "list_orders", "order")
     resp = await client.get(f"{ORDER_URL}/orders")
-    return handle_response(resp)
+    data = handle_response(resp)
+    audit_log(request, "list_orders", "order", status="success")
+    return data
 
 @app.get("/users")
-async def list_users(client: httpx.AsyncClient = Depends(get_client), _: None = Depends(verify_admin)):
+async def list_users(
+    request: Request,
+    client: httpx.AsyncClient = Depends(get_client),
+    _: None = Depends(verify_admin),
+):
     REQUEST_COUNTER.labels("users").inc()
+    audit_log(request, "list_users", "user")
     resp = await client.get(f"{USER_URL}/users")
-    return handle_response(resp)
+    data = handle_response(resp)
+    audit_log(request, "list_users", "user", status="success")
+    return data
 
 @app.get("/metrics")
 async def metrics():

@@ -8,11 +8,11 @@ from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-from .db import AsyncSessionLocal, init_db
+from .db import AsyncSessionLocal, init_db, engine
 from .models import Event, Metric
 from .scheduler import start_scheduler
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("analytics")
@@ -82,3 +82,13 @@ async def get_metrics(session: AsyncSession = Depends(get_session)):
 async def prometheus_metrics():
     data = generate_latest()
     return Response(content=data, media_type=CONTENT_TYPE_LATEST)
+
+@app.get("/healthz")
+async def healthz():
+    return {"status": "ok"}
+
+@app.get("/readyz")
+async def readyz():
+    async with engine.connect() as conn:
+        await conn.execute(text("SELECT 1"))
+    return {"status": "ready"}

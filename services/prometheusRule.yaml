@@ -96,6 +96,20 @@ spec:
       annotations:
         summary: "High CPU usage"
         description: "CPU usage above 70% for 10 minutes. Consider scaling."
+  - name: gateway.rules
+    rules:
+    - alert: Gateway5xxRateHigh
+      expr: |
+        sum(rate(kong_http_status{code=~"5.."}[5m]))
+        /
+        sum(rate(kong_http_status[5m]))
+        > 0.02
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Gateway 5xx rate high"
+        description: "More than 2% of gateway responses are 5xx over 5 minutes."
 
 
 

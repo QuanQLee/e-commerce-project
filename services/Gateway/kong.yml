@@ -4,14 +4,14 @@ consumers:
 - username: frontend
   jwt_secrets:
   - key: frontend
-    secret: '{{ default "changeme-frontend" (env "KONG_FRONTEND_JWT_SECRET") }}'
+    secret: '{{ env "KONG_FRONTEND_JWT_SECRET" }}'
     algorithm: HS256
   acls:
   - group: frontend-group
 - username: admin
   jwt_secrets:
   - key: admin
-    secret: '{{ default "changeme-admin" (env "KONG_ADMIN_JWT_SECRET") }}'
+    secret: '{{ env "KONG_ADMIN_JWT_SECRET" }}'
     algorithm: HS256
   acls:
   - group: admin-group
@@ -157,6 +157,18 @@ services:
     config:
       allow:
       - frontend-group
+- name: health
+  url: http://bff.api:8000
+  routes:
+  - name: health
+    paths:
+    - /status
+    strip_path: false
+  plugins:
+  - name: jwt
+    enabled: false
+  - name: acl
+    enabled: false
 plugins:
 - name: cors
   config:
@@ -187,6 +199,9 @@ plugins:
     - exp
     run_on_preflight: false
     secret_is_base64: false
+    maximum_expiration: 3600
+    uri_param_names: []
+    cookie_names: []
 - name: acl
   config:
     allow:
@@ -195,11 +210,11 @@ plugins:
     hide_groups_header: true
 - name: rate-limiting
   config:
-    minute: 60
+    minute: '{{ tonumber (default "60" (env "KONG_RATE_LIMIT_MINUTE")) }}'
     policy: local
 - name: request-size-limiting
   config:
-    allowed_payload_size: 2
+    allowed_payload_size: '{{ tonumber (default "2" (env "KONG_REQUEST_BODY_LIMIT_MB")) }}'
     size_unit: megabytes
 - name: response-transformer
   config:

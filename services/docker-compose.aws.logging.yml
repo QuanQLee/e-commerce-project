@@ -1,0 +1,59 @@
+version: "3.9"
+
+x-awslogs: &awslogs
+  driver: awslogs
+  options:
+    awslogs-region: ${AWS_REGION}
+    awslogs-group: ${AWS_LOG_GROUP:-/ecs/ecommerce}
+    awslogs-stream-prefix: ${AWS_LOG_STREAM_PREFIX:-ecommerce}
+    awslogs-create-group: "true"
+
+services:
+  gateway:
+    logging: *awslogs
+  bff.api:
+    logging: *awslogs
+  auth.api:
+    logging: *awslogs
+  catalog.api:
+    logging: *awslogs
+  order.api:
+    logging: *awslogs
+  user.api:
+    logging: *awslogs
+  shipping.api:
+    logging: *awslogs
+  payment.api:
+    logging: *awslogs
+  cart.api:
+    logging: *awslogs
+  inventory.api:
+    logging: *awslogs
+  analytics.api:
+    logging: *awslogs
+  admin.api:
+    logging: *awslogs
+  notification.api:
+    logging: *awslogs
+  promotion.api:
+    logging: *awslogs
+  review.api:
+    logging: *awslogs
+  wishlist.api:
+    logging: *awslogs
+  experiment.api:
+    logging: *awslogs
+  cms.api:
+    logging: *awslogs
+  rma.api:
+    logging: *awslogs
+  tax.api:
+    logging: *awslogs
+  currency.api:
+    logging: *awslogs
+  address.api:
+    logging: *awslogs
+  consent.api:
+    logging: *awslogs
+  tenant.api:
+    logging: *awslogs

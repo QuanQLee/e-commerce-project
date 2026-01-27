@@ -22,8 +22,8 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${CATALOG_DB_NAME:-catalog};Username=${CATALOG_DB_USER:-catalog_admin};Password=${CATALOG_DB_PASSWORD:-changeme}"
     ports:
       - "5000:8080"
   order.api:
@@ -36,8 +36,8 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__OrderDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__OrderDb: "Host=pg;Port=5432;Database=${ORDER_DB_NAME:-order};Username=${ORDER_DB_USER:-catalog_admin};Password=${ORDER_DB_PASSWORD:-changeme}"
     ports:
       - "5002:8080"
   user.api:
@@ -50,8 +50,8 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__UserDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__UserDb: "Host=pg;Port=5432;Database=${USER_DB_NAME:-user};Username=${USER_DB_USER:-catalog_admin};Password=${USER_DB_PASSWORD:-changeme}"
     ports:
       - "5003:80"
   shipping.api:
@@ -64,8 +64,8 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__ShippingDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__ShippingDb: "Host=pg;Port=5432;Database=${SHIPPING_DB_NAME:-shipping};Username=${SHIPPING_DB_USER:-catalog_admin};Password=${SHIPPING_DB_PASSWORD:-changeme}"
     ports:
       - "5004:80"
   payment.api:
@@ -79,9 +79,9 @@ services:
     restart: unless-stopped
     environment:
       # Use Postgres in tests instead of falling back to SQLite
-      ConnectionStrings__PaymentDb: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
+      ConnectionStrings__PaymentDb: "postgres://${PAYMENT_DB_USER:-catalog_admin}:${PAYMENT_DB_PASSWORD:-changeme}@pg:5432/${PAYMENT_DB_NAME:-payment}?sslmode=disable"
       # Backward compatible alias if needed by tooling
-      POSTGRES_DSN: "postgres://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
+      POSTGRES_DSN: "postgres://${PAYMENT_DB_USER:-catalog_admin}:${PAYMENT_DB_PASSWORD:-changeme}@pg:5432/${PAYMENT_DB_NAME:-payment}?sslmode=disable"
     ports:
       - "7001:7001"
       - "7002:8080"
@@ -101,8 +101,8 @@ services:
       - cart.redis
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Redis: "cart.redis:6379"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__Redis: "${CART_REDIS_URL:-cart.redis:6379}"
     ports:
       - "5010:80"
   inventory.api:
@@ -115,7 +115,7 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      POSTGRES_DSN: "postgresql://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}?sslmode=disable"
+      POSTGRES_DSN: "postgresql://${INVENTORY_DB_USER:-catalog_admin}:${INVENTORY_DB_PASSWORD:-changeme}@pg:5432/${INVENTORY_DB_NAME:-inventory}?sslmode=disable"
     ports:
       - "8210:8000"
   analytics.api:
@@ -128,7 +128,7 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ConnectionStrings__AnalyticsDb: "postgresql://${DB_USER:-catalog_admin}:${DB_PASSWORD}@pg:5432/${DB_NAME:-catalog}"
+      ConnectionStrings__AnalyticsDb: "postgresql://${ANALYTICS_DB_USER:-catalog_admin}:${ANALYTICS_DB_PASSWORD:-changeme}@pg:5432/${ANALYTICS_DB_NAME:-analytics}"
     ports:
       - "8100:8000"
   auth.api:
@@ -141,8 +141,15 @@ services:
       - pg
     restart: unless-stopped
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=${DB_NAME:-catalog};Username=${DB_USER:-catalog_admin};Password=${DB_PASSWORD}"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=${AUTH_DB_NAME:-auth};Username=${AUTH_DB_USER:-catalog_admin};Password=${AUTH_DB_PASSWORD:-changeme}"
+      Auth__BffRedirectUri: ${AUTH_BFF_REDIRECT_URI:-http://localhost:9080/auth/callback}
+      Auth__AllowedCorsOrigins__0: ${AUTH_ALLOWED_CORS_ORIGIN_0:-http://localhost:3000}
+      Auth__AllowedCorsOrigins__1: ${AUTH_ALLOWED_CORS_ORIGIN_1:-http://localhost:3002}
+      Auth__SampleClientSecret: ${AUTH_SAMPLE_CLIENT_SECRET:-sample-secret-dev}
+      Auth__AdminClientSecret: ${AUTH_ADMIN_CLIENT_SECRET:-admin-secret-dev}
+      Auth__SecondaryAdminClientSecret: ${AUTH_SECONDARY_ADMIN_CLIENT_SECRET:-secondary-secret-dev}
+      Auth__DefaultTestUserPassword: ${AUTH_DEFAULT_TEST_USER_PASSWORD:-pass1}
     ports:
       - "7000:8080"
   notification.api:
@@ -272,15 +279,35 @@ services:
       - PYTHONUNBUFFERED=1
     ports:
       - "9070:8000"
+  bff.redis:
+    image: redis:7-alpine
+    container_name: bff-redis
+    restart: unless-stopped
+    volumes:
+      - bff-redis-data:/data
   bff.api:
     build:
       context: ./Bff
       dockerfile: Dockerfile
     image: ${REGISTRY}:bff.api-${TAG:-dev}
     container_name: bff-api
+    depends_on:
+      - bff.redis
     restart: unless-stopped
     environment:
-      - PYTHONUNBUFFERED=1
+      PYTHONUNBUFFERED: "1"
+      BFF_SESSION_REDIS_URL: ${BFF_SESSION_REDIS_URL:-redis://bff-redis:6379/0}
+      AUTH_INTERNAL_BASE: ${AUTH_INTERNAL_BASE:-http://auth.api}
+      AUTH_PUBLIC_BASE: ${AUTH_PUBLIC_BASE:-http://localhost:7000}
+      BFF_CLIENT_ID: ${BFF_CLIENT_ID:-}
+      BFF_CLIENT_SECRET: ${BFF_CLIENT_SECRET:-}
+      BFF_SCOPE: ${BFF_SCOPE:-api1 offline_access}
+      BFF_ALLOW_PASSWORD_GRANT: ${BFF_ALLOW_PASSWORD_GRANT:-false}
+      BFF_ALLOWED_ORIGINS: ${BFF_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3002,http://localhost:4000}
+      BFF_COOKIE_SECURE: ${BFF_COOKIE_SECURE:-false}
+      BFF_COOKIE_SAMESITE: ${BFF_COOKIE_SAMESITE:-lax}
+      BFF_SESSION_TTL: ${BFF_SESSION_TTL:-14400}
+      BFF_SESSION_NAMESPACE: ${BFF_SESSION_NAMESPACE:-bff-session}
     ports:
       - "9080:8000"
 
@@ -432,3 +459,4 @@ services:
       - "3001:3000"
 volumes:
   pgdata:
+  bff-redis-data:

@@ -184,8 +184,11 @@ func main() {
 	/* ---------- Gin ---------- */
         router := gin.Default()
         router.GET("/healthz", func(c *gin.Context) {
+                c.JSON(200, gin.H{"status": "ok"})
+        })
+        router.GET("/readyz", func(c *gin.Context) {
                 if dbHealthy(db) {
-                        c.JSON(200, gin.H{"status": "ok"})
+                        c.JSON(200, gin.H{"status": "ready"})
                 } else {
                         c.JSON(503, gin.H{"status": "db unavailable"})
                 }

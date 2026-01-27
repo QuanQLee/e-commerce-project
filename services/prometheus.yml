@@ -39,6 +39,10 @@ scrape_configs:
     static_configs:
       - targets: ['admin.api:8000']
     metrics_path: /metrics
+  - job_name: 'bff'
+    static_configs:
+      - targets: ['bff.api:8000']
+    metrics_path: /metrics
 
 
 

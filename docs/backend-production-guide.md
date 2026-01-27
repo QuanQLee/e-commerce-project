@@ -51,6 +51,10 @@ This guide summarises the production baseline introduced for the gateway and Aut
 5. **Container hardening**: use multi-stage builds, run as non-root, expose explicit ports, and add healthchecks.
 6. **Secrets management**: remove inline secrets from manifests; prefer ConfigMaps/Secrets for Kubernetes and .env overrides for docker-compose.
 
+## Admin service notes
+- CORS origins now come from `ADMIN_ALLOWED_ORIGINS` (comma-separated).
+- Admin audit events are logged when `ADMIN_AUDIT_LOG_ENABLED=true` (default). Audit fields include actor, request ID, action, target, and status.
+
 Applying this checklist to the remaining .NET APIs (Cart, Shipping, User) is the fastest way to generalise the improvements. Python services should adopt analogous patterns using FastAPI's lifespan hooks, pydantic-settings for env validation, and uvicorn/gunicorn production settings.
 
 

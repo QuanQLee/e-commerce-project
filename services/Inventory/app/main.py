@@ -1,11 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 import structlog
 from prometheus_client import Counter, Gauge, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 
-from .db import SessionLocal, init_db
+from .db import SessionLocal, init_db, engine
 from .models import Inventory
 
 app = FastAPI(title="Inventory API", version="v1")
@@ -43,6 +44,12 @@ def startup():
 @app.get("/healthz")
 def healthz():
     return {"status": "ok"}
+
+@app.get("/readyz")
+def readyz():
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+    return {"status": "ready"}
 
 @app.get("/inventory/{product_id}")
 def get_stock(product_id: str, db: Session = Depends(get_db)):
