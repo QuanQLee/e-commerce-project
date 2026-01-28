@@ -38,6 +38,26 @@ def fetch_checks(pr, repo):
     return gh_json(["gh", "pr", "checks", pr, "--json", fields], repo)
 
 
+def fetch_failed_runs(branch, repo, limit):
+    fields = "databaseId,name,workflowName,headBranch,headSha,conclusion,status,url,createdAt"
+    return gh_json(
+        [
+            "gh",
+            "run",
+            "list",
+            "--branch",
+            branch,
+            "--status",
+            "failure",
+            "--limit",
+            str(limit),
+            "--json",
+            fields,
+        ],
+        repo,
+    )
+
+
 def extract_run_id(details_url):
     if not details_url:
         return None
@@ -68,15 +88,20 @@ def summarize_checks(checks):
     return failures
 
 
-def render_report(pr, pr_url, failures, logs_by_check):
+def render_report(pr, pr_url, failures, logs_by_check, run_meta=None):
     now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%SZ")
     lines = [
         "# CI Failure Report",
         "",
-        f"- PR: {pr} ({pr_url or 'unknown'})",
+        f"- PR: {pr} ({pr_url or 'unknown'})" if pr else "- PR: (not used)",
         f"- Generated: {now}",
         "",
     ]
+    if run_meta:
+        lines.append(f"- Branch: {run_meta.get('headBranch')}")
+        lines.append(f"- Workflow: {run_meta.get('workflowName')}")
+        lines.append(f"- Run: {run_meta.get('url')}")
+        lines.append("")
     if not failures:
         lines.append("No failing checks detected.")
         return "\n".join(lines)
@@ -114,6 +139,8 @@ def main():
     parser = argparse.ArgumentParser(description="Poll GitHub PR checks and collect failing logs.")
     parser.add_argument("--repo", default=".", help="Repo path (default: .)")
     parser.add_argument("--pr", help="PR number or URL (default: current branch PR)")
+    parser.add_argument("--branch", help="Branch name to inspect workflow runs (non-PR mode)")
+    parser.add_argument("--run-limit", type=int, default=5, help="Max failed runs to consider")
     parser.add_argument("--interval", type=int, default=30, help="Polling interval seconds")
     parser.add_argument("--max-tries", type=int, default=1, help="Max polling attempts")
     parser.add_argument("--max-lines", type=int, default=200, help="Max log lines to capture")
@@ -124,7 +151,8 @@ def main():
     repo = os.path.abspath(args.repo)
     pr = args.pr
     pr_url = None
-    if not pr:
+    run_meta = None
+    if not pr and not args.branch:
         pr, pr_url = resolve_pr(repo)
 
     attempt = 0
@@ -133,24 +161,40 @@ def main():
 
     while attempt < max(args.max_tries, 1):
         attempt += 1
-        checks = fetch_checks(pr, repo)
-        failures = summarize_checks(checks)
         logs_by_check = {}
+        failures = []
 
-        for chk in failures:
-            details_url = chk.get("detailsUrl") or chk.get("link")
-            run_id = extract_run_id(details_url)
-            run_url = None
-            log_snippet = None
-            if run_id:
-                try:
-                    run_url = fetch_run_url(run_id, repo)
-                    log_snippet = fetch_run_log(run_id, repo, args.max_lines)
-                except Exception:
-                    log_snippet = None
-            logs_by_check[chk.get("name")] = {"run_url": run_url, "log": log_snippet}
+        if args.branch:
+            runs = fetch_failed_runs(args.branch, repo, args.run_limit)
+            if runs:
+                run_meta = runs[0]
+                run_id = str(run_meta.get("databaseId"))
+                log_snippet = None
+                if run_id:
+                    try:
+                        log_snippet = fetch_run_log(run_id, repo, args.max_lines)
+                    except Exception:
+                        log_snippet = None
+                failures = [{"name": run_meta.get("name") or "workflow-run", "detailsUrl": run_meta.get("url")}]
+                logs_by_check[failures[0]["name"]] = {"run_url": run_meta.get("url"), "log": log_snippet}
+        else:
+            checks = fetch_checks(pr, repo)
+            failures = summarize_checks(checks)
 
-        report = render_report(pr, pr_url, failures, logs_by_check)
+            for chk in failures:
+                details_url = chk.get("detailsUrl") or chk.get("link")
+                run_id = extract_run_id(details_url)
+                run_url = None
+                log_snippet = None
+                if run_id:
+                    try:
+                        run_url = fetch_run_url(run_id, repo)
+                        log_snippet = fetch_run_log(run_id, repo, args.max_lines)
+                    except Exception:
+                        log_snippet = None
+                logs_by_check[chk.get("name")] = {"run_url": run_url, "log": log_snippet}
+
+        report = render_report(pr, pr_url, failures, logs_by_check, run_meta=run_meta)
         if not args.no_report:
             with open(os.path.join(repo, args.report), "w", encoding="utf-8") as f:
                 f.write(report)

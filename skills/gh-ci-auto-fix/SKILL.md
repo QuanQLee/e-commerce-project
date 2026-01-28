@@ -29,6 +29,17 @@ python3 "<path-to-skill>/scripts/poll_pr_checks.py" --repo . --pr "<pr-number-or
 - The report is written to `ci_failure_report.md` by default.
 - A non-zero exit code means failures remain after polling.
 
+### 2b) Auto-fix loop (with consent)
+
+Run the auto loop to poll, ask for consent, apply fixes, commit, push, and re-check:
+
+```bash
+python3 "<path-to-skill>/scripts/auto_fix_loop.py" --repo . --branch master --fix-cmd "pnpm lint --fix" --fix-cmd "pnpm format" --retries 3
+```
+
+- `--fix-cmd` is required and repeatable.
+- The script prompts before applying fixes and pushing.
+
 ### 3) Apply fixes locally
 
 - Read the failure report and locate the failing job/log snippet.
@@ -54,6 +65,7 @@ Re-run the polling script after pushing. Repeat the fix loop until checks pass o
 ## Scripts
 
 - `scripts/poll_pr_checks.py`: Poll PR checks, fetch failing GitHub Actions logs, write a local report, and exit non-zero if failures remain.
+- `scripts/auto_fix_loop.py`: Poll, prompt for consent, run fix commands, commit, push, and re-check.
 
 ## References
 

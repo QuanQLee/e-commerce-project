@@ -167,8 +167,6 @@ services:
   plugins:
   - name: jwt
     enabled: false
-  - name: acl
-    enabled: false
 plugins:
 - name: cors
   config:
@@ -210,11 +208,11 @@ plugins:
     hide_groups_header: true
 - name: rate-limiting
   config:
-    minute: '{{ tonumber (default "60" (env "KONG_RATE_LIMIT_MINUTE")) }}'
+    minute: ${KONG_RATE_LIMIT_MINUTE:-60}
     policy: local
 - name: request-size-limiting
   config:
-    allowed_payload_size: '{{ tonumber (default "2" (env "KONG_REQUEST_BODY_LIMIT_MB")) }}'
+    allowed_payload_size: ${KONG_REQUEST_BODY_LIMIT_MB:-2}
     size_unit: megabytes
 - name: response-transformer
   config:
