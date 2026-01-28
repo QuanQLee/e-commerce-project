@@ -197,7 +197,8 @@ jobs:
     env:
       GHCR_REGISTRY: ghcr.io/${{ github.repository_owner }}
       REMOTE_PATH: ${{ secrets.EC2_REMOTE_PATH }}
-      COMPOSE_FILE: ${{ secrets.EC2_COMPOSE_FILE }}
+      COMPOSE_FILES: ${{ secrets.EC2_COMPOSE_FILES }}
+      ENV_B64: ${{ secrets.EC2_ENV_B64 }}
     steps:
       - name: Resolve deployment tag
         shell: bash
@@ -209,6 +210,36 @@ jobs:
           else
             echo "TAG=dev" >> $GITHUB_ENV
           fi
+      - name: Prepare remote path
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            REMOTE_PATH="${REMOTE_PATH:-/opt/ecommerce/current}"
+            mkdir -p "${REMOTE_PATH}"
+      - name: Upload compose files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "services/docker-compose.yml,services/docker-compose.aws.yml,services/docker-compose.aws.logging.yml"
+          target: "${{ secrets.EC2_REMOTE_PATH }}"
+      - name: Upload .env from secret
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            REMOTE_PATH="${REMOTE_PATH:-/opt/ecommerce/current}"
+            if [ -n "${ENV_B64}" ]; then
+              echo "${ENV_B64}" | base64 -d > "${REMOTE_PATH}/.env"
+            fi
       - name: Deploy to EC2 via SSH (GHCR)
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -220,9 +251,9 @@ jobs:
             REGISTRY="${GHCR_REGISTRY}"
             TAG="${TAG}"
             REMOTE_PATH="${REMOTE_PATH:-/opt/ecommerce/current}"
-            COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
+            COMPOSE_FILES="${COMPOSE_FILES:-docker-compose.yml}"
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             cd "${REMOTE_PATH}"
-            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose -f "${COMPOSE_FILE}" pull
-            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose -f "${COMPOSE_FILE}" up -d --remove-orphans
-            docker compose -f "${COMPOSE_FILE}" ps
+            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose ${COMPOSE_FILES} pull
+            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose ${COMPOSE_FILES} up -d --remove-orphans
+            docker compose ${COMPOSE_FILES} ps
