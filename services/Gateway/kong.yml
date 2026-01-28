@@ -155,8 +155,7 @@ services:
   - name: acl
     enabled: false
     config:
-      allow:
-      - frontend-group
+      allow: [frontend-group]
 - name: health
   url: http://bff.api:8000
   routes:
@@ -202,17 +201,15 @@ plugins:
     cookie_names: []
 - name: acl
   config:
-    allow:
-    - frontend-group
-    - admin-group
+    allow: [frontend-group, admin-group]
     hide_groups_header: true
 - name: rate-limiting
   config:
-    minute: ${KONG_RATE_LIMIT_MINUTE:-60}
+    minute: {{ default 60 (env "KONG_RATE_LIMIT_MINUTE") }}
     policy: local
 - name: request-size-limiting
   config:
-    allowed_payload_size: ${KONG_REQUEST_BODY_LIMIT_MB:-2}
+    allowed_payload_size: {{ default 2 (env "KONG_REQUEST_BODY_LIMIT_MB") }}
     size_unit: megabytes
 - name: response-transformer
   config:
