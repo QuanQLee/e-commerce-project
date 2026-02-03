@@ -211,6 +211,7 @@ jobs:
       COMPOSE_FILES: ${{ secrets.EC2_COMPOSE_FILES }}
       ENV_B64: ${{ secrets.EC2_ENV_B64 }}
     steps:
+      - uses: actions/checkout@v4
       - name: Resolve deployment tag
         shell: bash
         run: |
