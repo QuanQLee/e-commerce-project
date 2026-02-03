@@ -255,7 +255,7 @@ jobs:
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
-            if [ -n "${ENV_B64}" ]; then
+            if [ -n "${ENV_B64:-}" ]; then
               echo "${ENV_B64}" | base64 -d > "${REMOTE_PATH}/.env"
             fi
       - name: Deploy to EC2 via SSH (GHCR)
