@@ -271,8 +271,12 @@ jobs:
             TAG="${TAG:-latest}"
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             COMPOSE_FILES="${COMPOSE_FILES:-docker-compose.yml}"
+            COMPOSE_ARGS=""
+            for f in ${COMPOSE_FILES}; do
+              COMPOSE_ARGS="$COMPOSE_ARGS -f $f"
+            done
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             cd "${REMOTE_PATH}"
-            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose ${COMPOSE_FILES} pull
-            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose ${COMPOSE_FILES} up -d --remove-orphans
-            docker compose ${COMPOSE_FILES} ps
+            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS pull
+            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans
+            docker compose $COMPOSE_ARGS ps
