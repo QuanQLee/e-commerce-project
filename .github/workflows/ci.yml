@@ -264,10 +264,11 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: GHCR_REGISTRY,REMOTE_PATH,COMPOSE_FILES,TAG
           script: |
             set -euo pipefail
-            REGISTRY="${GHCR_REGISTRY}"
-            TAG="${TAG}"
+            REGISTRY="${GHCR_REGISTRY:-ghcr.io/${{ github.repository_owner }}}"
+            TAG="${TAG:-latest}"
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             COMPOSE_FILES="${COMPOSE_FILES:-docker-compose.yml}"
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
