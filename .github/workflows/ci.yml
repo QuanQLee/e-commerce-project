@@ -222,6 +222,12 @@ jobs:
           else
             echo "TAG=dev" >> $GITHUB_ENV
           fi
+      - name: Resolve remote path
+        shell: bash
+        run: |
+          if [ -z "${REMOTE_PATH}" ]; then
+            echo "REMOTE_PATH=/home/${{ secrets.EC2_USER }}/ecommerce/current" >> $GITHUB_ENV
+          fi
       - name: Prepare remote path
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -239,7 +245,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "services/docker-compose.yml,services/docker-compose.aws.yml,services/docker-compose.aws.logging.yml"
-          target: "${{ secrets.EC2_REMOTE_PATH }}"
+          target: "${{ env.REMOTE_PATH }}"
       - name: Upload .env from secret
         uses: appleboy/ssh-action@v1.0.3
         with:
