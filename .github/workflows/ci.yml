@@ -229,7 +229,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -euo pipefail
-            REMOTE_PATH="${REMOTE_PATH:-/opt/ecommerce/current}"
+            REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             mkdir -p "${REMOTE_PATH}"
       - name: Upload compose files
         uses: appleboy/scp-action@v0.1.7
@@ -247,7 +247,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -euo pipefail
-            REMOTE_PATH="${REMOTE_PATH:-/opt/ecommerce/current}"
+            REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             if [ -n "${ENV_B64}" ]; then
               echo "${ENV_B64}" | base64 -d > "${REMOTE_PATH}/.env"
             fi
@@ -261,7 +261,7 @@ jobs:
             set -euo pipefail
             REGISTRY="${GHCR_REGISTRY}"
             TAG="${TAG}"
-            REMOTE_PATH="${REMOTE_PATH:-/opt/ecommerce/current}"
+            REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             COMPOSE_FILES="${COMPOSE_FILES:-docker-compose.yml}"
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             cd "${REMOTE_PATH}"
