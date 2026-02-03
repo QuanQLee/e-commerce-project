@@ -22,6 +22,12 @@ jobs:
       VITE_API_BASE_URL: http://localhost:9080
       VITE_API_KEY: ''
       ASPNETCORE_ENVIRONMENT: Development
+      KONG_CORS_ORIGIN_PRIMARY: https://storefront.local
+      KONG_CORS_ORIGIN_SECONDARY: https://merchant.local
+      KONG_RATE_LIMIT_MINUTE: "60"
+      KONG_REQUEST_BODY_LIMIT_MB: "2"
+      KONG_FRONTEND_JWT_SECRET: ci-frontend-secret
+      KONG_ADMIN_JWT_SECRET: ci-admin-secret
     permissions:
       contents: read
       packages: write
@@ -92,6 +98,11 @@ jobs:
 
       - name: Setup decK
         uses: kong/setup-deck@v1
+      - name: Render Kong config
+        run: |
+          python scripts/render-kong-config.py \
+            services/Gateway/kong.yml \
+            services/Gateway/kong.rendered.yml
       - name: Start Kong Gateway
         shell: bash
         run: |
@@ -102,7 +113,7 @@ jobs:
             -e KONG_DECLARATIVE_CONFIG=/kong/kong.yml \
             -e KONG_ADMIN_LISTEN=0.0.0.0:8001 \
             -e KONG_LOG_LEVEL=info \
-            -v ${{ github.workspace }}/services/Gateway/kong.yml:/kong/kong.yml \
+            -v ${{ github.workspace }}/services/Gateway/kong.rendered.yml:/kong/kong.yml \
             kong:3
 
           echo "Waiting for Kong admin API to be ready..."
@@ -124,7 +135,7 @@ jobs:
           fi
       - name: Sync Kong config
         # Use decK classic syntax for Kong Gateway to avoid version-specific flags
-        run: deck sync -s services/Gateway/kong.yml --kong-addr http://127.0.0.1:8001
+        run: deck sync -s services/Gateway/kong.rendered.yml --kong-addr http://127.0.0.1:8001
       - name: Stop Kong Gateway
         run: docker rm -f kong-test
 

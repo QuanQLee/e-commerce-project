@@ -5,12 +5,13 @@ import subprocess
 import sys
 
 
-def run(cmd, cwd, shell=False, check=True):
+def run(cmd, cwd, shell=False, check=True, input_text=None):
     result = subprocess.run(
         cmd,
         cwd=cwd,
         shell=shell,
         text=True,
+        input=input_text,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -72,6 +73,19 @@ def main():
     if not args.fix_cmd:
         print("No --fix-cmd provided. Add at least one fix command.", file=sys.stderr)
         return 2
+
+    gh_token = os.environ.get("GH_TOKEN")
+    if gh_token:
+        status = run(["gh", "auth", "status", "-h", "github.com"], cwd=repo, check=False)
+        if status.returncode != 0:
+            run(
+                ["gh", "auth", "login", "--hostname", "github.com", "--git-protocol", "https", "--with-token"],
+                cwd=repo,
+                check=True,
+                shell=False,
+                input_text=gh_token + "\n",
+            )
+            run(["gh", "auth", "setup-git"], cwd=repo, check=False)
 
     attempt = 0
     while attempt < args.retries:

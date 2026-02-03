@@ -39,6 +39,7 @@ python3 "<path-to-skill>/scripts/auto_fix_loop.py" --repo . --branch master --fi
 
 - `--fix-cmd` is required and repeatable.
 - The script prompts before applying fixes and pushing.
+- If `GH_TOKEN` is set, the script will use it for non-interactive auth and run `gh auth setup-git`.
 
 ### 3) Apply fixes locally
 
