@@ -3,7 +3,7 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock* ./
 RUN pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-interaction --no-ansi --no-root
+    poetry lock --no-update && poetry install --no-interaction --no-ansi --no-root
 COPY app ./app
 RUN poetry build -f wheel
 
