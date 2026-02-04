@@ -249,7 +249,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "services/docker-compose.yml,services/docker-compose.aws.yml,services/docker-compose.aws.logging.yml"
+          source: "services/docker-compose.yml,services/docker-compose.aws.yml,services/docker-compose.aws.logging.yml,services/Gateway/kong.yml"
           target: "${{ env.REMOTE_PATH }}"
       - name: Normalize compose files
         uses: appleboy/ssh-action@v1.0.3
