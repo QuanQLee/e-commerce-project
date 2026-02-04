@@ -239,6 +239,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REMOTE_PATH
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
@@ -250,6 +251,9 @@ jobs:
             fi
             if [ -d "${REMOTE_PATH}/frontend/nginx.conf" ]; then
               rm -rf "${REMOTE_PATH}/frontend/nginx.conf"
+            fi
+            if [ -d "${REMOTE_PATH}/frontend/frontend" ]; then
+              rm -rf "${REMOTE_PATH}/frontend/frontend"
             fi
       - name: Upload compose files
         uses: appleboy/scp-action@v0.1.7
@@ -266,13 +270,14 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "frontend/nginx.conf"
-          target: "${{ env.REMOTE_PATH }}/frontend"
+          target: "${{ env.REMOTE_PATH }}"
       - name: Normalize compose files
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REMOTE_PATH
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
@@ -291,6 +296,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REMOTE_PATH
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
@@ -302,6 +308,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REMOTE_PATH,ENV_B64
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
@@ -321,6 +328,8 @@ jobs:
             TAG="${TAG:-latest}"
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             COMPOSE_FILES="${COMPOSE_FILES:-docker-compose.yml}"
+            # Normalize legacy paths that include "services/" after we move files to the root.
+            COMPOSE_FILES="${COMPOSE_FILES//services\//}"
             COMPOSE_ARGS=""
             for f in ${COMPOSE_FILES}; do
               COMPOSE_ARGS="$COMPOSE_ARGS -f $f"
