@@ -408,7 +408,7 @@ services:
       - "3000:80"
     volumes:
       # Ensure a valid nginx.conf even when using a prebuilt image
-      - ../frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
   merchant.web:
     build:
       context: ..

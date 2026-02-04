@@ -315,7 +315,7 @@ services:
     ports:
     - 3000:80
     volumes:
-    - ../frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+    - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
   merchant.web:
     image: ${REGISTRY}:merchant.web-${TAG:-dev}
     container_name: merchant-web
