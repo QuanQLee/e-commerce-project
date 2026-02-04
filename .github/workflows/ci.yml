@@ -243,6 +243,7 @@ jobs:
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             mkdir -p "${REMOTE_PATH}"
+            mkdir -p "${REMOTE_PATH}/frontend"
       - name: Upload compose files
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -251,6 +252,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "services/docker-compose.yml,services/docker-compose.aws.yml,services/docker-compose.aws.logging.yml,services/Gateway/kong.yml"
           target: "${{ env.REMOTE_PATH }}"
+      - name: Upload frontend nginx.conf
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "frontend/nginx.conf"
+          target: "${{ env.REMOTE_PATH }}/frontend"
       - name: Normalize compose files
         uses: appleboy/ssh-action@v1.0.3
         with:
