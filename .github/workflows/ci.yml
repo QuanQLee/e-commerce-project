@@ -212,6 +212,9 @@ jobs:
       ENV_B64: ${{ secrets.EC2_ENV_B64 }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Resolve deployment tag
         shell: bash
         run: |
@@ -233,6 +236,11 @@ jobs:
           if [ -z "${REMOTE_PATH}" ]; then
             echo "REMOTE_PATH=/home/${{ secrets.EC2_USER }}/ecommerce/current" >> $GITHUB_ENV
           fi
+      - name: Render Kong config for deploy
+        shell: bash
+        run: |
+          python scripts/render-kong-config.py services/Gateway/kong.yml services/Gateway/kong.rendered.yml
+          mv services/Gateway/kong.rendered.yml services/Gateway/kong.yml
       - name: Prepare remote path
         uses: appleboy/ssh-action@v1.0.3
         with:
