@@ -250,7 +250,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "services/docker-compose.yml,services/docker-compose.aws.yml,services/docker-compose.aws.logging.yml,services/Gateway/kong.yml"
+          source: "services/docker-compose.yml,services/docker-compose.aws.yml,services/docker-compose.aws.logging.yml,services/Gateway/kong.yml,services/prometheus.yml,services/prometheusRule.yaml"
           target: "${{ env.REMOTE_PATH }}"
       - name: Upload frontend nginx.conf
         uses: appleboy/scp-action@v0.1.7
@@ -271,6 +271,8 @@ jobs:
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             if [ -d "${REMOTE_PATH}/services" ]; then
               mv -f "${REMOTE_PATH}/services/"docker-compose*.yml "${REMOTE_PATH}/" || true
+              mv -f "${REMOTE_PATH}/services/prometheus.yml" "${REMOTE_PATH}/" || true
+              mv -f "${REMOTE_PATH}/services/prometheusRule.yaml" "${REMOTE_PATH}/" || true
             fi
             if [ -d "${REMOTE_PATH}/services/Gateway" ]; then
               mkdir -p "${REMOTE_PATH}/Gateway"
