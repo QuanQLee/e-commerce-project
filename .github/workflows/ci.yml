@@ -222,6 +222,11 @@ jobs:
           else
             echo "TAG=dev" >> $GITHUB_ENV
           fi
+      - name: Normalize GHCR registry
+        shell: bash
+        run: |
+          ghcr_registry=$(echo "${GHCR_REGISTRY}" | tr '[:upper:]' '[:lower:]')
+          echo "GHCR_REGISTRY=${ghcr_registry}" >> $GITHUB_ENV
       - name: Resolve remote path
         shell: bash
         run: |
