@@ -246,6 +246,18 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "services/docker-compose.yml,services/docker-compose.aws.yml,services/docker-compose.aws.logging.yml"
           target: "${{ env.REMOTE_PATH }}"
+      - name: Normalize compose files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
+            if [ -d "${REMOTE_PATH}/services" ]; then
+              mv -f "${REMOTE_PATH}/services/"docker-compose*.yml "${REMOTE_PATH}/" || true
+            fi
       - name: Upload .env from secret
         uses: appleboy/ssh-action@v1.0.3
         with:
