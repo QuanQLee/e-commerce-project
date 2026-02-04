@@ -244,6 +244,13 @@ jobs:
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             mkdir -p "${REMOTE_PATH}"
             mkdir -p "${REMOTE_PATH}/frontend"
+            # Clean up mistaken directories created by failed bind-mounts.
+            if [ -d "${REMOTE_PATH}/prometheus.yml" ]; then
+              rm -rf "${REMOTE_PATH}/prometheus.yml"
+            fi
+            if [ -d "${REMOTE_PATH}/frontend/nginx.conf" ]; then
+              rm -rf "${REMOTE_PATH}/frontend/nginx.conf"
+            fi
       - name: Upload compose files
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -260,6 +267,17 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "frontend/nginx.conf"
           target: "${{ env.REMOTE_PATH }}/frontend"
+      - name: Verify uploaded config files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
+            test -f "${REMOTE_PATH}/prometheus.yml"
+            test -f "${REMOTE_PATH}/frontend/nginx.conf"
       - name: Normalize compose files
         uses: appleboy/ssh-action@v1.0.3
         with:
