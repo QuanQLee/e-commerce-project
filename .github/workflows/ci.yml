@@ -263,6 +263,10 @@ jobs:
             if [ -d "${REMOTE_PATH}/services" ]; then
               mv -f "${REMOTE_PATH}/services/"docker-compose*.yml "${REMOTE_PATH}/" || true
             fi
+            if [ -d "${REMOTE_PATH}/services/Gateway" ]; then
+              mkdir -p "${REMOTE_PATH}/Gateway"
+              mv -f "${REMOTE_PATH}/services/Gateway/"* "${REMOTE_PATH}/Gateway/" || true
+            fi
       - name: Upload .env from secret
         uses: appleboy/ssh-action@v1.0.3
         with:
