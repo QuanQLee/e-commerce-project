@@ -238,6 +238,9 @@ jobs:
           fi
       - name: Render Kong config for deploy
         shell: bash
+        env:
+          KONG_FRONTEND_JWT_SECRET: ci-frontend-secret
+          KONG_ADMIN_JWT_SECRET: ci-admin-secret
         run: |
           python scripts/render-kong-config.py services/Gateway/kong.yml services/Gateway/kong.rendered.yml
           mv services/Gateway/kong.rendered.yml services/Gateway/kong.yml
