@@ -337,6 +337,10 @@ jobs:
             else
               touch "${REMOTE_PATH}/.env"
             fi
+            if [ -n "${DB_PASSWORD:-}" ]; then
+              # Replace placeholder secrets (if present) with the real DB password.
+              sed -i "s/__GENERATE_UNIQUE_SECRET__/${DB_PASSWORD}/g" "${REMOTE_PATH}/.env" || true
+            fi
             for key in \
               DB_PASSWORD \
               CATALOG_DB_PASSWORD \
@@ -354,6 +358,10 @@ jobs:
                 fi
               fi
             done
+            # Ensure auth runs in Development for EC2 test deploys unless explicitly set.
+            if ! grep -q '^ASPNETCORE_ENVIRONMENT=' "${REMOTE_PATH}/.env"; then
+              echo "ASPNETCORE_ENVIRONMENT=Development" >> "${REMOTE_PATH}/.env"
+            fi
       - name: Deploy to EC2 via SSH (GHCR)
         uses: appleboy/ssh-action@v1.0.3
         with:
