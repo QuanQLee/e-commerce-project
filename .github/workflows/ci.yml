@@ -353,15 +353,17 @@ jobs:
               ANALYTICS_DB_PASSWORD; do
               value="$(printenv "$key" || true)"
               if [ -n "${value}" ]; then
-                if ! grep -q "^${key}=" "${REMOTE_PATH}/.env"; then
-                  echo "${key}=${value}" >> "${REMOTE_PATH}/.env"
-                fi
+                # Ensure the value is set (overwrite existing).
+                sed -i "/^${key}=.*/d" "${REMOTE_PATH}/.env" || true
+                echo "${key}=${value}" >> "${REMOTE_PATH}/.env"
               fi
             done
-            # Ensure auth runs in Development for EC2 test deploys unless explicitly set.
-            if ! grep -q '^ASPNETCORE_ENVIRONMENT=' "${REMOTE_PATH}/.env"; then
-              echo "ASPNETCORE_ENVIRONMENT=Development" >> "${REMOTE_PATH}/.env"
-            fi
+            # Force auth to run in Development for EC2 test deploys.
+            sed -i "/^ASPNETCORE_ENVIRONMENT=.*/d" "${REMOTE_PATH}/.env" || true
+            echo "ASPNETCORE_ENVIRONMENT=Development" >> "${REMOTE_PATH}/.env"
+            # Ensure BFF uses local redis by default (overwrite placeholder if present).
+            sed -i "/^BFF_SESSION_REDIS_URL=.*/d" "${REMOTE_PATH}/.env" || true
+            echo "BFF_SESSION_REDIS_URL=redis://bff-redis:6379/0" >> "${REMOTE_PATH}/.env"
       - name: Deploy to EC2 via SSH (GHCR)
         uses: appleboy/ssh-action@v1.0.3
         with:
