@@ -210,6 +210,15 @@ jobs:
       REMOTE_PATH: ${{ secrets.EC2_REMOTE_PATH }}
       COMPOSE_FILES: ${{ secrets.EC2_COMPOSE_FILES }}
       ENV_B64: ${{ secrets.EC2_ENV_B64 }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      CATALOG_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      ORDER_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      USER_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      AUTH_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      INVENTORY_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      PAYMENT_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      SHIPPING_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      ANALYTICS_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -319,13 +328,32 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: REMOTE_PATH,ENV_B64
+          envs: REMOTE_PATH,ENV_B64,DB_PASSWORD,CATALOG_DB_PASSWORD,ORDER_DB_PASSWORD,USER_DB_PASSWORD,AUTH_DB_PASSWORD,INVENTORY_DB_PASSWORD,PAYMENT_DB_PASSWORD,SHIPPING_DB_PASSWORD,ANALYTICS_DB_PASSWORD
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             if [ -n "${ENV_B64:-}" ]; then
               echo "${ENV_B64}" | base64 -d > "${REMOTE_PATH}/.env"
+            else
+              touch "${REMOTE_PATH}/.env"
             fi
+            for key in \
+              DB_PASSWORD \
+              CATALOG_DB_PASSWORD \
+              ORDER_DB_PASSWORD \
+              USER_DB_PASSWORD \
+              AUTH_DB_PASSWORD \
+              INVENTORY_DB_PASSWORD \
+              PAYMENT_DB_PASSWORD \
+              SHIPPING_DB_PASSWORD \
+              ANALYTICS_DB_PASSWORD; do
+              value="$(printenv "$key" || true)"
+              if [ -n "${value}" ]; then
+                if ! grep -q "^${key}=" "${REMOTE_PATH}/.env"; then
+                  echo "${key}=${value}" >> "${REMOTE_PATH}/.env"
+                fi
+              fi
+            done
       - name: Deploy to EC2 via SSH (GHCR)
         uses: appleboy/ssh-action@v1.0.3
         with:
