@@ -388,6 +388,8 @@ jobs:
             REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS pull
             REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans
             if [ -f "${REMOTE_PATH}/scripts/db-init.sql" ]; then
-              docker exec -i pg psql -U postgres -v DB_PASSWORD="${DB_PASSWORD}" -f "${REMOTE_PATH}/scripts/db-init.sql"
+              PG_SUPERUSER="$(grep '^DB_USER=' "${REMOTE_PATH}/.env" | cut -d= -f2- || true)"
+              PG_SUPERUSER="${PG_SUPERUSER:-catalog_admin}"
+              cat "${REMOTE_PATH}/scripts/db-init.sql" | docker compose $COMPOSE_ARGS exec -T pg psql -U "${PG_SUPERUSER}" -d postgres -v DB_PASSWORD="${DB_PASSWORD}"
             fi
             docker compose $COMPOSE_ARGS ps
