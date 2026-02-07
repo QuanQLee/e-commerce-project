@@ -370,6 +370,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 40m
           envs: GHCR_REGISTRY,REMOTE_PATH,COMPOSE_FILES,TAG,DB_PASSWORD
           script: |
             set -euo pipefail
