@@ -10,6 +10,6 @@ RUN poetry build -f wheel
 FROM public.ecr.aws/docker/library/python:3.12-slim
 WORKDIR /app
 COPY --from=build /app/dist/*.whl .
-RUN pip install --no-cache-dir *.whl && rm *.whl
+RUN pip install --no-cache-dir "setuptools<81" *.whl && rm *.whl
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

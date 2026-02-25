@@ -205,11 +205,11 @@ plugins:
     hide_groups_header: true
 - name: rate-limiting
   config:
-    minute: {{ default 60 (env "KONG_RATE_LIMIT_MINUTE") }}
+    minute: 60
     policy: local
 - name: request-size-limiting
   config:
-    allowed_payload_size: {{ default 2 (env "KONG_REQUEST_BODY_LIMIT_MB") }}
+    allowed_payload_size: 2
     size_unit: megabytes
 - name: response-transformer
   config:

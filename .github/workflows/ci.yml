@@ -143,6 +143,9 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     env:
       ECR_REGISTRY: 323155025209.dkr.ecr.us-west-1.amazonaws.com
       ECR_REPOSITORY: e-commercial
@@ -185,6 +188,12 @@ jobs:
         run: REGISTRY=${GHCR_REGISTRY} TAG=${TAG} docker compose -f services/docker-compose.yml build
       - name: Push images to GHCR
         run: REGISTRY=${GHCR_REGISTRY} TAG=${TAG} docker compose -f services/docker-compose.yml push
+      - name: Keep only latest 3 GHCR package versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          min-versions-to-keep: 3
       - name: Trigger ECS deployment
         if: env.ECS_CLUSTER != '' && env.ECS_SERVICES != ''
         shell: bash
@@ -416,7 +425,19 @@ jobs:
             done
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             cd "${REMOTE_PATH}"
-            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS pull
+            pull_ok=false
+            for attempt in 1 2 3; do
+              if REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS pull; then
+                pull_ok=true
+                break
+              fi
+              echo "docker compose pull failed (attempt ${attempt}/3), retrying..."
+              sleep $((attempt * 10))
+            done
+            if [ "${pull_ok}" != "true" ]; then
+              echo "docker compose pull failed after 3 attempts."
+              exit 1
+            fi
             REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans
             if [ -f "${REMOTE_PATH}/scripts/db-init.sql" ]; then
               PG_SUPERUSER="$(grep '^DB_USER=' "${REMOTE_PATH}/.env" | cut -d= -f2- || true)"
@@ -428,6 +449,6 @@ jobs:
                 sleep 2
               done
               cat "${REMOTE_PATH}/scripts/db-init.sql" | docker compose $COMPOSE_ARGS exec -T pg psql -U "${PG_SUPERUSER}" -d postgres -v DB_PASSWORD="${DB_PASSWORD}"
-              docker compose $COMPOSE_ARGS restart user.api inventory.api auth.api bff.api || true
+              REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans --force-recreate user.api inventory.api auth.api bff.api gateway || true
             fi
             docker compose $COMPOSE_ARGS ps
