@@ -250,9 +250,15 @@ jobs:
         env:
           KONG_FRONTEND_JWT_SECRET: ci-frontend-secret
           KONG_ADMIN_JWT_SECRET: ci-admin-secret
+          KONG_RATE_LIMIT_MINUTE: "60"
+          KONG_REQUEST_BODY_LIMIT_MB: "2"
         run: |
           python scripts/render-kong-config.py services/Gateway/kong.yml services/Gateway/kong.rendered.yml
           mv services/Gateway/kong.rendered.yml services/Gateway/kong.yml
+          if rg -q '\{\{' services/Gateway/kong.yml; then
+            echo "Unrendered Kong template placeholders remain."
+            exit 1
+          fi
       - name: Prepare remote path
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -358,6 +364,30 @@ jobs:
                 echo "${key}=${value}" >> "${REMOTE_PATH}/.env"
               fi
             done
+            # Pin DB users to a deterministic mapping used by db-init.sql.
+            for key in \
+              DB_USER \
+              CATALOG_DB_USER \
+              ORDER_DB_USER \
+              USER_DB_USER \
+              AUTH_DB_USER \
+              INVENTORY_DB_USER \
+              PAYMENT_DB_USER \
+              SHIPPING_DB_USER \
+              ANALYTICS_DB_USER; do
+              sed -i "/^${key}=.*/d" "${REMOTE_PATH}/.env" || true
+            done
+            cat >> "${REMOTE_PATH}/.env" <<'EOF'
+DB_USER=catalog_admin
+CATALOG_DB_USER=catalog_admin
+ORDER_DB_USER=order_svc
+USER_DB_USER=user_svc
+AUTH_DB_USER=auth_svc
+INVENTORY_DB_USER=inventory_svc
+PAYMENT_DB_USER=payment_svc
+SHIPPING_DB_USER=shipping_svc
+ANALYTICS_DB_USER=analytics_svc
+EOF
             # Force auth to run in Development for EC2 test deploys.
             sed -i "/^ASPNETCORE_ENVIRONMENT=.*/d" "${REMOTE_PATH}/.env" || true
             echo "ASPNETCORE_ENVIRONMENT=Development" >> "${REMOTE_PATH}/.env"
@@ -391,6 +421,13 @@ jobs:
             if [ -f "${REMOTE_PATH}/scripts/db-init.sql" ]; then
               PG_SUPERUSER="$(grep '^DB_USER=' "${REMOTE_PATH}/.env" | cut -d= -f2- || true)"
               PG_SUPERUSER="${PG_SUPERUSER:-catalog_admin}"
+              for i in $(seq 1 30); do
+                if docker compose $COMPOSE_ARGS exec -T pg pg_isready -U "${PG_SUPERUSER}" -d postgres >/dev/null 2>&1; then
+                  break
+                fi
+                sleep 2
+              done
               cat "${REMOTE_PATH}/scripts/db-init.sql" | docker compose $COMPOSE_ARGS exec -T pg psql -U "${PG_SUPERUSER}" -d postgres -v DB_PASSWORD="${DB_PASSWORD}"
+              docker compose $COMPOSE_ARGS restart user.api inventory.api auth.api bff.api || true
             fi
             docker compose $COMPOSE_ARGS ps
