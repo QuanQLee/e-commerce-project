@@ -378,16 +378,16 @@ jobs:
               sed -i "/^${key}=.*/d" "${REMOTE_PATH}/.env" || true
             done
             cat >> "${REMOTE_PATH}/.env" <<'EOF'
-DB_USER=catalog_admin
-CATALOG_DB_USER=catalog_admin
-ORDER_DB_USER=order_svc
-USER_DB_USER=user_svc
-AUTH_DB_USER=auth_svc
-INVENTORY_DB_USER=inventory_svc
-PAYMENT_DB_USER=payment_svc
-SHIPPING_DB_USER=shipping_svc
-ANALYTICS_DB_USER=analytics_svc
-EOF
+            DB_USER=catalog_admin
+            CATALOG_DB_USER=catalog_admin
+            ORDER_DB_USER=order_svc
+            USER_DB_USER=user_svc
+            AUTH_DB_USER=auth_svc
+            INVENTORY_DB_USER=inventory_svc
+            PAYMENT_DB_USER=payment_svc
+            SHIPPING_DB_USER=shipping_svc
+            ANALYTICS_DB_USER=analytics_svc
+            EOF
             # Force auth to run in Development for EC2 test deploys.
             sed -i "/^ASPNETCORE_ENVIRONMENT=.*/d" "${REMOTE_PATH}/.env" || true
             echo "ASPNETCORE_ENVIRONMENT=Development" >> "${REMOTE_PATH}/.env"
