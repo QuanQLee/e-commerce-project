@@ -457,20 +457,13 @@ jobs:
               done
               cat "${REMOTE_PATH}/scripts/db-init.sql" | docker compose $COMPOSE_ARGS exec -T pg psql -U "${PG_SUPERUSER}" -d postgres -v DB_PASSWORD="${DB_PASSWORD}"
               # Enforce role passwords for the two services that previously looped on auth failures.
-              docker compose $COMPOSE_ARGS exec -T pg psql -U "${PG_SUPERUSER}" -d postgres -v user_pwd="${USER_DB_PASSWORD}" -v inv_pwd="${INVENTORY_DB_PASSWORD}" <<'SQL'
-              \set ON_ERROR_STOP on
-              DO $$
-              BEGIN
-                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'user_svc') THEN
-                  CREATE ROLE user_svc LOGIN;
-                END IF;
-                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'inventory_svc') THEN
-                  CREATE ROLE inventory_svc LOGIN;
-                END IF;
-              END $$;
-              ALTER ROLE user_svc WITH LOGIN PASSWORD :'user_pwd';
-              ALTER ROLE inventory_svc WITH LOGIN PASSWORD :'inv_pwd';
-              SQL
+              docker compose $COMPOSE_ARGS exec -T pg psql -U "${PG_SUPERUSER}" -d postgres \
+                -v ON_ERROR_STOP=1 \
+                -v user_pwd="${USER_DB_PASSWORD}" \
+                -v inv_pwd="${INVENTORY_DB_PASSWORD}" \
+                -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'user_svc') THEN CREATE ROLE user_svc LOGIN; END IF; IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'inventory_svc') THEN CREATE ROLE inventory_svc LOGIN; END IF; END \$\$;" \
+                -c "ALTER ROLE user_svc WITH LOGIN PASSWORD :'user_pwd';" \
+                -c "ALTER ROLE inventory_svc WITH LOGIN PASSWORD :'inv_pwd';"
               REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans --force-recreate user.api inventory.api auth.api bff.api gateway || true
             fi
             docker compose $COMPOSE_ARGS ps
