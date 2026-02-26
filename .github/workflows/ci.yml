@@ -317,13 +317,19 @@ jobs:
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
             if [ -d "${REMOTE_PATH}/services" ]; then
-              mv -f "${REMOTE_PATH}/services/"docker-compose*.yml "${REMOTE_PATH}/" || true
-              mv -f "${REMOTE_PATH}/services/prometheus.yml" "${REMOTE_PATH}/" || true
-              mv -f "${REMOTE_PATH}/services/prometheusRule.yaml" "${REMOTE_PATH}/" || true
+              shopt -s nullglob
+              for f in "${REMOTE_PATH}/services/"docker-compose*.yml; do
+                mv -f "$f" "${REMOTE_PATH}/"
+              done
+              [ -f "${REMOTE_PATH}/services/prometheus.yml" ] && mv -f "${REMOTE_PATH}/services/prometheus.yml" "${REMOTE_PATH}/"
+              [ -f "${REMOTE_PATH}/services/prometheusRule.yaml" ] && mv -f "${REMOTE_PATH}/services/prometheusRule.yaml" "${REMOTE_PATH}/"
             fi
             if [ -d "${REMOTE_PATH}/services/Gateway" ]; then
               mkdir -p "${REMOTE_PATH}/Gateway"
-              mv -f "${REMOTE_PATH}/services/Gateway/"* "${REMOTE_PATH}/Gateway/" || true
+              shopt -s nullglob
+              for f in "${REMOTE_PATH}/services/Gateway/"*; do
+                mv -f "$f" "${REMOTE_PATH}/Gateway/"
+              done
             fi
       - name: Verify uploaded config files
         uses: appleboy/ssh-action@v1.0.3
@@ -429,6 +435,10 @@ jobs:
             if [ -f "${REMOTE_PATH}/Gateway/kong.yml" ]; then
               sed -i -E 's/^([[:space:]]*)minute:.*/\1minute: 60/' "${REMOTE_PATH}/Gateway/kong.yml" || true
               sed -i -E 's/^([[:space:]]*)allowed_payload_size:.*/\1allowed_payload_size: 2/' "${REMOTE_PATH}/Gateway/kong.yml" || true
+              if grep -q '{{' "${REMOTE_PATH}/Gateway/kong.yml"; then
+                echo "ERROR: Gateway/kong.yml still contains template placeholders after normalization."
+                exit 1
+              fi
             fi
             pull_ok=false
             for attempt in 1 2 3; do
@@ -464,6 +474,9 @@ jobs:
                 -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'user_svc') THEN CREATE ROLE user_svc LOGIN; END IF; IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'inventory_svc') THEN CREATE ROLE inventory_svc LOGIN; END IF; END \$\$;" \
                 -c "ALTER ROLE user_svc WITH LOGIN PASSWORD :'user_pwd';" \
                 -c "ALTER ROLE inventory_svc WITH LOGIN PASSWORD :'inv_pwd';"
+              # Verify the two service users can authenticate with the configured passwords.
+              docker compose $COMPOSE_ARGS exec -T -e PGPASSWORD="${USER_DB_PASSWORD}" pg psql -U user_svc -d user -c "select 1;" >/dev/null
+              docker compose $COMPOSE_ARGS exec -T -e PGPASSWORD="${INVENTORY_DB_PASSWORD}" pg psql -U inventory_svc -d inventory -c "select 1;" >/dev/null
               REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans --force-recreate user.api inventory.api auth.api bff.api gateway || true
             fi
             docker compose $COMPOSE_ARGS ps
