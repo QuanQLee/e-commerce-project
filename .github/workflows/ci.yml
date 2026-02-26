@@ -278,8 +278,15 @@ jobs:
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
-            mkdir -p "${REMOTE_PATH}"
-            mkdir -p "${REMOTE_PATH}/frontend"
+            OWNER="$(id -un):$(id -gn)"
+            if command -v sudo >/dev/null 2>&1; then
+              sudo mkdir -p "${REMOTE_PATH}" "${REMOTE_PATH}/frontend"
+              sudo chown -R "${OWNER}" "${REMOTE_PATH}" || true
+              sudo find "${REMOTE_PATH}" -type d -exec chmod u+rwx {} + || true
+              sudo find "${REMOTE_PATH}" -type f -exec chmod u+rw {} + || true
+            else
+              mkdir -p "${REMOTE_PATH}" "${REMOTE_PATH}/frontend"
+            fi
             # Clean up mistaken directories created by failed bind-mounts.
             if [ -d "${REMOTE_PATH}/prometheus.yml" ]; then
               rm -rf "${REMOTE_PATH}/prometheus.yml"
@@ -316,6 +323,12 @@ jobs:
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
+            OWNER="$(id -un):$(id -gn)"
+            if command -v sudo >/dev/null 2>&1; then
+              sudo chown -R "${OWNER}" "${REMOTE_PATH}" || true
+              sudo find "${REMOTE_PATH}" -type d -exec chmod u+rwx {} + || true
+              sudo find "${REMOTE_PATH}" -type f -exec chmod u+rw {} + || true
+            fi
             if [ -d "${REMOTE_PATH}/services" ]; then
               shopt -s nullglob
               for f in "${REMOTE_PATH}/services/"docker-compose*.yml; do
@@ -330,6 +343,9 @@ jobs:
               for f in "${REMOTE_PATH}/services/Gateway/"*; do
                 mv -f "$f" "${REMOTE_PATH}/Gateway/"
               done
+            fi
+            if command -v sudo >/dev/null 2>&1; then
+              sudo chown -R "${OWNER}" "${REMOTE_PATH}" || true
             fi
       - name: Verify uploaded config files
         uses: appleboy/ssh-action@v1.0.3
