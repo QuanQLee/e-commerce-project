@@ -410,7 +410,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: 40m
-          envs: GHCR_REGISTRY,REMOTE_PATH,COMPOSE_FILES,TAG,DB_PASSWORD
+          envs: GHCR_REGISTRY,REMOTE_PATH,COMPOSE_FILES,TAG,DB_PASSWORD,USER_DB_PASSWORD,INVENTORY_DB_PASSWORD
           script: |
             set -euo pipefail
             REGISTRY="${GHCR_REGISTRY:-ghcr.io/${{ github.repository_owner }}}"
@@ -425,6 +425,11 @@ jobs:
             done
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
             cd "${REMOTE_PATH}"
+            # Hard-fix numeric fields for Kong declarative config in case a templated file is uploaded.
+            if [ -f "${REMOTE_PATH}/Gateway/kong.yml" ]; then
+              sed -i -E 's/^([[:space:]]*)minute:.*/\1minute: 60/' "${REMOTE_PATH}/Gateway/kong.yml" || true
+              sed -i -E 's/^([[:space:]]*)allowed_payload_size:.*/\1allowed_payload_size: 2/' "${REMOTE_PATH}/Gateway/kong.yml" || true
+            fi
             pull_ok=false
             for attempt in 1 2 3; do
               if REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS pull; then
@@ -442,6 +447,8 @@ jobs:
             if [ -f "${REMOTE_PATH}/scripts/db-init.sql" ]; then
               PG_SUPERUSER="$(grep '^DB_USER=' "${REMOTE_PATH}/.env" | cut -d= -f2- || true)"
               PG_SUPERUSER="${PG_SUPERUSER:-catalog_admin}"
+              USER_DB_PASSWORD="${USER_DB_PASSWORD:-${DB_PASSWORD:-}}"
+              INVENTORY_DB_PASSWORD="${INVENTORY_DB_PASSWORD:-${DB_PASSWORD:-}}"
               for i in $(seq 1 30); do
                 if docker compose $COMPOSE_ARGS exec -T pg pg_isready -U "${PG_SUPERUSER}" -d postgres >/dev/null 2>&1; then
                   break
@@ -449,6 +456,21 @@ jobs:
                 sleep 2
               done
               cat "${REMOTE_PATH}/scripts/db-init.sql" | docker compose $COMPOSE_ARGS exec -T pg psql -U "${PG_SUPERUSER}" -d postgres -v DB_PASSWORD="${DB_PASSWORD}"
+              # Enforce role passwords for the two services that previously looped on auth failures.
+              docker compose $COMPOSE_ARGS exec -T pg psql -U "${PG_SUPERUSER}" -d postgres -v user_pwd="${USER_DB_PASSWORD}" -v inv_pwd="${INVENTORY_DB_PASSWORD}" <<'SQL'
+              \set ON_ERROR_STOP on
+              DO $$
+              BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'user_svc') THEN
+                  CREATE ROLE user_svc LOGIN;
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'inventory_svc') THEN
+                  CREATE ROLE inventory_svc LOGIN;
+                END IF;
+              END $$;
+              ALTER ROLE user_svc WITH LOGIN PASSWORD :'user_pwd';
+              ALTER ROLE inventory_svc WITH LOGIN PASSWORD :'inv_pwd';
+              SQL
               REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans --force-recreate user.api inventory.api auth.api bff.api gateway || true
             fi
             docker compose $COMPOSE_ARGS ps
