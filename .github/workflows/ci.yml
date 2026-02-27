@@ -493,6 +493,7 @@ jobs:
               # Verify the two service users can authenticate with the configured passwords.
               docker compose $COMPOSE_ARGS exec -T -e PGPASSWORD="${USER_DB_PASSWORD}" pg psql -U user_svc -d user -c "select 1;" >/dev/null
               docker compose $COMPOSE_ARGS exec -T -e PGPASSWORD="${INVENTORY_DB_PASSWORD}" pg psql -U inventory_svc -d inventory -c "select 1;" >/dev/null
-              REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans --force-recreate user.api inventory.api auth.api bff.api gateway || true
+              # Restart only DB-dependent services that need fresh DB connections after role/password reconciliation.
+              docker compose $COMPOSE_ARGS restart user.api inventory.api || true
             fi
             docker compose $COMPOSE_ARGS ps
