@@ -1,59 +1,176 @@
-﻿openapi: 3.1.0
+openapi: 3.1.0
 info:
   title: Inventory API
   version: v1
 paths:
-  /inventory/{productId}:
+  /inventory/{product_id}:
     get:
-      summary: Get stock for a product
+      summary: Get stock (aggregate or by warehouse)
       parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema: { type: string }
         - in: path
-          name: productId
+          name: product_id
           required: true
-          schema:
-            type: string
+          schema: { type: string }
+        - in: query
+          name: warehouse_id
+          required: false
+          schema: { type: string }
       responses:
-        '200':
-          description: Stock info
-    
+        '200': { description: Stock detail }
+
+  /inventory/stock/set:
+    post:
+      summary: Set stock in a warehouse
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WarehouseStockUpdate' }
+      responses:
+        '200': { description: Updated stock }
+
+  /inventory/preallocate:
+    post:
+      summary: Preallocate order stock in one warehouse
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PreallocateRequest' }
+      responses:
+        '200': { description: Preallocated }
+
+  /inventory/deduct:
+    post:
+      summary: Deduct previously preallocated stock
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrderReservationRequest' }
+      responses:
+        '200': { description: Deducted }
+
+  /inventory/release-preallocation:
+    post:
+      summary: Release previously preallocated stock
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrderReservationRequest' }
+      responses:
+        '200': { description: Released }
+
+  /inventory/fulfillment/resolve:
+    post:
+      summary: Resolve fulfillment warehouse by rules and stock
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PreallocateRequest' }
+      responses:
+        '200': { description: Resolved }
+
   /inventory/reserve:
     post:
-      summary: Reserve stock
+      summary: Legacy reserve from default warehouse
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema: { type: string }
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateStock'
+            schema: { $ref: '#/components/schemas/StockUpdate' }
       responses:
-        '200':
-          description: Reservation result
+        '200': { description: Reserved }
+
   /inventory/release:
     post:
-      summary: Release stock
+      summary: Legacy release to default warehouse
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema: { type: string }
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateStock'
+            schema: { $ref: '#/components/schemas/StockUpdate' }
       responses:
-        '200':
-          description: Release result
+        '200': { description: Released }
+
 components:
   schemas:
-    UpdateStock:
+    StockUpdate:
       type: object
+      required: [product_id, quantity]
       properties:
-        product_id:
-          type: string
-        quantity:
-          type: integer
-      required:
-        - product_id
-        - quantity
+        product_id: { type: string }
+        quantity: { type: integer }
 
+    WarehouseStockUpdate:
+      type: object
+      required: [warehouse_id, product_id, quantity]
+      properties:
+        warehouse_id: { type: string }
+        product_id: { type: string }
+        quantity: { type: integer }
 
+    FulfillmentItem:
+      type: object
+      required: [product_id, quantity]
+      properties:
+        product_id: { type: string }
+        quantity: { type: integer }
 
+    PreallocateRequest:
+      type: object
+      required: [order_id, items]
+      properties:
+        order_id: { type: string }
+        shipping_region: { type: string }
+        preferred_warehouse_id: { type: string }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/FulfillmentItem' }
 
-
+    OrderReservationRequest:
+      type: object
+      required: [order_id]
+      properties:
+        order_id: { type: string }

@@ -12,6 +12,8 @@ RUN dotnet publish "Auth.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+RUN addgroup --system --gid 10001 appgroup \
+    && adduser --system --uid 10001 --ingroup appgroup appuser
 COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:8080 \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
@@ -19,6 +21,7 @@ ENV ASPNETCORE_URLS=http://+:8080 \
     PORT=8080
 
 EXPOSE 8080
+USER appuser
 ENTRYPOINT ["dotnet", "Auth.dll"]
 
 

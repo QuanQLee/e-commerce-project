@@ -1,0 +1,131 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+def configValue = { String propertyName, String envName, String fallback = null ->
+    if (project.hasProperty(propertyName)) {
+        return project.property(propertyName).toString()
+    }
+    def envValue = System.getenv(envName)
+    if (envValue != null && !envValue.trim().isEmpty()) {
+        return envValue.trim()
+    }
+    return fallback
+}
+
+def quoted = { String value ->
+    return "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+}
+
+def releaseBuildRequested = gradle.startParameter.taskNames.any { taskName ->
+    def normalized = taskName.toLowerCase(java.util.Locale.ROOT)
+    normalized.contains('release') || normalized.contains('bundle')
+}
+
+def debugApiBaseUrl = configValue('mobileApiBaseUrlDebug', 'MOBILE_API_BASE_URL_DEBUG', 'http://10.0.2.2:8000/')
+def releaseApiBaseUrl = configValue('mobileApiBaseUrlRelease', 'MOBILE_API_BASE_URL_RELEASE', releaseBuildRequested ? null : 'https://api.example.com/')
+def debugTenantId = configValue('mobileDefaultTenantIdDebug', 'MOBILE_DEFAULT_TENANT_ID_DEBUG', 'tenant-a')
+def releaseTenantId = configValue('mobileDefaultTenantIdRelease', 'MOBILE_DEFAULT_TENANT_ID_RELEASE', 'public')
+def debugUsername = configValue('mobileDefaultUsernameDebug', 'MOBILE_DEFAULT_USERNAME_DEBUG', 'user1')
+def releaseUsername = configValue('mobileDefaultUsernameRelease', 'MOBILE_DEFAULT_USERNAME_RELEASE', '')
+
+if (releaseBuildRequested) {
+    if (releaseApiBaseUrl == null || releaseApiBaseUrl.trim().isEmpty()) {
+        throw new GradleException('Set MOBILE_API_BASE_URL_RELEASE or -PmobileApiBaseUrlRelease before release builds.')
+    }
+    if (!releaseApiBaseUrl.toLowerCase(java.util.Locale.ROOT).startsWith('https://')) {
+        throw new GradleException('Release mobile API base URL must use https://')
+    }
+    if (releaseApiBaseUrl.contains('example.com')) {
+        throw new GradleException('Replace the placeholder release mobile API base URL before release builds.')
+    }
+}
+
+android {
+    namespace 'com.ds.ecommerce.mobile'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.ds.ecommerce.mobile"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "0.1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "MOBILE_REDIRECT_URI", "\"dsmobile://auth/callback\""
+        buildConfigField "String", "MOBILE_OIDC_SCOPE", "\"openid profile api1 offline_access\""
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "String", "API_BASE_URL", quoted(debugApiBaseUrl)
+            buildConfigField "String", "DEFAULT_TENANT_ID", quoted(debugTenantId)
+            buildConfigField "String", "DEFAULT_USERNAME", quoted(debugUsername)
+            buildConfigField "boolean", "ALLOW_PASSWORD_GRANT_FALLBACK", "true"
+        }
+        release {
+            buildConfigField "String", "API_BASE_URL", quoted(releaseApiBaseUrl ?: 'https://api.example.com/')
+            buildConfigField "String", "DEFAULT_TENANT_ID", quoted(releaseTenantId)
+            buildConfigField "String", "DEFAULT_USERNAME", quoted(releaseUsername)
+            buildConfigField "boolean", "ALLOW_PASSWORD_GRANT_FALLBACK", "false"
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        compose true
+        buildConfig true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.5.15'
+    }
+
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+dependencies {
+    implementation platform('androidx.compose:compose-bom:2024.09.03')
+    androidTestImplementation platform('androidx.compose:compose-bom:2024.09.03')
+
+    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.activity:activity-compose:1.10.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
+
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'com.google.android.material:material:1.12.0'
+
+    implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+}

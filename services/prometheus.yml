@@ -1,5 +1,9 @@
-﻿global:
+global:
   scrape_interval: 15s
+  evaluation_interval: 30s
+
+rule_files:
+  - /etc/prometheus/prometheus.rules.yml
 
 scrape_configs:
   - job_name: 'gateway'
@@ -11,40 +15,58 @@ scrape_configs:
     static_configs:
       - targets: ['analytics.api:8000']
     metrics_path: /prometheus
+
   - job_name: 'cart'
     static_configs:
       - targets: ['cart.api:80']
     metrics_path: /metrics
+
   - job_name: 'order'
     static_configs:
       - targets: ['order.api:80']
     metrics_path: /metrics
+
   - job_name: 'notification'
     static_configs:
       - targets: ['notification.api:8000']
     metrics_path: /prometheus
+
   - job_name: 'promotion'
     static_configs:
       - targets: ['promotion.api:8000']
     metrics_path: /prometheus
+
   - job_name: 'review'
     static_configs:
       - targets: ['review.api:8000']
     metrics_path: /prometheus
+
   - job_name: 'recommendation'
     static_configs:
       - targets: ['recommendation.api:8000']
     metrics_path: /prometheus
+
   - job_name: 'admin'
     static_configs:
       - targets: ['admin.api:8000']
     metrics_path: /metrics
+
   - job_name: 'bff'
     static_configs:
       - targets: ['bff.api:8000']
     metrics_path: /metrics
 
+  - job_name: 'payment'
+    static_configs:
+      - targets: ['payment.api:8080']
+    metrics_path: /metrics
 
+  - job_name: 'shipping'
+    static_configs:
+      - targets: ['shipping.api:80']
+    metrics_path: /metrics
 
-
-
+  - job_name: 'inventory'
+    static_configs:
+      - targets: ['inventory.api:8000']
+    metrics_path: /metrics

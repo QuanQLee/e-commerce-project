@@ -1,0 +1,112 @@
+openapi: 3.1.0
+info:
+  title: Tenant API
+  version: v1
+paths:
+  /tenants:
+    post:
+      summary: Create tenant
+    get:
+      summary: List tenants
+
+  /tenants/{tenant_id}:
+    get:
+      summary: Get tenant
+
+  /tenants/{tenant_id}/plan:
+    patch:
+      summary: Update tenant plan
+
+  /tenants/{tenant_id}/subscriptions:
+    post:
+      summary: Create subscription and issue first bill
+
+  /tenants/{tenant_id}/subscriptions/current:
+    get:
+      summary: Get current active subscription
+
+  /tenants/{tenant_id}/subscriptions/{subscription_id}/renew:
+    post:
+      summary: Renew subscription and issue bill
+
+  /tenants/{tenant_id}/billing/bills:
+    get:
+      summary: List bills
+
+  /tenants/{tenant_id}/billing/bills/{bill_id}/pay:
+    post:
+      summary: Pay bill (requires second_verify_token)
+      parameters:
+        - in: query
+          name: second_verify_token
+          required: true
+          schema: { type: string }
+
+  /tenants/{tenant_id}/quota/policy:
+    put:
+      summary: Update quota enforcement strategy (requires second_verify_token)
+      parameters:
+        - in: query
+          name: second_verify_token
+          required: true
+          schema: { type: string }
+
+  /tenants/{tenant_id}/usage/enforce:
+    post:
+      summary: Enforce quota by strategy
+
+  /tenants/{tenant_id}/org/invitations:
+    get:
+      summary: List invitations (supports masked=true)
+      parameters:
+        - in: query
+          name: masked
+          required: false
+          schema: { type: boolean }
+
+  /tenants/{tenant_id}/org/members:
+    get:
+      summary: List members (supports masked=true)
+      parameters:
+        - in: query
+          name: masked
+          required: false
+          schema: { type: boolean }
+
+  /tenants/{tenant_id}/org/members/{user_id}:
+    delete:
+      summary: Remove member (requires second_verify_token)
+      parameters:
+        - in: query
+          name: second_verify_token
+          required: true
+          schema: { type: string }
+
+components:
+  schemas:
+    SubscriptionCreate:
+      type: object
+      required: [plan, billing_cycle]
+      properties:
+        plan: { type: string }
+        billing_cycle: { type: string, enum: [monthly, annual] }
+        auto_renew: { type: boolean }
+
+    BillPayRequest:
+      type: object
+      required: [actor]
+      properties:
+        actor: { type: string }
+
+    QuotaPolicyUpdate:
+      type: object
+      required: [strategy]
+      properties:
+        strategy: { type: string, enum: [hard_block, soft_block, grace] }
+        grace_limit_pct: { type: integer }
+
+    UsageEnforceRequest:
+      type: object
+      properties:
+        product_count: { type: integer }
+        user_count: { type: integer }

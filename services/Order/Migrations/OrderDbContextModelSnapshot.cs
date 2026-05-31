@@ -32,19 +32,29 @@ namespace Order.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasDefaultValue("public");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("numeric(12,2)");
 
-                    b.HasIndex("UserId", "CreatedAt");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CreatedAt");
+
+                    b.HasIndex("TenantId", "UserId", "CreatedAt");
 
                     b.ToTable("orders", "order");
                 });
@@ -62,12 +72,22 @@ namespace Order.Migrations
                         .HasColumnType("numeric(12,2)");
 
                     b.Property<string>("ProductName")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasDefaultValue("public");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("TenantId", "OrderId");
 
                     b.ToTable("order_items", "order");
                 });
@@ -91,4 +111,3 @@ namespace Order.Migrations
         }
     }
 }
-

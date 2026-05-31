@@ -12,10 +12,19 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://0.0.0.0:80");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+static int GetConfigInt(IConfiguration configuration, string key, int defaultValue)
+{
+    var value = configuration[key];
+    return int.TryParse(value, out var parsed) && parsed > 0 ? parsed : defaultValue;
+}
 
 builder.Host.UseSerilog((ctx, cfg) => cfg
     .ReadFrom.Configuration(ctx.Configuration)
@@ -36,7 +45,23 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddSingleton<ICartStore, RedisCartStore>();
 var inventoryUrl = builder.Configuration["INVENTORY_URL"] ?? "http://inventory.api:8000";
-builder.Services.AddHttpClient("inventory", client => client.BaseAddress = new Uri(inventoryUrl));
+var inventoryTimeoutSeconds = GetConfigInt(builder.Configuration, "CART_INVENTORY_TIMEOUT_SECONDS", 5);
+var inventoryMaxConnections = GetConfigInt(builder.Configuration, "CART_INVENTORY_MAX_CONNECTIONS", 512);
+var inventoryIdleTimeoutSeconds = GetConfigInt(builder.Configuration, "CART_INVENTORY_IDLE_TIMEOUT_SECONDS", 2);
+var inventoryConnectionLifetimeSeconds = GetConfigInt(builder.Configuration, "CART_INVENTORY_CONNECTION_LIFETIME_SECONDS", 120);
+builder.Services
+    .AddHttpClient("inventory", client =>
+    {
+        client.BaseAddress = new Uri(inventoryUrl);
+        client.Timeout = TimeSpan.FromSeconds(inventoryTimeoutSeconds);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        MaxConnectionsPerServer = inventoryMaxConnections,
+        PooledConnectionIdleTimeout = TimeSpan.FromSeconds(inventoryIdleTimeoutSeconds),
+        PooledConnectionLifetime = TimeSpan.FromSeconds(inventoryConnectionLifetimeSeconds),
+        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+    });
 
 builder.Services.AddHealthChecks().AddRedis(
     builder.Configuration.GetConnectionString("Redis") ?? "cart.redis:6379",
@@ -62,9 +87,17 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
-app.UseSerilogRequestLogging();
-app.UseSwagger();
-app.UseSwaggerUI();
+if (builder.Configuration.GetValue<bool>("ENABLE_HTTP_LOGGING"))
+{
+    app.UseSerilogRequestLogging();
+}
+
+if (builder.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("ENABLE_SWAGGER"))
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.MapControllers();
 app.MapHealthChecks("/healthz");
 app.MapHealthChecks("/readyz", new HealthCheckOptions

@@ -1,17 +1,33 @@
-version: "3.9"
 services:
   pg:
     image: postgres:16-alpine
     container_name: catalog-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-catalog_admin}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME:-catalog}
+      POSTGRES_USER: ${PG_ADMIN_USER:-catalog_admin}
+      POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD:-changeme}
+      POSTGRES_DB: ${PG_ADMIN_DB:-catalog}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ../scripts/db-init.sql:/docker-entrypoint-initdb.d/01-db-init.sql:ro
+  db.init:
+    image: postgres:16-alpine
+    container_name: db-init
+    depends_on:
+      - pg
+    restart: on-failure
+    environment:
+      PGHOST: pg
+      PGUSER: ${PG_ADMIN_USER:-catalog_admin}
+      PGPASSWORD: ${PG_ADMIN_PASSWORD:-changeme}
+    volumes:
+      - ../scripts/db-init.sql:/scripts/db-init.sql:ro
+      - ../scripts/db-init-run.sh:/scripts/db-init-run.sh:ro
+    entrypoint:
+      - /bin/sh
+      - /scripts/db-init-run.sh
   catalog.api:
     build:
       context: ./Catalog
@@ -23,9 +39,28 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${CATALOG_DB_NAME:-catalog};Username=${CATALOG_DB_USER:-catalog_admin};Password=${CATALOG_DB_PASSWORD:-changeme}"
+      ConnectionStrings__CatalogDb: "Host=pg;Port=5432;Database=${CATALOG_DB_NAME:-catalog};Username=${CATALOG_DB_USER:-catalog_admin};Password=${CATALOG_DB_PASSWORD:-changeme};Maximum Pool Size=${CATALOG_DB_MAX_POOL_SIZE:-100};Timeout=15;Command Timeout=30"
     ports:
       - "5000:8080"
+  catalog.java.api:
+    profiles:
+      - java-core
+    build:
+      context: ./CatalogJava
+      dockerfile: Dockerfile
+    image: ${REGISTRY}:catalog.java.api-${TAG:-dev}
+    container_name: catalog-java-api
+    depends_on:
+      - pg
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      CATALOG_JDBC_URL: "jdbc:postgresql://pg:5432/${CATALOG_DB_NAME:-catalog}"
+      CATALOG_DB_USER: ${CATALOG_DB_USER:-catalog_admin}
+      CATALOG_DB_PASSWORD: ${CATALOG_DB_PASSWORD:-changeme}
+      CATALOG_DB_MAX_POOL_SIZE: ${CATALOG_DB_MAX_POOL_SIZE:-100}
+    ports:
+      - "5011:8080"
   order.api:
     build:
       context: ./Order
@@ -103,6 +138,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ConnectionStrings__Redis: "${CART_REDIS_URL:-cart.redis:6379}"
+      CART_INVENTORY_TIMEOUT_SECONDS: ${CART_INVENTORY_TIMEOUT_SECONDS:-5}
+      CART_INVENTORY_MAX_CONNECTIONS: ${CART_INVENTORY_MAX_CONNECTIONS:-512}
+      CART_INVENTORY_IDLE_TIMEOUT_SECONDS: ${CART_INVENTORY_IDLE_TIMEOUT_SECONDS:-2}
+      CART_INVENTORY_CONNECTION_LIFETIME_SECONDS: ${CART_INVENTORY_CONNECTION_LIFETIME_SECONDS:-120}
     ports:
       - "5010:80"
   inventory.api:
@@ -143,13 +182,22 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ConnectionStrings__AuthDb: "Host=pg;Port=5432;Database=${AUTH_DB_NAME:-auth};Username=${AUTH_DB_USER:-catalog_admin};Password=${AUTH_DB_PASSWORD:-changeme}"
-      Auth__BffRedirectUri: ${AUTH_BFF_REDIRECT_URI:-http://localhost:9080/auth/callback}
+      Auth__BffRedirectUri: ${AUTH_BFF_REDIRECT_URI:-http://localhost:8000/auth/callback}
+      Auth__MobileClientId: ${AUTH_MOBILE_CLIENT_ID:-mobile-native}
+      Auth__MobileRedirectUris__0: ${AUTH_MOBILE_REDIRECT_URI_0:-dsmobile://auth/callback}
       Auth__AllowedCorsOrigins__0: ${AUTH_ALLOWED_CORS_ORIGIN_0:-http://localhost:3000}
       Auth__AllowedCorsOrigins__1: ${AUTH_ALLOWED_CORS_ORIGIN_1:-http://localhost:3002}
+      Auth__BootstrapTestUsername: ${AUTH_BOOTSTRAP_TEST_USERNAME:-user1}
       Auth__SampleClientSecret: ${AUTH_SAMPLE_CLIENT_SECRET:-sample-secret-dev}
       Auth__AdminClientSecret: ${AUTH_ADMIN_CLIENT_SECRET:-admin-secret-dev}
       Auth__SecondaryAdminClientSecret: ${AUTH_SECONDARY_ADMIN_CLIENT_SECRET:-secondary-secret-dev}
-      Auth__DefaultTestUserPassword: ${AUTH_DEFAULT_TEST_USER_PASSWORD:-pass1}
+      Auth__DefaultTestUserPassword: ${AUTH_DEFAULT_TEST_USER_PASSWORD:-DevPassw0rd!}
+      Auth__LocalPasswordMinLength: ${AUTH_LOCAL_PASSWORD_MIN_LENGTH:-8}
+      Auth__EnablePasswordGrantClients: ${AUTH_ENABLE_PASSWORD_GRANT_CLIENTS:-true}
+      Auth__EnableSelfRegistration: ${AUTH_ENABLE_SELF_REGISTRATION:-true}
+      Auth__EnableBootstrapTestUser: ${AUTH_ENABLE_BOOTSTRAP_TEST_USER:-true}
+      Auth__SigningCertificatePath: ${AUTH_SIGNING_CERTIFICATE_PATH:-}
+      Auth__SigningCertificatePassword: ${AUTH_SIGNING_CERTIFICATE_PASSWORD:-}
     ports:
       - "7000:8080"
   notification.api:
@@ -296,17 +344,38 @@ services:
     restart: unless-stopped
     environment:
       PYTHONUNBUFFERED: "1"
+      BFF_ENVIRONMENT: ${BFF_ENVIRONMENT:-Development}
+      BFF_WORKERS: ${BFF_WORKERS:-2}
       BFF_SESSION_REDIS_URL: ${BFF_SESSION_REDIS_URL:-redis://bff-redis:6379/0}
-      AUTH_INTERNAL_BASE: ${AUTH_INTERNAL_BASE:-http://auth.api}
+      BFF_REDIS_MAX_CONNECTIONS: ${BFF_REDIS_MAX_CONNECTIONS:-256}
+      BFF_REDIS_SOCKET_TIMEOUT: ${BFF_REDIS_SOCKET_TIMEOUT:-2.0}
+      BFF_HTTP_CONNECT_TIMEOUT: ${BFF_HTTP_CONNECT_TIMEOUT:-2.0}
+      BFF_HTTP_READ_TIMEOUT: ${BFF_HTTP_READ_TIMEOUT:-15.0}
+      BFF_HTTP_WRITE_TIMEOUT: ${BFF_HTTP_WRITE_TIMEOUT:-15.0}
+      BFF_HTTP_POOL_TIMEOUT: ${BFF_HTTP_POOL_TIMEOUT:-2.0}
+      BFF_HTTP_MAX_CONNECTIONS: ${BFF_HTTP_MAX_CONNECTIONS:-512}
+      BFF_HTTP_MAX_KEEPALIVE_CONNECTIONS: ${BFF_HTTP_MAX_KEEPALIVE_CONNECTIONS:-128}
+      BFF_HTTP_KEEPALIVE_EXPIRY: ${BFF_HTTP_KEEPALIVE_EXPIRY:-30.0}
+      CATALOG_SERVICE_BASE: ${CATALOG_SERVICE_BASE:-http://catalog.api:8080}
+      AUTH_INTERNAL_BASE: ${AUTH_INTERNAL_BASE:-http://auth.api:8080}
       AUTH_PUBLIC_BASE: ${AUTH_PUBLIC_BASE:-http://localhost:7000}
-      BFF_CLIENT_ID: ${BFF_CLIENT_ID:-}
-      BFF_CLIENT_SECRET: ${BFF_CLIENT_SECRET:-}
+      BFF_REDIRECT_URI: ${AUTH_BFF_REDIRECT_URI:-http://localhost:8000/auth/callback}
+      BFF_CLIENT_ID: ${BFF_CLIENT_ID:-1}
+      BFF_CLIENT_SECRET: ${BFF_CLIENT_SECRET:-admin-secret-dev}
+      BFF_OIDC_CLIENT_ID: ${BFF_OIDC_CLIENT_ID:-bff-web}
+      BFF_OIDC_CLIENT_SECRET: ${BFF_OIDC_CLIENT_SECRET:-}
+      BFF_MOBILE_OIDC_CLIENT_ID: ${BFF_MOBILE_OIDC_CLIENT_ID:-mobile-native}
       BFF_SCOPE: ${BFF_SCOPE:-api1 offline_access}
-      BFF_ALLOW_PASSWORD_GRANT: ${BFF_ALLOW_PASSWORD_GRANT:-false}
+      BFF_OIDC_SCOPE: ${BFF_OIDC_SCOPE:-openid profile api1 offline_access}
+      BFF_MOBILE_OIDC_SCOPE: ${BFF_MOBILE_OIDC_SCOPE:-openid profile api1 offline_access}
+      BFF_MOBILE_REDIRECT_URIS: ${BFF_MOBILE_REDIRECT_URIS:-dsmobile://auth/callback}
+      BFF_ALLOW_PASSWORD_GRANT: ${BFF_ALLOW_PASSWORD_GRANT:-true}
+      BFF_ALLOW_SELF_REGISTRATION: ${BFF_ALLOW_SELF_REGISTRATION:-true}
       BFF_ALLOWED_ORIGINS: ${BFF_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3002,http://localhost:4000}
       BFF_COOKIE_SECURE: ${BFF_COOKIE_SECURE:-false}
       BFF_COOKIE_SAMESITE: ${BFF_COOKIE_SAMESITE:-lax}
       BFF_SESSION_TTL: ${BFF_SESSION_TTL:-14400}
+      BFF_OIDC_STATE_TTL: ${BFF_OIDC_STATE_TTL:-600}
       BFF_SESSION_NAMESPACE: ${BFF_SESSION_NAMESPACE:-bff-session}
     ports:
       - "9080:8000"
@@ -376,16 +445,19 @@ services:
       - tenant.api
     ports:
       - "8000:8000"
-      - "8001:8001"
+      - "127.0.0.1:8001:8001"
     environment:
       KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+      KONG_DECLARATIVE_TEMPLATE: /kong/kong.yml
+      KONG_DECLARATIVE_CONFIG: /tmp/kong.rendered.yml
+      KONG_RUNTIME_ENVIRONMENT: ${KONG_RUNTIME_ENVIRONMENT:-Development}
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
       # Only expose HTTP proxy in local dev to avoid TLS cert requirements
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_CORS_ORIGIN_PRIMARY: "${KONG_CORS_ORIGIN_PRIMARY:-https://storefront.local}"
       KONG_CORS_ORIGIN_SECONDARY: "${KONG_CORS_ORIGIN_SECONDARY:-https://merchant.local}"
-      KONG_RATE_LIMIT_MINUTE: ${KONG_RATE_LIMIT_MINUTE:-60}
+      KONG_RATE_LIMIT_MINUTE: ${KONG_RATE_LIMIT_MINUTE:-120000}
+      KONG_AUTH_RATE_LIMIT_MINUTE: ${KONG_AUTH_RATE_LIMIT_MINUTE:-300}
       KONG_REQUEST_BODY_LIMIT_MB: ${KONG_REQUEST_BODY_LIMIT_MB:-2}
       KONG_FRONTEND_JWT_SECRET: ${KONG_FRONTEND_JWT_SECRET:-changeme-frontend}
       KONG_ADMIN_JWT_SECRET: ${KONG_ADMIN_JWT_SECRET:-changeme-admin}
@@ -396,8 +468,8 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
       args:
-        # Point frontend to BFF for cookie-based session
-        VITE_API_BASE_URL: http://bff.api:8000
+        # Point frontend to the public gateway, which forwards user traffic to BFF.
+        VITE_API_BASE_URL: http://localhost:8000
         VITE_API_KEY: mytestkey123
         VITE_SSO_ENABLED: "1"
     image: ${REGISTRY}:frontend.app-${TAG:-dev}
@@ -405,33 +477,32 @@ services:
     depends_on:
       - gateway
     ports:
-      - "3000:80"
+      - "3000:8080"
     volumes:
       # Ensure a valid nginx.conf even when using a prebuilt image
-      - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../frontend/nginx.conf:/etc/nginx/nginx.conf:ro
   merchant.web:
     build:
       context: ..
       dockerfile: apps/merchant/Dockerfile
       args:
-        VITE_API_BASE_URL: http://bff.api:8000
+        VITE_API_BASE_URL: http://localhost:8000
         VITE_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
-        VITE_AUTH_CLIENT_ID: ${AUTH_CLIENT_ID:-1}
-        VITE_AUTH_CLIENT_SECRET: ${AUTH_CLIENT_SECRET:-secret1}
-        VITE_AUTH_SCOPE: ${AUTH_SCOPE:-api1}
         VITE_SSO_ENABLED: "1"
+        VITE_PASSWORD_LOGIN_ENABLED: ${MERCHANT_PASSWORD_LOGIN_ENABLED:-0}
+        VITE_SELF_REGISTRATION_ENABLED: ${MERCHANT_SELF_REGISTRATION_ENABLED:-0}
     image: ${REGISTRY}:merchant.web-${TAG:-dev}
     container_name: merchant-web
     depends_on:
       - gateway
     ports:
-      - "3002:80"
+      - "3002:8080"
   storefront.web:
     build:
       context: ..
       dockerfile: apps/storefront/Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: http://bff.api:8000
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
         NEXT_PUBLIC_API_KEY: ${FRONTEND_API_KEY:-mytestkey123}
     image: ${REGISTRY}:storefront.web-${TAG:-dev}
     container_name: storefront-web
@@ -444,6 +515,7 @@ services:
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.rules.yml:/etc/prometheus/prometheus.rules.yml
     depends_on:
       - gateway
     ports:

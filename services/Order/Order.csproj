@@ -32,5 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Order.Tests/**/*.cs" />
+    <Content Remove="Order.Tests/**" />
+    <None Remove="Order.Tests/**" />
   </ItemGroup>
 </Project>

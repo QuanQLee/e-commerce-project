@@ -1,0 +1,41 @@
+groups:
+  - name: platform-slo
+    rules:
+      - alert: GatewayHigh5xxRate
+        expr: sum(rate(kong_http_status{code=~"5.."}[5m])) / clamp_min(sum(rate(kong_http_status[5m])), 1) > 0.05
+        for: 10m
+        labels:
+          severity: critical
+          service: gateway
+        annotations:
+          summary: Gateway 5xx ratio above 5%
+          description: Gateway 5xx ratio has exceeded 5% for 10 minutes.
+
+      - alert: PaymentErrorRateHigh
+        expr: sum(rate(payments_total{status=~"failed|error"}[10m])) > 0
+        for: 10m
+        labels:
+          severity: warning
+          service: payment
+        annotations:
+          summary: Payment failures detected
+          description: Payment failures have been observed continuously for 10 minutes.
+
+      - alert: InventoryInsufficientSpike
+        expr: rate(inventory_insufficient_total[5m]) > 1
+        for: 15m
+        labels:
+          severity: warning
+          service: inventory
+        annotations:
+          summary: Inventory insufficient spike
+          description: Inventory insufficient reservations are continuously elevated.
+
+      - alert: TargetDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Target down
+          description: '{{ $labels.job }} is down for more than 5 minutes.'

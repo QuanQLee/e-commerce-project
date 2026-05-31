@@ -1,8 +1,9 @@
 import os
-from typing import Optional, List
+from typing import Optional
 
 import httpx
 from fastapi import FastAPI
+from pydantic import BaseModel, Field
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 
@@ -14,20 +15,29 @@ PURCHASE_COUNTER = Counter("label_purchases_total", "Simulated label purchases")
 SHIPPING_API_URL = os.getenv("SHIPPING_API_URL", "http://shipping.api:80")
 
 
+class RateRequest(BaseModel):
+    weight: float = Field(..., gt=0)
+
+
+class AggregateRateRequest(RateRequest):
+    destination: Optional[str] = None
+
+
 @app.post("/rates")
-def get_rate(weight: float):
+def get_rate(payload: RateRequest):
     QUOTE_COUNTER.inc()
-    price = round(5 + weight * 0.5, 2)
+    price = round(5 + payload.weight * 0.5, 2)
     return {"price": price}
 
 
 @app.post("/rates/aggregate")
-def aggregate_rates(weight: float, destination: Optional[str] = None) -> dict:
+def aggregate_rates(payload: AggregateRateRequest) -> dict:
     """Simulate querying multiple providers and returning the best quote.
 
     This stays fully offline for tests and does not call real providers.
     """
     QUOTE_COUNTER.inc()
+    weight = payload.weight
     # Dummy provider formulas
     providers = [
         {

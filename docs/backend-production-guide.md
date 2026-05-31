@@ -4,13 +4,15 @@ This guide summarises the production baseline introduced for the gateway and Aut
 
 ## Kong Gateway
 - **Configuration**: services/Gateway/kong.yml now depends on environment variables for CORS origins, rate limits and JWT secrets. Supply values via docker-compose (KONG_CORS_ORIGIN_*, KONG_RATE_LIMIT_MINUTE, KONG_REQUEST_BODY_LIMIT_MB, KONG_FRONTEND_JWT_SECRET, KONG_ADMIN_JWT_SECRET) or Kubernetes (kong-env ConfigMap, kong-secrets Secret).
+- **Runtime guardrails**: `services/Gateway/render-kong-config.sh` now fails fast in production when JWT secrets or CORS origins still point at placeholders/local hosts. Set `KONG_RUNTIME_ENVIRONMENT=Production` for release deployments.
 - **Security headers**: Global plugins remove Server/Via headers, limit request payloads, and restrict CORS to the configured origins.
 - **Observability**: Prometheus plugin remains enabled. Point Prometheus at /metrics on the gateway service.
 - **Action for other environments**: rotate JWT secrets per environment and pin AllowedCorsOrigins to the hosted frontends.
 
 ## Auth Service
 - **Configuration binding**: Options are loaded from the Auth section (see appsettings.json). Override with environment variables such as Auth__SampleClientSecret in production.
-- **Validation**: Startup fails in non-development environments if default secrets are still in use or the signing certificate is missing (AuthOptions.UsesDefaultSecrets).
+- **Validation**: Startup fails in non-development environments if default secrets are still in use, password-grant clients are still enabled, bootstrap test-user seeding is still enabled, or the signing certificate is missing.
+- **Credential storage**: Local interactive users are stored in `auth.local_users` with hashed passwords and migrated through EF Core.
 - **Health + telemetry**: /healthz exposes liveness, /readyz validates database connectivity. Structured JSON logging and OpenTelemetry exporters are enabled (configure OTEL_EXPORTER_OTLP_ENDPOINT).
 - **Container**: The image now exposes port 8080, sets ASPNETCORE_URLS, and runs without root privileges.
 - **New packages**: Health checks and OpenTelemetry dependencies are added in Auth.csproj; run dotnet restore before publishing.
@@ -21,7 +23,12 @@ This guide summarises the production baseline introduced for the gateway and Aut
 | BFF redirect URI | Auth__BffRedirectUri |
 | Allowable CORS origins (comma-separated) | Auth__AllowedCorsOrigins__0, Auth__AllowedCorsOrigins__1, ... |
 | Client credentials secrets | Auth__SampleClientSecret, Auth__AdminClientSecret, Auth__SecondaryAdminClientSecret |
-| Test user password | Auth__DefaultTestUserPassword |
+| Password grant toggle | Auth__EnablePasswordGrantClients |
+| Self-registration toggle | Auth__EnableSelfRegistration |
+| Bootstrap dev user toggle | Auth__EnableBootstrapTestUser |
+| Bootstrap dev username | Auth__BootstrapTestUsername |
+| Bootstrap dev password | Auth__DefaultTestUserPassword |
+| Local password minimum length | Auth__LocalPasswordMinLength |
 | Signing certificate | Auth__SigningCertificatePath, Auth__SigningCertificatePassword |
 
 ## Catalog Service
@@ -37,6 +44,7 @@ This guide summarises the production baseline introduced for the gateway and Aut
 
 ## docker-compose updates
 - Gateway now sources sensitive values from environment variables instead of inline strings and applies defaults suitable for local testing.
+- `scripts/validate-production-env.sh` provides a release-time gate for production env files and is wired into `scripts/release-acceptance.sh` when the runtime environment is `Production`.
 - Auth, Catalog, and Order run on port 8080 and retain ASPNETCORE_ENVIRONMENT=Development for local docker usage; production deployments must set Production and provide overrides for secrets and connection strings.
 
 ## Kubernetes updates

@@ -1,5 +1,6 @@
-ï»¿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, Typography, Box, Skeleton, Stack } from '@mui/material'
+import type { AxiosError } from 'axios'
 import api from '../api'
 import { useI18n } from '../state/i18n'
 
@@ -25,7 +26,7 @@ function pickMetricValue(payload: Record<string, unknown> | null | undefined, ke
 }
 
 function formatValue(value: number, key: (typeof cardKeys)[number], locale: string, currency: string) {
-  if (Number.isNaN(value)) return 'â€”'
+  if (Number.isNaN(value)) return '¡ª'
   if (key === 'sales') {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
@@ -40,6 +41,10 @@ function formatValue(value: number, key: (typeof cardKeys)[number], locale: stri
     }).format(value)
   }
   return value.toLocaleString(locale)
+}
+
+type MetricsErrorResponse = {
+  message?: string
 }
 
 export default function Dashboard() {
@@ -58,10 +63,11 @@ export default function Dashboard() {
         if (!active) return
         setMetrics(response.data ?? {})
       })
-      .catch((err: any) => {
-        console.error(err)
+      .catch((err: unknown) => {
+        const apiError = err as AxiosError<MetricsErrorResponse>
+        console.error(apiError)
         if (!active) return
-        setError(err?.response?.data?.message || err?.message || t('common.errorGeneric'))
+        setError(apiError.response?.data?.message || apiError.message || t('common.errorGeneric'))
       })
       .finally(() => {
         if (!active) return
@@ -129,3 +135,4 @@ export default function Dashboard() {
     </Box>
   )
 }
+

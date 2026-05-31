@@ -13,6 +13,7 @@ prometheus-client = "^0.20"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2"
+httpx = "^0.27"
 
 [build-system]
 requires = ["poetry-core>=1.6.0"]

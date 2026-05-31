@@ -1,140 +1,244 @@
-version: "3.9"
+x-dotnet-test: &dotnet-test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  working_dir: /workspace
+  environment:
+    NUGET_PACKAGES: /root/.nuget/packages
+  volumes:
+    - ..:/workspace
+    - "C:\\Users\\Lenovo\\.nuget\\packages:/root/.nuget/packages"
+
+x-python-test: &python-test
+  image: public.ecr.aws/docker/library/python:3.12-slim
+  volumes:
+    - ..:/workspace
+    - "C:\\Users\\Lenovo\\AppData\\Local\\pip\\cache:/root/.cache/pip"
+    - "C:\\Users\\Lenovo\\AppData\\Local\\pypoetry\\Cache:/root/.cache/pypoetry"
+  environment:
+    PIP_DEFAULT_TIMEOUT: "120"
+    PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    PIP_CACHE_DIR: /root/.cache/pip
+    PIP_RETRIES: "10"
+    POETRY_CACHE_DIR: /root/.cache/pypoetry
+    POETRY_INSTALLER_MAX_WORKERS: "1"
+    POETRY_NO_INTERACTION: "1"
+    POETRY_REQUESTS_TIMEOUT: "120"
+  command: >-
+    bash -lc "python -m pip install --default-timeout=120 poetry && poetry install && poetry run pytest -q"
+
+x-node-test: &node-test
+  image: node:20
+  environment:
+    npm_config_cache: /root/.npm
+  volumes:
+    - ..:/workspace
+    - "C:\\Users\\Lenovo\\AppData\\Local\\npm-cache:/root/.npm"
+
 services:
   auth.tests:
-    image: mcr.microsoft.com/dotnet/sdk:8.0
-    working_dir: /workspace
-    volumes:
-      - ..:/workspace
+    <<: *dotnet-test
     command: >-
-      bash -c "dotnet test services/Auth/Auth.Tests/Auth.Tests.csproj --no-build --verbosity normal"
+      bash -lc "dotnet restore services/Auth/Auth.Tests/Auth.Tests.csproj --ignore-failed-sources --artifacts-path /tmp/artifacts/auth && dotnet test services/Auth/Auth.Tests/Auth.Tests.csproj --no-restore --verbosity normal --artifacts-path /tmp/artifacts/auth --results-directory /tmp/test-results/auth"
+
+  catalog.tests:
+    <<: *dotnet-test
+    command: >-
+      bash -lc "dotnet restore services/Catalog/Catalog.Tests/Catalog.Tests.csproj --ignore-failed-sources --artifacts-path /tmp/artifacts/catalog && dotnet test services/Catalog/Catalog.Tests/Catalog.Tests.csproj --no-restore --verbosity normal --artifacts-path /tmp/artifacts/catalog --results-directory /tmp/test-results/catalog"
+
+  order.tests:
+    <<: *dotnet-test
+    command: >-
+      bash -lc "dotnet restore services/Order/Order.Tests/Order.Tests.csproj --ignore-failed-sources --artifacts-path /tmp/artifacts/order && dotnet test services/Order/Order.Tests/Order.Tests.csproj --no-restore --verbosity normal --artifacts-path /tmp/artifacts/order --results-directory /tmp/test-results/order"
+
+  shipping.tests:
+    <<: *dotnet-test
+    command: >-
+      bash -lc "dotnet restore services/Shipping/Shipping.Tests/Shipping.Tests.csproj --ignore-failed-sources --artifacts-path /tmp/artifacts/shipping && dotnet test services/Shipping/Shipping.Tests/Shipping.Tests.csproj --no-restore --verbosity normal --artifacts-path /tmp/artifacts/shipping --results-directory /tmp/test-results/shipping"
+
+  user.tests:
+    <<: *dotnet-test
+    command: >-
+      bash -lc "dotnet restore services/User/User.Tests/User.Tests.csproj --ignore-failed-sources --artifacts-path /tmp/artifacts/user && dotnet test services/User/User.Tests/User.Tests.csproj --no-restore --verbosity normal --artifacts-path /tmp/artifacts/user --results-directory /tmp/test-results/user"
+
+  cart.tests:
+    <<: *dotnet-test
+    command: >-
+      bash -lc "dotnet restore services/Cart/Cart.Tests/Cart.Tests.csproj --ignore-failed-sources --artifacts-path /tmp/artifacts/cart && dotnet test services/Cart/Cart.Tests/Cart.Tests.csproj --no-restore --verbosity normal --artifacts-path /tmp/artifacts/cart --results-directory /tmp/test-results/cart"
 
   payment.tests:
     image: golang:1.23-alpine
     working_dir: /workspace/services/Payment
+    environment:
+      GOCACHE: /root/.cache/go-build
+      GOPATH: /go
+      GOPROXY: "off"
+      GOSUMDB: "off"
     volumes:
       - ..:/workspace
+      - "C:\\Users\\Lenovo\\go\\pkg:/go/pkg"
+      - "C:\\Users\\Lenovo\\AppData\\Local\\go-build:/root/.cache/go-build"
     command: go test ./...
 
   analytics.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Analytics
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      admin.tests:
+        condition: service_completed_successfully
+
+  analytics.datawarehouse.tests:
+    <<: *python-test
+    working_dir: /workspace/services/Analytics/datawarehouse
+    depends_on:
+      analytics.tests:
+        condition: service_completed_successfully
+
+  analytics.forecasting.tests:
+    <<: *python-test
+    working_dir: /workspace/services/Analytics/forecasting
+    depends_on:
+      analytics.datawarehouse.tests:
+        condition: service_completed_successfully
+
+  admin.tests:
+    <<: *python-test
+    working_dir: /workspace/services/Admin
+    depends_on:
+      address.tests:
+        condition: service_completed_successfully
 
   bff.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Bff
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && poetry run pytest -q"
+    depends_on:
+      analytics.forecasting.tests:
+        condition: service_completed_successfully
 
   inventory.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Inventory
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      experiment.tests:
+        condition: service_completed_successfully
 
   promotion.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Promotion
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      notification.ticketing.tests:
+        condition: service_completed_successfully
 
   review.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Review
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      promotion.tests:
+        condition: service_completed_successfully
 
   recommendation.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Search/recommendation
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      review.tests:
+        condition: service_completed_successfully
+
+  notification.tests:
+    <<: *python-test
+    working_dir: /workspace/services/Notification
+    depends_on:
+      inventory.tests:
+        condition: service_completed_successfully
+
+  notification.moderation.tests:
+    <<: *python-test
+    working_dir: /workspace/services/Notification/moderation
+    depends_on:
+      notification.tests:
+        condition: service_completed_successfully
+
+  notification.ticketing.tests:
+    <<: *python-test
+    working_dir: /workspace/services/Notification/ticketing
+    depends_on:
+      notification.moderation.tests:
+        condition: service_completed_successfully
 
   wishlist.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Wishlist
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      tenant.tests:
+        condition: service_completed_successfully
 
   experiment.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Experiment
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      currency.tests:
+        condition: service_completed_successfully
 
   cms.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Cms
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      bff.tests:
+        condition: service_completed_successfully
 
   rma.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Rma
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      recommendation.tests:
+        condition: service_completed_successfully
+
+  tenant.tests:
+    <<: *python-test
+    working_dir: /workspace/services/Tenant
+    depends_on:
+      tax.tests:
+        condition: service_completed_successfully
 
   tax.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Tax
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      shippingrate.tests:
+        condition: service_completed_successfully
 
   currency.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Currency
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      cms.tests:
+        condition: service_completed_successfully
 
   address.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Address
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
 
   shippingrate.tests:
-    image: public.ecr.aws/docker/library/python:3.12-slim
+    <<: *python-test
     working_dir: /workspace/services/Shipping/rate
-    volumes:
-      - ..:/workspace
-    command: >-
-      bash -c "pip install --no-cache-dir poetry && poetry install && PYTHONPATH=. pytest -q"
+    depends_on:
+      rma.tests:
+        condition: service_completed_successfully
 
   frontend.tests:
-    image: node:20
+    <<: *node-test
     working_dir: /workspace/frontend
-    volumes:
-      - ..:/workspace
     command: >-
-      bash -c "npm install --force && npm test --silent"
+      bash -c "npm ci --prefer-offline && npm test --silent && npm run build"
 
+  merchant.tests:
+    <<: *node-test
+    working_dir: /workspace/apps/merchant
+    command: >-
+      bash -c "npm ci --prefer-offline && npm run build"
+
+  storefront.tests:
+    <<: *node-test
+    working_dir: /workspace/apps/storefront
+    command: >-
+      bash -c "npm ci --prefer-offline && npm run build"
 
 
 

@@ -10,24 +10,28 @@ public class RedisCartStore(IDistributedCache cache) : ICartStore
 {
     private readonly IDistributedCache _cache = cache;
 
-    public async Task<IList<CartItem>> GetCartAsync(string userId)
+    public async Task<IList<CartItem>> GetCartAsync(string tenantId, string userId)
     {
-        var data = await _cache.GetStringAsync(Key(userId));
+        var data = await _cache.GetStringAsync(Key(tenantId, userId));
         if (data is null) return new List<CartItem>();
         return JsonSerializer.Deserialize<IList<CartItem>>(data) ?? new List<CartItem>();
     }
 
-    public async Task SetCartAsync(string userId, IList<CartItem> items)
+    public async Task SetCartAsync(string tenantId, string userId, IList<CartItem> items)
     {
         var data = JsonSerializer.Serialize(items);
-        await _cache.SetStringAsync(Key(userId), data);
+        await _cache.SetStringAsync(Key(tenantId, userId), data);
     }
 
-    public async Task ClearCartAsync(string userId)
+    public async Task ClearCartAsync(string tenantId, string userId)
     {
-        await _cache.RemoveAsync(Key(userId));
+        await _cache.RemoveAsync(Key(tenantId, userId));
     }
 
-    private static string Key(string userId) => $"cart:{userId}";
+    private static string Key(string tenantId, string userId)
+    {
+        var normalizedTenantId = string.IsNullOrWhiteSpace(tenantId) ? "public" : tenantId.Trim();
+        return $"cart:{normalizedTenantId}:{userId}";
+    }
 }
 

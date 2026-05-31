@@ -6,6 +6,12 @@ paths:
   /users:
     get:
       summary: Get all users
+      parameters:
+        - in: query
+          name: tenantId
+          schema:
+            type: string
+          required: false
       responses:
         '200':
           description: List of users
@@ -48,12 +54,59 @@ paths:
                 $ref: '#/components/schemas/User'
         '404':
           description: Not found
+  /users/by-username/{username}:
+    get:
+      summary: Get user by username
+      parameters:
+        - in: path
+          name: username
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: tenantId
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: A user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '409':
+          description: Username is ambiguous across tenants
+        '404':
+          description: Not found
+  /users/by-auth-subject/{authSubjectId}:
+    get:
+      summary: Get user by auth subject
+      parameters:
+        - in: path
+          name: authSubjectId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: A user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Not found
 components:
   schemas:
     User:
       type: object
       properties:
         id:
+          type: string
+        authSubjectId:
+          type: string
+        tenantId:
           type: string
         userName:
           type: string
@@ -68,9 +121,13 @@ components:
         - userName
         - email
       properties:
+        authSubjectId:
+          type: string
         userName:
           type: string
         email:
+          type: string
+        tenantId:
           type: string
 
 

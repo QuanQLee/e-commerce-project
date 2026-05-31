@@ -29,11 +29,12 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # ---------- Production image ----------
-FROM nginx:1.27-alpine
+FROM nginxinc/nginx-unprivileged:1.27-alpine
 COPY --from=deps /app/dist /usr/share/nginx/html
 # Use full nginx.conf (contains worker_processes/http/server). It must be copied
 # to /etc/nginx/nginx.conf, not conf.d/default.conf.
 COPY nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]

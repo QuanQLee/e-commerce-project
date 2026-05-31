@@ -97,13 +97,23 @@ pull them locally.
 - [Database backup & recovery](docs/database-backup.md)
 - [Observability blueprint](docs/observability.md)
 - [Operations runbook](docs/operations-runbook.md)
+- [Release & delivery playbook](docs/release-delivery.md)
 - [Docker image registry](docs/registry.md)
 - [Frontend architecture](docs/frontend-architecture.md)
+- [Mobile apps](docs/mobile-apps.md)
 - [Production readiness roadmap](docs/production-roadmap.md)
+- [Java backend migration](docs/java-backend-migration.md)
 
 ## Frontend
 
 The `frontend` directory contains a Vite + React application that exposes basic screens for each microservice.  It communicates with the backend exclusively through the gateway API and demonstrates product browsing and creation, user and order management, shipping, payments, metrics and authentication.
+
+Native mobile skeletons now live under:
+
+- `apps/android-app`
+- `apps/ios-app`
+
+Both mobile clients are wired to the same `Gateway -> Bff -> services` backend flow.
 
 ### Development
 
@@ -172,6 +182,13 @@ Use the helper compose file to execute all backend and frontend tests inside con
 ```bash
 cd services
 docker compose -f docker-compose.tests.yml up --build --abort-on-container-exit
+```
+
+For a full run without prematurely stopping when the first successful container exits, prefer:
+
+```bash
+cd services
+docker compose -f docker-compose.tests.yml up --build --abort-on-container-failure
 ```
 
 Each container installs dependencies and runs the suite for its service. See [docs/testing.md](docs/testing.md) for more information.

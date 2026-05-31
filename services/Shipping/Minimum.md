@@ -10,23 +10,27 @@ This document lists the minimal information needed to integrate with the Shippin
 
 - `Content-Type: application/json`
 
-## Example Endpoints
+## Core Endpoints
 
-- `GET /shipments` – list shipments
-- `GET /shipments/{id}` – get shipment by ID
-- `POST /shipments` – create a shipment
-- `GET /shipments/{id}/tracking` – shipment tracking
-- `POST /rates/calculate` – calculate rate
-- `POST /shipments/{id}/exception` – sign exception
-- `POST /labels/callback` – label callback
+- `GET /shipments`: list shipments
+- `GET /shipments/{id}`: get shipment by ID
+- `POST /shipments`: create a shipment
+- `GET /shipments/{id}/tracking`: shipment tracking snapshot
+- `POST /rates/calculate`: calculate fee + SLA + carrier strategy
+- `POST /shipments/{id}/exception`: mark exception
 
-### Create Shipment Example
+## Production Shipping Endpoints
 
-```json
-POST /shipments
-{
-  "orderId": "<ORDER_ID>"
-}
-```
+- `POST /shipments/{id}/label`: generate shipping label and tracking number
+- `POST /shipments/{id}/tracking/callback`: carrier status callback
+- `POST /labels/callback`: label provider callback
 
-Refer to `openapi.yaml` for the full schema.
+## Rate Strategy
+
+Rate strategy returns fee, ETA(days), service level and carrier based on:
+
+- destination region (domestic/international)
+- package weight
+- express flag
+
+Refer to `openapi.yaml` for existing schema baseline.

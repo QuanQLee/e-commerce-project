@@ -17,9 +17,9 @@ concurrency:
 jobs:
   build:
     env:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:9080
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
       NEXT_PUBLIC_API_KEY: ''
-      VITE_API_BASE_URL: http://localhost:9080
+      VITE_API_BASE_URL: http://localhost:8000
       VITE_API_KEY: ''
       ASPNETCORE_ENVIRONMENT: Development
       KONG_CORS_ORIGIN_PRIMARY: https://storefront.local
@@ -80,7 +80,7 @@ jobs:
 
       - name: Run Python tests
         run: |
-          for service in Admin Analytics Inventory; do
+          for service in Admin Analytics Inventory Promotion Rma Tenant; do
             cd services/$service
             # Ensure lock file is synced with pyproject (handles dependency tweaks in PRs)
             poetry lock -n
@@ -88,6 +88,15 @@ jobs:
             poetry run pytest -q
             cd ../../
           done
+
+      - name: Validate Release Acceptance Scripts
+        shell: bash
+        run: |
+          bash -n ./scripts/validate-production-env.sh
+          docker compose -f services/docker-compose.yml config > /tmp/services-compose.txt
+          docker compose -f services/docker-compose.ecs.yml --env-file services/.env.production.example config > /tmp/services-ecs-compose.txt
+          docker compose -f frontend/docker-compose.yml config > /tmp/frontend-compose.txt
+          ACCEPTANCE_DRY_RUN=true bash ./scripts/release-acceptance.sh
 
       - name: Run .NET tests
         run: |
@@ -254,6 +263,30 @@ jobs:
           if [ -z "${REMOTE_PATH}" ]; then
             echo "REMOTE_PATH=/home/${{ secrets.EC2_USER }}/ecommerce/current" >> $GITHUB_ENV
           fi
+      - name: Check EC2 SSH reachability
+        shell: bash
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          set -euo pipefail
+          if [ -z "${EC2_HOST}" ]; then
+            echo "EC2_HOST secret is empty."
+            exit 1
+          fi
+          reachable=false
+          for attempt in $(seq 1 12); do
+            if nc -zvw5 "${EC2_HOST}" 22; then
+              reachable=true
+              break
+            fi
+            echo "SSH port check failed (${attempt}/12), retrying..."
+            sleep 5
+          done
+          if [ "${reachable}" != "true" ]; then
+            echo "EC2 SSH (port 22) is unreachable from GitHub runner."
+            echo "Check EC2 public IP/EIP, security group inbound 22, NACL, and route table."
+            exit 1
+          fi
       - name: Render Kong config for deploy
         shell: bash
         env:
@@ -268,7 +301,39 @@ jobs:
             echo "Unrendered Kong template placeholders remain."
             exit 1
           fi
-      - name: Prepare remote path
+      - name: Prepare remote path (attempt 1)
+        id: prepare_remote_path_1
+        continue-on-error: true
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REMOTE_PATH
+          script: |
+            set -euo pipefail
+            REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
+            OWNER="$(id -un):$(id -gn)"
+            if command -v sudo >/dev/null 2>&1; then
+              sudo mkdir -p "${REMOTE_PATH}" "${REMOTE_PATH}/frontend"
+              sudo chown -R "${OWNER}" "${REMOTE_PATH}" || true
+              sudo find "${REMOTE_PATH}" -type d -exec chmod u+rwx {} + || true
+              sudo find "${REMOTE_PATH}" -type f -exec chmod u+rw {} + || true
+            else
+              mkdir -p "${REMOTE_PATH}" "${REMOTE_PATH}/frontend"
+            fi
+            # Clean up mistaken directories created by failed bind-mounts.
+            if [ -d "${REMOTE_PATH}/prometheus.yml" ]; then
+              rm -rf "${REMOTE_PATH}/prometheus.yml"
+            fi
+            if [ -d "${REMOTE_PATH}/frontend/nginx.conf" ]; then
+              rm -rf "${REMOTE_PATH}/frontend/nginx.conf"
+            fi
+            if [ -d "${REMOTE_PATH}/frontend/frontend" ]; then
+              rm -rf "${REMOTE_PATH}/frontend/frontend"
+            fi
+      - name: Prepare remote path (attempt 2)
+        if: steps.prepare_remote_path_1.outcome == 'failure'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -365,7 +430,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: REMOTE_PATH,ENV_B64,DB_PASSWORD,CATALOG_DB_PASSWORD,ORDER_DB_PASSWORD,USER_DB_PASSWORD,AUTH_DB_PASSWORD,INVENTORY_DB_PASSWORD,PAYMENT_DB_PASSWORD,SHIPPING_DB_PASSWORD,ANALYTICS_DB_PASSWORD
+          envs: REMOTE_PATH,ENV_B64,GHCR_REGISTRY,TAG,DB_PASSWORD,CATALOG_DB_PASSWORD,ORDER_DB_PASSWORD,USER_DB_PASSWORD,AUTH_DB_PASSWORD,INVENTORY_DB_PASSWORD,PAYMENT_DB_PASSWORD,SHIPPING_DB_PASSWORD,ANALYTICS_DB_PASSWORD
           script: |
             set -euo pipefail
             REMOTE_PATH="${REMOTE_PATH:-/home/${{ secrets.EC2_USER }}/ecommerce/current}"
@@ -425,6 +490,15 @@ jobs:
             # Ensure BFF uses local redis by default (overwrite placeholder if present).
             sed -i "/^BFF_SESSION_REDIS_URL=.*/d" "${REMOTE_PATH}/.env" || true
             echo "BFF_SESSION_REDIS_URL=redis://bff-redis:6379/0" >> "${REMOTE_PATH}/.env"
+            # Enforce image source/tag for CI/CD deploys to avoid fallback to placeholder ECR values.
+            if [ -n "${GHCR_REGISTRY:-}" ]; then
+              sed -i "/^REGISTRY=.*/d" "${REMOTE_PATH}/.env" || true
+              echo "REGISTRY=${GHCR_REGISTRY}" >> "${REMOTE_PATH}/.env"
+            fi
+            if [ -n "${TAG:-}" ]; then
+              sed -i "/^TAG=.*/d" "${REMOTE_PATH}/.env" || true
+              echo "TAG=${TAG}" >> "${REMOTE_PATH}/.env"
+            fi
       - name: Deploy to EC2 via SSH (GHCR)
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -469,7 +543,7 @@ jobs:
               echo "docker compose pull failed after 3 attempts."
               exit 1
             fi
-            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans
+            REGISTRY="${REGISTRY}" TAG="${TAG}" docker compose $COMPOSE_ARGS up -d --remove-orphans --no-build
             if [ -f "${REMOTE_PATH}/scripts/db-init.sql" ]; then
               PG_SUPERUSER="$(grep '^DB_USER=' "${REMOTE_PATH}/.env" | cut -d= -f2- || true)"
               PG_SUPERUSER="${PG_SUPERUSER:-catalog_admin}"

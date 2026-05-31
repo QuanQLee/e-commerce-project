@@ -24,7 +24,7 @@ This document outlines how to deliver production-grade visibility for the platfo
 
 ### EC2 test setup
 - For quick AWS testing on EC2, use `services/docker-compose.aws.logging.yml` with the `awslogs` driver.
-- Populate `AWS_REGION`, `AWS_LOG_GROUP`, `AWS_LOG_STREAM_PREFIX` in `.env` (see `services/.env.example`).
+- Populate `AWS_REGION` and `AWS_LOG_GROUP` in `.env` (see `services/.env.example`).
 
 ### Action items
 1. Ship BFF / backend `stdout` to Fluent Bit sidecar → CloudWatch Logs group per service.
@@ -68,8 +68,14 @@ This document outlines how to deliver production-grade visibility for the platfo
 - [ ] Alertmanager routes configured with acknowledged owners.
 - [ ] On-call playbook updated with dashboard URLs and alert definitions.
 
+## Repo Baseline Added
+- Prometheus rule file: `services/prometheus.rules.yml` (gateway 5xx, payment failures, inventory insufficient spike, target down).
+- Prometheus config now loads the rule file and includes payment/shipping/inventory scrape jobs.
+- SLO validation script: `scripts/slo-check.sh` (health checks + p95 latency gate), intended to run in deployment pipeline.
+
 ## Health Endpoints
-- Gateway health: `/status` (routed to BFF `/healthz`).
+- Kong control-plane health: `http://127.0.0.1:8001/status` (local admin endpoint on EC2).
+- Gateway proxy health: use a route explicitly exempted from auth plugins (do not assume `/status` is public).
 - BFF health: `/healthz`, readiness: `/readyz` (checks Redis).
 - Inventory readiness: `/readyz` (checks database connectivity).
 - Analytics readiness: `/readyz` (checks database connectivity).

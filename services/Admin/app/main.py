@@ -77,6 +77,39 @@ def verify_admin(request: Request):
     if "admin-group" not in groups.split(","):
         raise HTTPException(status_code=403, detail="forbidden")
 
+
+def _parse_claim_values(header_value: str | None) -> set[str]:
+    if not header_value:
+        return set()
+    normalized = header_value.replace(" ", ",")
+    return {item.strip() for item in normalized.split(",") if item.strip()}
+
+
+def verify_permission(request: Request, permission: str) -> None:
+    groups = _parse_claim_values(request.headers.get("X-Consumer-Groups"))
+    if "admin-group" in groups:
+        return
+
+    permission_headers = [
+        request.headers.get("X-Consumer-Permissions"),
+        request.headers.get("X-Permissions"),
+        request.headers.get("X-Consumer-Scopes"),
+        request.headers.get("X-Scopes"),
+    ]
+    permissions = set()
+    for value in permission_headers:
+        permissions.update(_parse_claim_values(value))
+
+    if permission not in permissions:
+        raise HTTPException(status_code=403, detail=f"missing permission: {permission}")
+
+
+def require_permission(permission: str):
+    def _dependency(request: Request) -> None:
+        verify_permission(request, permission)
+
+    return _dependency
+
 def _audit_actor(request: Request) -> str:
     return (
         request.headers.get("X-Consumer-Username")
@@ -108,7 +141,7 @@ async def healthz():
 async def list_products(
     request: Request,
     client: httpx.AsyncClient = Depends(get_client),
-    _: None = Depends(verify_admin),
+    _: None = Depends(require_permission("catalog.products.read")),
 ):
     REQUEST_COUNTER.labels("list_products").inc()
     audit_log(request, "list_products", "catalog")
@@ -123,7 +156,7 @@ async def update_product(
     payload: dict,
     request: Request,
     client: httpx.AsyncClient = Depends(get_client),
-    _: None = Depends(verify_admin),
+    _: None = Depends(require_permission("catalog.products.write")),
 ):
     REQUEST_COUNTER.labels("update_product").inc()
     audit_log(request, "update_product", f"product:{pid}")
@@ -141,7 +174,7 @@ async def adjust_inventory(
     body: AdjustQty,
     request: Request,
     client: httpx.AsyncClient = Depends(get_client),
-    _: None = Depends(verify_admin),
+    _: None = Depends(require_permission("inventory.adjust.write")),
 ):
     REQUEST_COUNTER.labels("adjust_inventory").inc()
     audit_log(request, "adjust_inventory", f"product:{pid}")
@@ -157,7 +190,7 @@ async def adjust_inventory(
 async def list_orders(
     request: Request,
     client: httpx.AsyncClient = Depends(get_client),
-    _: None = Depends(verify_admin),
+    _: None = Depends(require_permission("orders.read")),
 ):
     REQUEST_COUNTER.labels("orders").inc()
     audit_log(request, "list_orders", "order")
@@ -170,7 +203,7 @@ async def list_orders(
 async def list_users(
     request: Request,
     client: httpx.AsyncClient = Depends(get_client),
-    _: None = Depends(verify_admin),
+    _: None = Depends(require_permission("users.read")),
 ):
     REQUEST_COUNTER.labels("users").inc()
     audit_log(request, "list_users", "user")

@@ -29,6 +29,10 @@ namespace User.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AuthSubjectId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -36,17 +40,29 @@ namespace User.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasDefaultValue("public");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("UserName")
-                        .IsUnique();
-
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthSubjectId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Email")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "UserName")
+                        .IsUnique();
 
                     b.ToTable("users", "user");
                 });
@@ -54,4 +70,3 @@ namespace User.Migrations
         }
     }
 }
-

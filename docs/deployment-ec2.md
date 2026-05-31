@@ -63,7 +63,7 @@ After deployment, `docker compose ps` runs to show container status. If `HealthC
 ## Health Checks & Rollback
 
 - The helper uses the previous release (tracked through the `current` symlink) as an automatic rollback target. If the health check fails or the compose rollout errors, the script will stop the new stack, restore the old release and repoint the symlink.
-- Ensure `curl` is installed on the EC2 instance when health checks are enabled. You can provide an internal URL such as `http://localhost:8000/healthz` so the probe runs from inside the host.
+- Ensure `curl` is installed on the EC2 instance when health checks are enabled. For Kong liveness, prefer the local admin endpoint `http://127.0.0.1:8001/status` so auth plugins on proxy routes cannot cause false negatives.
 - Because the same Compose project name is reused, host ports are freed before the new containers start. You can override the project name by exporting `COMPOSE_PROJECT_NAME` in the environment.
 
 ## Bootstrapping Secrets
@@ -92,7 +92,7 @@ The script copies the provided `EnvFile` into `RemotePath/shared/.env`. Each dep
 ## CloudWatch Logs (Test Environments)
 
 - Use `services/docker-compose.aws.logging.yml` to enable the `awslogs` driver on core services.
-- Set `AWS_REGION`, `AWS_LOG_GROUP`, and `AWS_LOG_STREAM_PREFIX` in your `.env` (see `services/.env.example`).
+- Set `AWS_REGION` and `AWS_LOG_GROUP` in your `.env` (see `services/.env.example`).
 
 ## Production Baseline (EC2 + RDS + ElastiCache + ALB)
 
@@ -111,15 +111,15 @@ pwsh ./scripts/deploy-ec2.ps1 `
   -EnvFile C:\secrets\services.prod.env `
   -ProvisionDbRoles `
   -ProvisionDbRolesMode remote `
-  -HealthCheckUrl http://localhost:8000/status `
+  -HealthCheckUrl http://127.0.0.1:8001/status `
   -RunSmokeChecks
 ```
 
-The ALB target group can use `/status` on the gateway for health checks.
+For ALB target groups on proxy port `8000`, use an endpoint that is explicitly unauthenticated in your Kong policy (for example a dedicated health route). Do not assume `/status` is public when global auth plugins are enabled.
 
 ## Health Checks and Rollback
 
-- Verify the gateway (`https://your-domain/healthz`) and the BFF (`http://<host>:9080/healthz`) after deployment.
+- Verify Kong admin liveness (`http://127.0.0.1:8001/status` on the host) and the BFF (`http://<host>:9080/healthz`) after deployment.
 - To roll back, point the `current` symlink to a previous release and rerun `docker compose up -d`. The releases live under `RemotePath/releases`.
 
 ## Automation Ideas

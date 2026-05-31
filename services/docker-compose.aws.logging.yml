@@ -5,7 +5,6 @@ x-awslogs: &awslogs
   options:
     awslogs-region: ${AWS_REGION}
     awslogs-group: ${AWS_LOG_GROUP:-/ecs/ecommerce}
-    awslogs-stream-prefix: ${AWS_LOG_STREAM_PREFIX:-ecommerce}
     awslogs-create-group: "true"
 
 services:

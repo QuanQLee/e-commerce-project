@@ -1,37 +1,33 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using User.Api.Infrastructure;
 
 #nullable disable
 
 namespace User.Migrations;
 
+[DbContext(typeof(UserDbContext))]
+[Migration("20250726120000_AddUserIndexes")]
 public partial class AddUserIndexes : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.CreateIndex(
-            name: "IX_users_UserName",
-            schema: "user",
-            table: "users",
-            column: "UserName",
-            unique: true);
-        migrationBuilder.CreateIndex(
-            name: "IX_users_Email",
-            schema: "user",
-            table: "users",
-            column: "Email",
-            unique: true);
+        migrationBuilder.Sql(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_users_UserName"
+                ON "user"."users" ("UserName");
+
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_users_Email"
+                ON "user"."users" ("Email");
+            """);
     }
 
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropIndex(
-            name: "IX_users_UserName",
-            schema: "user",
-            table: "users");
-        migrationBuilder.DropIndex(
-            name: "IX_users_Email",
-            schema: "user",
-            table: "users");
+        migrationBuilder.Sql(
+            """
+            DROP INDEX IF EXISTS "user"."IX_users_UserName";
+            DROP INDEX IF EXISTS "user"."IX_users_Email";
+            """);
     }
 }
-

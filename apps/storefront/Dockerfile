@@ -32,13 +32,17 @@ RUN npm run build
 
 FROM node:20-alpine
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 # Run the standalone server from the app directory
 WORKDIR /app/apps/storefront
+RUN addgroup --system --gid 10001 appgroup && \
+    adduser --system --uid 10001 --ingroup appgroup appuser
 
 # Copy standalone output and static assets
-COPY --from=deps /app/apps/storefront/.next/standalone ./
-COPY --from=deps /app/apps/storefront/.next/static ./.next/static
-COPY --from=deps /app/apps/storefront/public ./public
+COPY --from=deps --chown=appuser:appgroup /app/apps/storefront/.next/standalone ./
+COPY --from=deps --chown=appuser:appgroup /app/apps/storefront/.next/static ./.next/static
+COPY --from=deps --chown=appuser:appgroup /app/apps/storefront/public ./public
 
 EXPOSE 3000
+USER appuser
 CMD ["node","server.js"]

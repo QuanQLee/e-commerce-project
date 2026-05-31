@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { runtimeEnv } from './config/env'
-import { getToken, clearToken } from './auth'
+import { getToken, clearToken, getTenantId } from './auth'
 
 const api = axios.create({
   withCredentials: true,
@@ -14,10 +14,13 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = getToken()
+  const tenantId = getTenantId() || runtimeEnv.tenantId
   if (token) {
     config.headers = config.headers || {}
     config.headers.Authorization = `Bearer ${token}`
   }
+  config.headers = config.headers || {}
+  config.headers['X-Tenant-Id'] = tenantId
   return config
 })
 

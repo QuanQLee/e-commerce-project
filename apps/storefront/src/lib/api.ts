@@ -6,6 +6,7 @@ const api = axios.create({
   baseURL: runtimeConfig.apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
+    'X-Tenant-Id': runtimeConfig.tenantId,
     ...(runtimeConfig.apiKey ? { apikey: runtimeConfig.apiKey } : {}),
   },
 })
@@ -23,6 +24,8 @@ if (typeof window !== 'undefined') {
         console.debug('[api] failed to read access token', error)
       }
     }
+    config.headers = config.headers || {}
+    config.headers['X-Tenant-Id'] = runtimeConfig.tenantId
     return config
   })
 }

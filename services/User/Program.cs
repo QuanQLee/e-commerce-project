@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using User.Api.Infrastructure;
 using Microsoft.OpenApi.Models;
 using System;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Quartz;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -18,8 +20,12 @@ using OpenTelemetry.Trace;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
 
-builder.WebHost.UseUrls("http://0.0.0.0:80");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+var useInMemoryDb = !(Environment.GetEnvironmentVariable("USE_INMEMORY_DB") ?? "true")
+    .Equals("false", StringComparison.OrdinalIgnoreCase);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -34,14 +40,28 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddDbContext<UserDbContext>(options =>
 {
+    options.ConfigureWarnings(warnings =>
+        warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+
+    if (useInMemoryDb)
+    {
+        options.UseInMemoryDatabase("UserTest");
+        return;
+    }
+
     var cs = builder.Configuration.GetConnectionString("UserDb");
-    options.UseNpgsql(cs);
+    options.UseNpgsql(cs, npgsqlOptions =>
+        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "user"));
 });
 
-builder.Services.AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("UserDb") ?? string.Empty,
+var healthChecks = builder.Services.AddHealthChecks();
+var enableReadyDbCheck = !useInMemoryDb;
+if (enableReadyDbCheck)
+{
+    healthChecks.AddNpgSql(builder.Configuration.GetConnectionString("UserDb") ?? string.Empty,
         name: "database",
         tags: new[] { "ready" });
+}
 
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource
@@ -74,7 +94,14 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
-    db.Database.EnsureCreated();
+    if (useInMemoryDb)
+    {
+        db.Database.EnsureCreated();
+    }
+    else
+    {
+        db.Database.Migrate();
+    }
 }
 
 app.UseSwagger();

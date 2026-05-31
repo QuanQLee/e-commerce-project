@@ -7,6 +7,7 @@ public class OrderItem
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid OrderId { get; set; }
+    public string TenantId { get; set; } = "public";
     public string ProductName { get; set; } = default!;
     public decimal Price { get; set; }
     [JsonIgnore]

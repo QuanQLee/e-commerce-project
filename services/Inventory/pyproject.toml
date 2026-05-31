@@ -15,7 +15,7 @@ prometheus-client = "^0.20.0"
 httpx = "^0.27.2"
 structlog = "^24.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
 
 [build-system]

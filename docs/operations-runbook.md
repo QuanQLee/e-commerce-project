@@ -4,7 +4,7 @@ This document captures the playbooks and validation steps required to support th
 
 ## 1. Deployment & Rollback
 1. **Blue/green via EC2 helper**
-   - Use `scripts/deploy-ec2.ps1` with health checks enabled (e.g., `-HealthCheckUrl http://localhost:8000/healthz`).
+   - Use `scripts/deploy-ec2.ps1` with health checks enabled (e.g., `-HealthCheckUrl http://127.0.0.1:8001/status`).
    - Script automatically keeps the previous release in `RemotePath/releases`. On failure it re-links `current` to the prior release.
 2. **Manual rollback checklist**
    - SSH to the host (`ssh -i key.pem user@host`).
@@ -15,7 +15,9 @@ This document captures the playbooks and validation steps required to support th
 3. **Config change rollback**
    - All secrets should live in AWS Secrets Manager. Revert to previous secret version or redeploy with the last known-good secret ARN/version.
 4. **Post-deploy smoke checks**
-   - Run `./scripts/smoke-checks.sh` on the host (or via SSH) to verify `/status`, `/healthz`, and `/readyz` endpoints.
+   - Run `./scripts/smoke-checks.sh` on the host (or via SSH) to verify Kong admin `/status` plus service `/healthz` and `/readyz` endpoints.
+5. **Automated acceptance gate**
+   - Run `./scripts/release-acceptance.sh` as a mandatory release gate (smoke + SLO; optional load sanity via `RUN_LOADTEST=true`).
 
 ## 2. Incident Response Workflow
 1. **Triage**
@@ -39,6 +41,8 @@ This document captures the playbooks and validation steps required to support th
 3. **Regional failover**
    - Maintain infrastructure-as-code for secondary region.
    - Test DNS failover (Route53) and ensure image repositories/secrets are replicated.
+4. **Backup & restore rehearsal**
+   - Run `./scripts/backup-restore-drill.sh` periodically to validate dump + restore workflow into a drill database.
 
 ## 4. Testing Strategy
 - **Automated**: unit, integration, contract tests run in CI (`services/docker-compose.tests.yml`).

@@ -17,15 +17,27 @@ public enum OrderStatus
 public class OrderEntity
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
+    public string TenantId { get; private set; } = "public";
     public Guid UserId { get; set; }
     public List<OrderItem> Items { get; private set; } = new();
     public decimal TotalPrice { get; private set; }
     public OrderStatus Status { get; private set; } = OrderStatus.PendingPayment;
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
+    public void AssignTenant(string tenantId)
+    {
+        TenantId = string.IsNullOrWhiteSpace(tenantId) ? "public" : tenantId.Trim();
+    }
+
     public void AddItem(string productName, decimal price)
     {
-        Items.Add(new OrderItem { OrderId = Id, ProductName = productName, Price = price });
+        Items.Add(new OrderItem
+        {
+            OrderId = Id,
+            TenantId = TenantId,
+            ProductName = productName,
+            Price = price
+        });
         RecalculateTotal();
     }
 

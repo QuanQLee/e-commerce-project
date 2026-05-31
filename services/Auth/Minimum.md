@@ -1,34 +1,48 @@
 # Auth Service Minimum Requirements
 
-This document lists the minimal information required to integrate with the Auth microservice.
+This document lists the minimum information required to integrate with the Auth service safely.
 
 ## Base URL
+
 - `http://<host>:7000`
 
-## Required Headers
+## Required headers
+
 - `Content-Type: application/x-www-form-urlencoded`
 
-## Example Request
-```
-POST /connect/token
-client_id=sample&client_secret=secret&grant_type=client_credentials&scope=api1
-```
+## Supported production flow
 
-Additional test clients are also registered:
+Use OAuth 2.0 authorization code + PKCE for browser and native clients:
+
+- browser client: `bff-web`
+- native client: `mobile-native`
+
+Client credentials remain available for service-to-service calls:
 
 ```text
-client_id=1&client_secret=secret1&grant_type=password&username=user1&password=pass1&scope=api1
-client_id=2&client_secret=secret2&grant_type=password&username=user1&password=pass1&scope=api1
+POST /connect/token
+client_id=sample&client_secret=<sample-client-secret>&grant_type=client_credentials&scope=api1
 ```
 
-## Introspection Example
+## Development-only flow
+
+Password grant clients are available only when `Auth__EnablePasswordGrantClients=true`:
+
+```text
+client_id=1&client_secret=<admin-client-secret>&grant_type=password&username=user1&password=DevPassw0rd!&scope=api1 offline_access
+client_id=2&client_secret=<secondary-admin-client-secret>&grant_type=password&username=user1&password=DevPassw0rd!&scope=api1 offline_access
 ```
+
+## Introspection example
+
+```text
 POST /connect/introspect
 token=<ACCESS_TOKEN>
 ```
 
-## Success Response
-```
+## Success response
+
+```json
 {
   "access_token": "<TOKEN>",
   "expires_in": 3600,
@@ -38,5 +52,11 @@ token=<ACCESS_TOKEN>
 
 Refer to `openapi.yaml` for full schema.
 
-### Environment Variables
-- `ConnectionStrings__AuthDb` – PostgreSQL connection string. Each tenant can use a dedicated schema.
+## Required production configuration
+
+- `ConnectionStrings__AuthDb`
+- `Auth__SampleClientSecret`
+- `Auth__AdminClientSecret`
+- `Auth__SecondaryAdminClientSecret`
+- `Auth__SigningCertificatePath`
+- `Auth__SigningCertificatePassword`

@@ -12,9 +12,15 @@ paths:
           schema:
             type: string
           required: true
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: List of cart items
+  /cart/{userId}/items:
     post:
       summary: Add item to cart
       parameters:
@@ -23,6 +29,11 @@ paths:
           schema:
             type: string
           required: true
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -46,6 +57,11 @@ paths:
           schema:
             type: string
           required: true
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -64,6 +80,11 @@ paths:
           schema:
             type: string
           required: true
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: Order created

@@ -45,3 +45,21 @@ To handle high concurrency the services rely on multiple techniques:
 - **Database tuning** – Add indexes to columns used in searches, split large queries or employ pagination to reduce load. Monitor slow query logs and refactor them when needed.
 - **APM tools** – Integrate application performance monitoring to identify slow functions and memory issues. Optimise algorithms or choose more efficient data structures when hotspots are discovered.
 - **Frontend improvements** – Serve compressed assets, minimise bundle size and use a CDN. Efficient client‑side code reduces the pressure on backend services.
+
+## Runtime Guardrails
+
+The BFF keeps a process-wide upstream HTTP connection pool instead of creating a
+new client per request. Tune these values after load tests:
+
+- `BFF_WORKERS`: uvicorn worker processes per container. Start at `2` and prefer
+  horizontal replicas for sustained traffic.
+- `BFF_HTTP_MAX_CONNECTIONS`: total concurrent upstream sockets per worker.
+- `BFF_HTTP_MAX_KEEPALIVE_CONNECTIONS`: reusable idle sockets per worker.
+- `BFF_HTTP_CONNECT_TIMEOUT`, `BFF_HTTP_READ_TIMEOUT`, `BFF_HTTP_POOL_TIMEOUT`:
+  fail fast when an upstream is slow or the connection pool is saturated.
+- `BFF_REDIS_MAX_CONNECTIONS`: Redis session-store connections per worker.
+
+For Catalog, product listing is paginated by default (`pageSize=50`, capped at
+`200`) and the service uses EF Core DbContext pooling. Keep
+`CATALOG_DB_MAX_POOL_SIZE * catalog replica count` below the database connection
+budget, leaving headroom for migrations, observability and admin sessions.

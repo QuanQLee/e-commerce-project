@@ -6,11 +6,44 @@ paths:
   /orders:
     get:
       summary: Get all orders
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: X-User-Id
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Current-user identity propagated by the BFF.
+        - in: query
+          name: userId
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Legacy fallback when X-User-Id is not available.
       responses:
         '200':
           description: List of orders
     post:
       summary: Create order
+      parameters:
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: X-User-Id
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Current-user identity propagated by the BFF.
       requestBody:
         required: true
         content:
@@ -30,6 +63,18 @@ paths:
           schema:
             type: string
             format: uuid
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema:
+            type: string
+        - in: header
+          name: X-User-Id
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Current-user identity propagated by the BFF.
       responses:
         '200':
           description: Order
@@ -45,6 +90,11 @@ paths:
           schema:
             type: string
             format: uuid
+        - in: header
+          name: X-Tenant-Id
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -62,6 +112,7 @@ components:
         userId:
           type: string
           format: uuid
+          description: Legacy fallback when X-User-Id is not available.
         items:
           type: array
           items:
@@ -69,27 +120,64 @@ components:
         total:
           type: number
       required:
-        - userId
         - items
         - total
-  CreateOrderItemDto:
-    type: object
-    properties:
-      productName:
-        type: string
-      price:
-        type: number
-        format: decimal
-  UpdateStatusDto:
-    type: object
-    properties:
-      status:
-        $ref: '#/components/schemas/OrderStatus'
-    required:
-      - status
-  OrderStatus:
-    type: integer
-    description: Order status enum
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+        userId:
+          type: string
+          format: uuid
+        totalPrice:
+          type: number
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        createdAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderId:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+        productName:
+          type: string
+        price:
+          type: number
+          format: decimal
+    CreateOrderItemDto:
+      type: object
+      properties:
+        productName:
+          type: string
+        price:
+          type: number
+          format: decimal
+    UpdateStatusDto:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+      required:
+        - status
+    OrderStatus:
+      type: integer
+      description: Order status enum
 
 
 

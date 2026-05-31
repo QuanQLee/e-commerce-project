@@ -38,6 +38,17 @@ Protect the gateway with a WAF to block common attacks such as SQL injection and
 - Set per-environment JWT expirations (`maximum_expiration`) and disallow token transmission via query parameters to limit token leakage through logs and analytics.
 - Back the BFF session store with a managed Redis cluster that enforces TLS and network ACLs. Do not rely on the in-memory fallback for production traffic.
 
+## Sensitive Operation Verification
+- Tenant management sensitive operations should require secondary verification (2FA-like token or step-up challenge):
+  - bill payment
+  - quota strategy changes
+  - member removal
+- In this repo baseline, Tenant service enforces a `second_verify_token` on those operations and validates against `TENANT_SENSITIVE_OPS_TOKEN`.
+
+## Data Masking
+- Default API responses that expose personal identifiers should support masked output.
+- Tenant org APIs now support masked output for invitation/member listing to hide email details and invitation tokens in read paths.
+
 ## Logging, Metrics and Alerts
 
 Every service writes structured logs and exposes Prometheus metrics. Extend `services/prometheusRule.yaml` with alert rules for latency, error rates and unusual traffic patterns. Review [monitoring.md](monitoring.md) for setup instructions.

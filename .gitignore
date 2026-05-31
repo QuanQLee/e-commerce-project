@@ -90,8 +90,15 @@ Desktop.ini
 
 # Docker
 docker-compose.override.yml
-.env
-.env.*.local
+
+# Runtime secrets and local-only state
+**/.env
+**/.env.local
+**/.env.*.local
+tmp-*
+*-cookie.txt
+start-test.txt
+.runlogs/
 
 # Media
 *.psd

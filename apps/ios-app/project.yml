@@ -1,0 +1,23 @@
+name: EcommerceMobile
+options:
+  minimumXcodeGenVersion: 2.38.0
+settings:
+  base:
+    SWIFT_VERSION: 5.10
+targets:
+  EcommerceMobile:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: EcommerceMobile
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ds.ecommerce.mobile
+        PRODUCT_NAME: DS Mobile
+        CODE_SIGN_STYLE: Automatic
+      configs:
+        Debug:
+          INFOPLIST_FILE: EcommerceMobile/Info.Debug.plist
+        Release:
+          INFOPLIST_FILE: EcommerceMobile/Info.plist

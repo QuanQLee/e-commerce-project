@@ -6,6 +6,7 @@ const strictRuntimeValidation =
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL || (nodeEnv === 'production' ? '' : 'http://localhost:9080')
 const apiKey = process.env.NEXT_PUBLIC_API_KEY || ''
+const tenantId = process.env.NEXT_PUBLIC_TENANT_ID || 'public'
 
 const missing: string[] = []
 if (strictRuntimeValidation && !apiBaseUrl) {
@@ -43,6 +44,7 @@ export const runtimeConfig = Object.freeze({
   nodeEnv,
   apiBaseUrl: apiBaseUrl || 'http://localhost:9080',
   apiKey,
+  tenantId,
 })
 
 export type RuntimeConfig = typeof runtimeConfig

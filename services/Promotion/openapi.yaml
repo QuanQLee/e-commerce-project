@@ -1,27 +1,18 @@
-﻿openapi: 3.1.0
+openapi: 3.1.0
 info:
   title: Promotion API
   version: v1
 paths:
   /coupons:
     post:
-      summary: Create a coupon
+      summary: Create or update coupon
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/Coupon'
+            schema: { $ref: '#/components/schemas/Coupon' }
       responses:
-        '200':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
+        '200': { description: Created }
     get:
       summary: List coupons
       responses:
@@ -31,28 +22,135 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/Coupon'
+                items: { $ref: '#/components/schemas/Coupon' }
+
+  /coupons/redeem:
+    post:
+      summary: Redeem coupon with risk control and idempotency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CouponRedeemRequest' }
+      responses:
+        '200': { description: Redeemed }
+
+  /promotions/full-reduction:
+    post:
+      summary: Create full reduction rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FullReductionRule' }
+      responses:
+        '200': { description: Created }
+
+  /promotions/tier-pricing:
+    post:
+      summary: Create product tier pricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TierPriceRule' }
+      responses:
+        '200': { description: Created }
+
+  /promotions/member-pricing:
+    post:
+      summary: Create product member pricing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MemberPriceRule' }
+      responses:
+        '200': { description: Created }
+
+  /promotions/quote:
+    post:
+      summary: Quote final payable amount using promotion strategies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PriceQuoteRequest' }
+      responses:
+        '200':
+          description: Quote result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PriceQuoteResponse' }
+
   /healthz:
     get:
       summary: Health check
       responses:
-        '200':
-          description: OK
+        '200': { description: OK }
+
 components:
   schemas:
     Coupon:
       type: object
+      required: [code, discount]
       properties:
-        code:
-          type: string
-        discount:
-          type: number
-      required:
-        - code
-        - discount
+        code: { type: string }
+        discount: { type: number }
 
+    CouponRedeemRequest:
+      type: object
+      required: [code, user_id, order_id]
+      properties:
+        code: { type: string }
+        user_id: { type: string }
+        order_id: { type: string }
+        idempotency_key: { type: string }
 
+    FullReductionRule:
+      type: object
+      required: [threshold, reduction]
+      properties:
+        threshold: { type: number }
+        reduction: { type: number }
 
+    TierPriceRule:
+      type: object
+      required: [product_id, tiers]
+      properties:
+        product_id: { type: string }
+        tiers:
+          type: array
+          items:
+            type: object
+            properties:
+              min_qty: { type: integer }
+              unit_price: { type: number }
 
+    MemberPriceRule:
+      type: object
+      required: [product_id, member_level, price]
+      properties:
+        product_id: { type: string }
+        member_level: { type: string }
+        price: { type: number }
 
+    PriceQuoteRequest:
+      type: object
+      required: [product_id, quantity, unit_price]
+      properties:
+        product_id: { type: string }
+        quantity: { type: integer }
+        unit_price: { type: number }
+        member_level: { type: string }
+
+    PriceQuoteResponse:
+      type: object
+      properties:
+        product_id: { type: string }
+        quantity: { type: integer }
+        tier_unit_price: { type: number }
+        member_unit_price: { type: number }
+        subtotal: { type: number }
+        full_reduction: { type: number }
+        payable: { type: number }

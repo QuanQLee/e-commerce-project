@@ -19,6 +19,7 @@
     </PackageReference>
     <!-- Align EF Core test provider with main project to avoid version conflicts -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.5" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Catalog.csproj" />

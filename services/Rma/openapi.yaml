@@ -1,17 +1,52 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: RMA API
   version: v1
 paths:
-  /returns/{id}:
+  /after-sales/cancel:
+    post:
+      summary: Cancel order in after-sales flow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOrderRequest'
+      responses:
+        '200':
+          description: Cancelled
+
+  /returns:
     post:
       summary: Create return request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReturnRequest'
+      responses:
+        '200':
+          description: Return created
+
+  /returns/{rma_id}:
+    get:
+      summary: Get return detail
       parameters:
         - in: path
-          name: id
+          name: rma_id
           required: true
-          schema:
-            type: string
+          schema: { type: string }
+      responses:
+        '200':
+          description: Return detail
+    post:
+      summary: Legacy create return by rma_id
+      parameters:
+        - in: path
+          name: rma_id
+          required: true
+          schema: { type: string }
       requestBody:
         required: true
         content:
@@ -21,26 +56,160 @@ paths:
       responses:
         '200':
           description: Created
-    get:
-      summary: Get return status
+
+  /returns/{rma_id}/decision:
+    post:
+      summary: Approve or reject return
       parameters:
         - in: path
-          name: id
+          name: rma_id
           required: true
-          schema:
-            type: string
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnDecisionRequest'
       responses:
         '200':
-          description: OK
+          description: Updated return
+
+  /returns/{rma_id}/reverse-logistics:
+    post:
+      summary: Submit reverse logistics tracking
+      parameters:
+        - in: path
+          name: rma_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReverseLogisticsRequest'
+      responses:
+        '200':
+          description: Updated return
+
+  /returns/{rma_id}/receive:
+    post:
+      summary: Mark reverse package as received
+      parameters:
+        - in: path
+          name: rma_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Updated return
+
+  /returns/{rma_id}/refund:
+    post:
+      summary: Refund return request (supports idempotency_key)
+      parameters:
+        - in: path
+          name: rma_id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+      responses:
+        '200':
+          description: Refunded
+
+  /tickets:
+    post:
+      summary: Create after-sales ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TicketCreateRequest'
+      responses:
+        '200':
+          description: Ticket created
+
+  /tickets/{ticket_id}:
+    get:
+      summary: Get ticket
+      parameters:
+        - in: path
+          name: ticket_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Ticket detail
+
+  /tickets/{ticket_id}/resolve:
+    post:
+      summary: Resolve ticket
+      parameters:
+        - in: path
+          name: ticket_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Ticket resolved
+
 components:
   schemas:
     ReturnRequest:
       type: object
+      required: [order_id, reason]
       properties:
-        order_id:
-          type: string
-        reason:
-          type: string
-      required:
-        - order_id
-        - reason
+        order_id: { type: string }
+        reason: { type: string }
+
+    CancelOrderRequest:
+      type: object
+      required: [order_id, reason]
+      properties:
+        order_id: { type: string }
+        reason: { type: string }
+
+    CreateReturnRequest:
+      type: object
+      required: [order_id, reason, refund_amount]
+      properties:
+        order_id: { type: string }
+        reason: { type: string }
+        refund_amount: { type: number }
+
+    ReturnDecisionRequest:
+      type: object
+      required: [approved]
+      properties:
+        approved: { type: boolean }
+        note: { type: string }
+
+    ReverseLogisticsRequest:
+      type: object
+      required: [tracking_no, carrier]
+      properties:
+        tracking_no: { type: string }
+        carrier: { type: string }
+
+    RefundRequest:
+      type: object
+      required: [amount, channel]
+      properties:
+        amount: { type: number }
+        channel: { type: string }
+        idempotency_key: { type: string }
+
+    TicketCreateRequest:
+      type: object
+      required: [order_id, subject, content]
+      properties:
+        order_id: { type: string }
+        subject: { type: string }
+        content: { type: string }

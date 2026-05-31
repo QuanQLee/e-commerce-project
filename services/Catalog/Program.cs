@@ -27,14 +27,21 @@ builder.Logging.AddJsonConsole(options =>
     options.IncludeScopes = true;
     options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
 });
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
 
-builder.Services.AddHttpLogging(logging =>
+var enableHttpLogging = (Environment.GetEnvironmentVariable("ENABLE_HTTP_LOGGING") ?? "false")
+    .Equals("true", StringComparison.OrdinalIgnoreCase);
+
+if (enableHttpLogging)
 {
-    logging.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
-                             HttpLoggingFields.ResponsePropertiesAndHeaders;
-    logging.RequestBodyLogLimit = 0;
-    logging.ResponseBodyLogLimit = 0;
-});
+    builder.Services.AddHttpLogging(logging =>
+    {
+        logging.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
+                                 HttpLoggingFields.ResponsePropertiesAndHeaders;
+        logging.RequestBodyLogLimit = 0;
+        logging.ResponseBodyLogLimit = 0;
+    });
+}
 
 builder.Services.AddOptions<CatalogOptions>()
     .Bind(builder.Configuration.GetSection(CatalogOptions.SectionName))
@@ -68,7 +75,17 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-builder.Services.AddDbContext<CatalogDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContextPool<CatalogDbContext>(options =>
+{
+    options.UseNpgsql(
+        connectionString,
+        npgsql => npgsql.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(2),
+            errorCodesToAdd: null));
+});
+builder.Services.AddSingleton<CategoryStore>();
+builder.Services.AddSingleton<ProductCenterStore>();
 
 builder.Services.AddCors(options =>
 {
@@ -104,6 +121,12 @@ builder.Services.AddOpenTelemetry()
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+    db.Database.Migrate();
+}
+
 if (builder.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -115,7 +138,10 @@ else
     app.UseSwaggerUI();
 }
 
-app.UseHttpLogging();
+if (enableHttpLogging)
+{
+    app.UseHttpLogging();
+}
 app.UseRouting();
 app.UseCors("default");
 app.UseAuthorization();
