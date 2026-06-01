@@ -19,7 +19,6 @@ The project is maintained as a practical reference implementation rather than a 
 
 - Licensed under the [MIT License](LICENSE).
 - Runtime `.env` files are ignored and removed from version control; use the checked-in `.env.example` files as templates.
-- Maintainer notes for the OpenAI Codex for Open Source application are available in [docs/openai-codex-oss-application.md](docs/openai-codex-oss-application.md).
 
 ## Quick Start
 
@@ -192,7 +191,6 @@ Each container installs dependencies and runs the suite for its service. See [do
 - [Mobile apps](docs/mobile-apps.md)
 - [Production readiness roadmap](docs/production-roadmap.md)
 - [Java backend migration](docs/java-backend-migration.md)
-- [OpenAI Codex for OSS application notes](docs/openai-codex-oss-application.md)
 
 ## License
 
