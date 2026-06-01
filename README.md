@@ -6,6 +6,8 @@ An open-source full-stack e-commerce project built for learning and practical re
 
 The project is maintained as a long-term open-source reference rather than a packaged library. Its goal is to help developers study how commerce domains, service boundaries, gateway routing, mobile clients, and production operations fit together in one repository.
 
+This repository is not intended to be a turnkey commercial product or a directly production-ready system. It is provided for learning, experimentation, and architectural reference. Any real commercial or production use should go through independent security review, reliability testing, compliance checks, and environment-specific hardening.
+
 ## Highlights
 
 - Multi-service commerce backend covering catalog, order, cart, user, shipping, payment, inventory, analytics, auth, tenant, promotion, RMA, and supporting domains.
