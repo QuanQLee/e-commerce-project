@@ -2,9 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-An open-source, cloud-native e-commerce reference platform for learning, validating, and operating a full-stack commerce system. The repository combines backend microservices, a Kong gateway, authentication, BFF aggregation, web frontends, native mobile clients, deployment scripts, observability, and production runbooks.
+An open-source full-stack e-commerce project built for learning and practical reference. It is a complete, usable system that combines backend microservices, a Kong gateway, authentication, BFF aggregation, web frontends, native mobile clients, deployment scripts, observability, and production runbooks.
 
-The project is maintained as a practical reference implementation rather than a packaged library. It is useful for developers who want to study how commerce domains, service boundaries, gateway routing, mobile clients, and production operations fit together in one repository.
+The project is maintained as a long-term open-source reference rather than a packaged library. Its goal is to help developers study how commerce domains, service boundaries, gateway routing, mobile clients, and production operations fit together in one repository.
 
 ## Highlights
 
